@@ -5,7 +5,7 @@ import awatch.model.Character;
 import lollipop.API;
 import lollipop.BotStatistics;
 import lollipop.Constant;
-import lollipop.Database;
+import lollipop.database.Database;
 import lollipop.commands.*;
 import lollipop.commands.Random;
 import lollipop.commands.search.*;

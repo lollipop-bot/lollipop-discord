@@ -16,6 +16,7 @@ import lollipop.commands.search.mangacomps.Chapters;
 import lollipop.commands.trivia.TGame;
 import lollipop.commands.trivia.Trivia;
 import awatch.model.Question;
+import lollipop.database.Database;
 import lollipop.pages.*;
 import mread.controller.RClient;
 import mread.controller.RListener;

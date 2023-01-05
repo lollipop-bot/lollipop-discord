@@ -1,22 +1,25 @@
 package lollipop.commands;
 
-import com.beust.ah.A;
 import lollipop.*;
+import lollipop.database.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
+import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
 public class Leaderboard implements Command {
+
+    public static HashSet<Long> leaderboardMessages = new HashSet<>();
 
     @Override
     public String[] getAliases() {
@@ -30,7 +33,7 @@ public class Leaderboard implements Command {
 
     @Override
     public String getHelp() {
-        return "Show top 10 lollipop users in the guild!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Display the current leaderboard of lollipop players!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override
@@ -58,30 +61,96 @@ public class Leaderboard implements Command {
         final List<String> args = options.stream().map(OptionMapping::getAsString).collect(Collectors.toList());
 
         if(args.get(0).equals("guild")) {
-            ArrayList<String> leaderboard = Database.getLeaderboard(event.getGuild());
-            String leaderboardText = String.join("\n\n", leaderboard);
-            int userRank = Database.getUserGuildRank(event.getUser().getId(), event.getGuild());
-            int userLollipops = Database.getUserBalance(event.getUser().getId());
-            EmbedBuilder builder = new EmbedBuilder()
-                    .setTitle(event.getGuild().getName() + "'s leaderboard")
-                    .setDescription("> **" + userRank + ".** " + event.getUser().getAsTag() + " (" + userLollipops + " \uD83C\uDF6D)")
-                    .addField(" ",leaderboardText, true)
+            User author = event.getUser();
+            String userId = author.getId();
+
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
+
+            List<Database.LBMember> memberList = Database.getLeaderboard(event.getGuild()).get(page - 1);
+            Database.LBMember cMember = new Database.LBMember(Database.getUserGuildRank(userId, event.getGuild()), author.getAsTag(), Database.getUserBalance(userId));
+
+            if(memberList.isEmpty()) {
+                event.reply("No members on the page").setEphemeral(true).queue();
+                return;
+            }
+
+            EmbedBuilder embed = new EmbedBuilder()
+                    .setTitle(event.getGuild().getName() + "'s Leaderboard")
+                    .setDescription("```" + getTable(memberList) + "```")
+                    .addField("Your Rank", "`" + cMember.getRank() + ". " + cMember.getName() + " : " + cMember.getLollipops() + "`", false)
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .setFooter("Vote for lollipop on top.gg to increase your multiplier!");
-            event.replyEmbeds(builder.build()).queue();
+
+            event.replyEmbeds(embed.build())
+                    .addActionRow(
+                            Button.primary(userId + ":previous", "Previous"),
+                            Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
+                            Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
+                            Button.primary(userId + ":next", "Next")
+                    ).queue(msg -> leaderboardMessages.add(msg.retrieveOriginal().complete().getIdLong()));
         } else if(args.get(0).equals("global")) {
-            ArrayList<String> leaderboard = Database.getLeaderboard(event.getJDA());
-            String leaderboardText = String.join("\n\n", leaderboard);
-            int userRank = Database.getUserGlobalRank(event.getUser().getId());
-            int userLollipops = Database.getUserBalance(event.getUser().getId());
-            EmbedBuilder builder = new EmbedBuilder()
-                    .setTitle("Global leaderboard")
-                    .setDescription("> **" + userRank + ".** " + event.getUser().getAsTag() + " (" + userLollipops + " \uD83C\uDF6D)")
-                    .addField(" ",leaderboardText, true)
+            User author = event.getUser();
+            String userId = author.getId();
+
+            int page = event.getOption("page", 1, OptionMapping::getAsInt);
+
+            List<Database.LBMember> memberList = Database.getLeaderboard(event.getJDA()).get(page - 1);
+            Database.LBMember cMember = new Database.LBMember(Database.getUserGlobalRank(userId), author.getAsTag(), Database.getUserBalance(userId));
+
+            if(memberList.isEmpty()) {
+                event.reply("No members on the page").setEphemeral(true).queue();
+                return;
+            }
+
+            EmbedBuilder embed = new EmbedBuilder()
+                    .setTitle("Global Leaderboard")
+                    .setDescription("```" + getTable(memberList) + "```")
+                    .addField("Your Rank", "`" + cMember.getRank() + ". " + cMember.getName() + " : " + cMember.getLollipops() + "`", false)
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .setFooter("Vote for lollipop on top.gg to increase your multiplier!");
-            event.replyEmbeds(builder.build()).queue();
+
+            event.replyEmbeds(embed.build())
+                    .addActionRow(
+                            Button.primary(userId + ":previous", "Previous"),
+                            Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
+                            Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
+                            Button.primary(userId + ":next", "Next")
+                    ).queue(msg -> leaderboardMessages.add(msg.retrieveOriginal().complete().getIdLong()));
         }
+    }
+
+    public static String getTable(List<Database.LBMember> memberList) {
+        StringBuilder table = new StringBuilder();
+        int nameSize = memberList.stream()
+                .mapToInt(it -> Math.min(it.getName().length(), 22))
+                .max()
+                .orElse(0);
+        int pointSize = memberList.stream()
+                .mapToInt(it -> String.valueOf(it.getLollipops()).length())
+                .max()
+                .orElse(0);
+
+        String rowFormat = "║%-" + (Math.max(4, String.valueOf(memberList.get(memberList.size() - 1).getRank()).length()) + 1) + "s" +
+                "║%-" + (Math.max(nameSize, 5) + 1) + "s" +
+                "║%-" + (Math.max(pointSize, 9) + 1) + "s║%n";
+        String divider = String.format(rowFormat, "", "", "", "").replaceAll(" ", "═");
+
+        table.append(String.format(rowFormat, "", "", "", "").replaceFirst("║", "╔")
+                .replaceFirst("║", "╦").replaceFirst("║", "╦")
+                .replaceFirst("║", "╗").replaceAll(" ", "═"));
+        table.append(String.format(rowFormat, "Rank ", "Name", "Lollipops"));
+        table.append(divider);
+
+        for (Database.LBMember member : memberList) {
+            String name = member.getName();
+            table.append(String.format(rowFormat, member.getRank() + ".", name.substring(0, Math.min(22, name.length())), member.getLollipops()));
+        }
+
+        table.append(String.format(rowFormat, "", "", "", "").replaceFirst("║", "╚")
+                .replaceFirst("║", "╩").replaceFirst("║", "╩")
+                .replaceFirst("║", "╝").replaceAll(" ", "═"));
+
+        return table.toString();
     }
 
 }

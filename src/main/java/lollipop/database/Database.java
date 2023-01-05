@@ -1,8 +1,9 @@
-package lollipop;
+package lollipop.database;
 
 
 import discorddb.DatabaseManager;
 import discorddb.DatabaseObject;
+import lollipop.Tools;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -15,6 +16,9 @@ import java.nio.file.FileAlreadyExistsException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 /**
  * Static database class to manage all of lollipop's databases
@@ -42,10 +46,10 @@ public class Database {
      */
     public static int getUserBalance(String id) {
         if(currency.getValue(id) == null) {
-            currency.addKey(id, "0");
+            currency.addKey(id, 0);
             return 0;
         }
-        return currency.getValueInt(id);
+        return currency.getIntegerValue(id);
     }
 
     /**
@@ -62,7 +66,7 @@ public class Database {
         }
         guildRank.sort(Collections.reverseOrder());
         ArrayList<Integer> globalRank = new ArrayList<>();
-        Collections.addAll(globalRank, currency.getValues().stream().mapToInt(Integer::parseInt).boxed().toArray(Integer[]::new));
+        Collections.addAll(globalRank, currency.getValues().stream().mapToInt(i -> (int) i).boxed().toArray(Integer[]::new));
         globalRank.sort(Collections.reverseOrder());
         int userLp = getUserBalance(id);
         return new int[]{guildRank.indexOf(userLp)+1, globalRank.indexOf(userLp)+1};
@@ -91,9 +95,11 @@ public class Database {
      * @return int array: 1st element = guild rank, 2nd element = global rank
      */
     public static int getUserGlobalRank(String id) {
-        ArrayList<Integer> globalRank = new ArrayList<>();
-        Collections.addAll(globalRank, currency.getValues().stream().mapToInt(Integer::parseInt).boxed().toArray(Integer[]::new));
-        globalRank.sort(Collections.reverseOrder());
+        ArrayList<Integer> globalRank = currency.getValues().stream()
+                .mapToInt(i -> Integer.parseInt(String.valueOf(i)))
+                .boxed()
+                .sorted(Collections.reverseOrder())
+                .collect(Collectors.toCollection(ArrayList::new));
         int userLp = getUserBalance(id);
         return globalRank.indexOf(userLp)+1;
     }
@@ -105,62 +111,58 @@ public class Database {
      */
     public static void addToUserBalance(String id, int increment) {
         int balance = getUserBalance(id) + increment;
-        currency.updateValue(id, String.valueOf(Math.max(0, balance)));
+        currency.updateValue(id, Math.max(0, balance));
     }
 
     /**
-     * Gets the top 10 ranked members in a guild
+     * Gets the top ranked members in a guild for lollipops
      * @param guild mentioned guild
-     * @return arraylist of String for leaderboard text
+     * @return arraylist of {@link LBMember} for the leaderboard
      */
-    public static ArrayList<String> getLeaderboard(Guild guild) {
-        ArrayList<String> result = new ArrayList<>();
+    public static List<List<LBMember>> getLeaderboard(Guild guild) {
+        ArrayList<LBMember> result = new ArrayList<>();
         HashMap<String, Integer> userToLollipops = new HashMap<>();
         for(Member member : guild.getMembers()) userToLollipops.put(member.getId(), getUserBalance(member.getId()));
         userToLollipops = Tools.sortByValue(userToLollipops);
-        int rank = 1;
+        LeaderboardResult.LBMember cMember;
+        int rank = 0;
         for(String id : userToLollipops.keySet()) {
-            if(rank == 11) break;
-            User user = guild.getJDA().getShardManager().getUserById(id);
-            if(user == null || user.isBot()) continue;
-            if(rank == 1)
-                result.add("\uD83E\uDD47 " + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            else if(rank == 2)
-                result.add("\uD83E\uDD48 " + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            else if(rank == 3)
-                result.add("\uD83E\uDD49 " + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            else
-                result.add("\uD83C\uDF96️" + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            rank++;
+            Member member = guild.getMemberById(id);
+            if(member == null || member.getUser().isBot()) continue;
+            result.add(new LBMember(++rank, member.getEffectiveName(), userToLollipops.get(id)));
         }
-        return result;
+        return IntStream.range(0, result.size())
+                .boxed()
+                .collect(Collectors.groupingBy(i -> i / 10))
+                .values()
+                .stream()
+                .map(indices -> indices.stream().map(result::get).collect(Collectors.toList()))
+                .collect(Collectors.toList());
     }
 
     /**
-     * Gets the top 10 ranked members globally
-     * @return arraylist of String for leaderboard text
+     * Gets the top ranked members for lollipops globally
+     * @param jda current jda instance
+     * @return arraylist of {@link LBMember} for the leaderboard
      */
-    public static ArrayList<String> getLeaderboard(JDA jda) {
-        ArrayList<String> result = new ArrayList<>();
+    public static List<List<LBMember>> getLeaderboard(JDA jda) {
+        ArrayList<LBMember> result = new ArrayList<>();
         HashMap<String, Integer> userToLollipops = new HashMap<>();
         for(String id : currency.getKeys()) userToLollipops.put(id, getUserBalance(id));
         userToLollipops = Tools.sortByValue(userToLollipops);
-        int rank = 1;
+        int rank = 0;
         for(String id : userToLollipops.keySet()) {
-            if(rank == 11) break;
             User user = jda.getShardManager().getUserById(id);
             if(user == null || user.isBot()) continue;
-            if(rank == 1)
-                result.add("\uD83E\uDD47 " + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            else if(rank == 2)
-                result.add("\uD83E\uDD48 " + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            else if(rank == 3)
-                result.add("\uD83E\uDD49 " + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            else
-                result.add("\uD83C\uDF96️" + user.getAsTag() + " (" + userToLollipops.get(id) + " \uD83C\uDF6D)");
-            rank++;
+            result.add(new LBMember(++rank, user.getAsTag(), userToLollipops.get(id)));
         }
-        return result;
+        return IntStream.range(0, result.size())
+                .boxed()
+                .collect(Collectors.groupingBy(i -> i / 10))
+                .values()
+                .stream()
+                .map(indices -> indices.stream().map(result::get).collect(Collectors.toList()))
+                .collect(Collectors.toList());
     }
 
     /**
@@ -169,6 +171,35 @@ public class Database {
      */
     public static int getCurrencyUserCount() {
         return currency.getKeys().size();
+    }
+
+    /**
+     * Static class for Leaderboard Member Statistics
+     */
+    public static class LBMember {
+
+        private final int rank;
+        private final String name;
+        private final int lollipops;
+
+        public LBMember(int rank, String name, int lollipops) {
+            this.rank = rank;
+            this.name = name;
+            this.lollipops = lollipops;
+        }
+
+        public int getRank() {
+            return rank;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public int getLollipops() {
+            return lollipops;
+        }
+
     }
 
 }

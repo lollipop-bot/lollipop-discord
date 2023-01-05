@@ -7,6 +7,7 @@ import lollipop.commands.duel.Move;
 import lollipop.commands.Eval;
 import lollipop.commands.search.Search;
 import lollipop.commands.trivia.Trivia;
+import lollipop.database.Database;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;

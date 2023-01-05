@@ -1,6 +1,8 @@
 package lollipop;
 
+import lollipop.database.Database;
 import lollipop.listeners.DuelsListener;
+import lollipop.listeners.LeaderboardListener;
 import lollipop.listeners.LollipopReaction;
 import lollipop.listeners.PageListener;
 import net.dv8tion.jda.api.JDABuilder;
@@ -41,6 +43,7 @@ public class Main {
                 .addEventListeners(new Listener())
                 .addEventListeners(new DuelsListener())
                 .addEventListeners(new PageListener())
+                .addEventListeners(new LeaderboardListener())
                 .addEventListeners(new LollipopReaction())
                 .addEventListeners(new BotStatistics());
         ShardManager bot = lollipop.build();
@@ -54,6 +57,7 @@ public class Main {
                 .addEventListeners(new Listener())
                 .addEventListeners(new DuelsListener())
                 .addEventListeners(new PageListener())
+                .addEventListeners(new LeaderboardListener())
                 .addEventListeners(new LollipopReaction());
         //JDA test = testClient.build();
 
