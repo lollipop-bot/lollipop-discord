@@ -31,19 +31,21 @@ public class ThreadManagement {
     }
 
     /**
-     * Setup a cache refresh cycle which refreshes the cache every day so the new animes and new information reaches as soon as possible
+     * Set up a cache refresh cycle which refreshes the cache every day so the new animes and new information reaches as soon as possible
      */
     public static void setupCacheRefresh() {
         Runnable apiRefresh = () -> {
             ALoader.animeCache.clear();
+            ALoader.animeNSFWCache.clear();
             ALoader.characterCache.clear();
+            ALoader.userCache.clear();
             RLoader.mangaCache.clear();
         };
-        scheduler.scheduleWithFixedDelay(apiRefresh, 1, 1, TimeUnit.DAYS);
+        scheduler.scheduleWithFixedDelay(apiRefresh, 6, 6, TimeUnit.HOURS);
     }
 
     /**
-     * Setup a statistics refresh cycle to reset the statistics on the bot list websites
+     * Set up a statistics refresh cycle to reset the statistics on the bot list websites
      */
     public static void setupStatisticsCycle() {
         Runnable statsRefresh = BotStatistics::setStatistics;

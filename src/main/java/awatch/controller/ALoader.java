@@ -21,7 +21,10 @@ public class ALoader {
 
     // Anime Cache
     public static HashMap<String, ArrayList<Anime>> animeCache = new HashMap<>();
+    public static HashMap<String, ArrayList<Anime>> animeNSFWCache = new HashMap<>();
     public static HashMap<String, ArrayList<Character>> characterCache = new HashMap<>();
+    public static HashMap<String, User> userCache = new HashMap<>();
+
 
     /**
      * Load Animes from a certain search query
@@ -31,7 +34,8 @@ public class ALoader {
      * @throws IOException for BufferedReader
      */
     public static ArrayList<Anime> loadAnime(String query, boolean nsfw) throws IOException {
-        if(animeCache.containsKey(query)) return animeCache.get(query);
+        if(!nsfw && animeCache.containsKey(query)) return animeCache.get(query);
+        else if(animeNSFWCache.containsKey(query)) return animeNSFWCache.get(query);
         String extension = !nsfw ? "&sfw=true" : "";
         URL web = new URL(AConstants.v4API+"/anime?q=" + query.replaceAll(" ", "%20") + extension);
         HttpsURLConnection con = configureConnection(web);
@@ -48,7 +52,8 @@ public class ALoader {
             anime.parseData(result);
             animes.add(anime);
         }
-        animeCache.put(query, animes);
+        if(!nsfw) animeCache.put(query, animes);
+        else animeNSFWCache.put(query, animes);
         return animes;
     }
 
@@ -59,6 +64,7 @@ public class ALoader {
      * @throws IOException for BufferedReader
      */
     public static ArrayList<Character> loadCharacter(String query) throws IOException {
+        if(characterCache.containsKey(query)) return characterCache.get(query);
         URL web = new URL(AConstants.v4API+"/characters?q=" + query.replaceAll(" ", "%20"));
         HttpsURLConnection con = configureConnection(web);
         BufferedReader bf = new BufferedReader(new InputStreamReader(con.getInputStream()));
@@ -74,6 +80,7 @@ public class ALoader {
             character.parseData(result);
             characters.add(character);
         }
+        characterCache.put(query, characters);
         return characters;
     }
 
@@ -84,6 +91,7 @@ public class ALoader {
      * @throws IOException for BufferedReader
      */
     public static User loadSearchUser(String query) throws IOException {
+        if(userCache.containsKey(query)) userCache.get(query);
         URL web = new URL(AConstants.v4API + "/users/" + query + "/full");
         HttpsURLConnection con = (HttpsURLConnection) web.openConnection();
         con.setRequestMethod("GET");
@@ -95,6 +103,7 @@ public class ALoader {
         DataObject data = DataObject.fromJson(bf.readLine());
         User user = new User();
         user.parseData(data.getObject("data"));
+        userCache.put(query, user);
         return user;
     }
 
