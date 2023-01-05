@@ -152,6 +152,21 @@ public class DuelsListener extends ListenerAdapter {
                 if(game.playerNotTurn.strengthGain < -5) game.playerNotTurn.strengthGain = -5;
                 move = "yare yare daze...\nORA! " + game.playerTurn.member.getAsMention() + " did `" + damage + " HP` damage and made the opponent weaker! Their attacks will do less damage..";
             }
+            else if(event.getButton().getId().startsWith("mob100")) {
+                game.playerTurn.strengthGain += (int)(Math.random()*5)+6;
+                move = game.playerTurn.member.getAsMention() + " lost control of their emotions and became much stronger! They're attacks will do more damage..";
+            }
+            else if(event.getButton().getId().startsWith("usasmash")) {
+                if(game.playerNotTurn.isDefending) {
+                    String name = game.playerNotTurn.member != null ? game.playerNotTurn.member.getAsMention() : "`Computer`";
+                    move = name + " blocked " + game.playerTurn.member.getAsMention() + "'s USA Smash!";
+                    game.playerNotTurn.isDefending = false;
+                } else {
+                    int damage = (int)(Math.random()*6)+16 + game.playerTurn.strengthGain;
+                    game.playerNotTurn.HP -= damage;
+                    move = "Go Beyond Plus Ultra!\n" + game.playerTurn.member.getAsMention() + " hit their opponent with a USA Smash and did `" + damage + " HP` damage!";
+                }
+            }
 
             game.timeout.cancel(false);
             if(game.playerNotTurn.isTimedOut()) {
@@ -184,8 +199,8 @@ public class DuelsListener extends ListenerAdapter {
                     game.playerTurn.isZaWarudo = false;
                     game.switchTurns();
                     int x = (int)(Math.random()*3);
-                    int y = x + (int)(Math.random()*3)+1;
-                    int z = y + (int)(Math.random()*9)+1;
+                    int y = x + (int)(Math.random()*4)+1;
+                    int z = y + (int)(Math.random()*10)+1;
 
                     game.lastDisplay.get(1).editMessageEmbeds(new EmbedBuilder()
                             .setAuthor(game.playerTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", game.playerTurn.member.getEffectiveAvatarUrl())

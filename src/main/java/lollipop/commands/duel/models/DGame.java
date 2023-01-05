@@ -2,7 +2,7 @@ package lollipop.commands.duel.models;
 
 import lollipop.BotStatistics;
 import lollipop.Constant;
-import lollipop.Database;
+import lollipop.database.Database;
 import lollipop.commands.duel.Duel;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.*;
@@ -41,6 +41,8 @@ public class DGame {
             Button.primary("hinokami", "hinokami"),
             Button.primary("rasengan", "rasengan"),
             Button.primary("ora", "ora"),
+            Button.primary("usasmash", "usa smash"),
+            Button.primary("mob100", "mob 100%"),
             Button.primary("seriouspunch", "serious punch"),
             Button.primary("zawarudo", "za warudo"),
             Button.primary("yare", "yare yare daze")
@@ -63,6 +65,8 @@ public class DGame {
         gifMap.put("hinokami", "https://c.tenor.com/LUAKGZSLoD8AAAAd/demon-slayer-tanjiro.gif");
         gifMap.put("rasengan", "https://c.tenor.com/_zEr-rdppKMAAAAC/minato-naruto.gif");
         gifMap.put("ora", "https://c.tenor.com/LytxJSf81m4AAAAC/ora-beatdown-oraoraora.gif");
+        gifMap.put("usasmash", "https://media.tenor.com/ZRDPXCwLXcIAAAAd/all-might-my-hero-academia.gif");
+        gifMap.put("mob100", "https://media.tenor.com/8cNey0yg9xsAAAAC/mob-100.gif");
         gifMap.put("seriouspunch", "https://c.tenor.com/vlsvbgqYz5QAAAAd/carnage-kabuto-saitama.gif");
         gifMap.put("zawarudo", "https://c.tenor.com/ETlOjJ8aU7EAAAAC/za-warudo-jojo-bizarre-adventure.gif");
         gifMap.put("yare", "https://c.tenor.com/Wtn31Gl1CpYAAAAC/jotaro-ora.gif");
@@ -89,13 +93,15 @@ public class DGame {
         if(name.equalsIgnoreCase("headbutt")) return "**Headbutt your opponent like Tanjiro!**\n(Does `5-10 HP` damage to the opponent by default)\n> `Type`: Regular Attack\n> `Blockable`: True";
         if(name.equalsIgnoreCase("chop")) return "**Chop your opponent with a knifehand!**\n(Does `5-10 HP` damage to the opponent by default)\n> `Type`: Regular Attack\n> `Blockable`: True";
         if(name.equalsIgnoreCase("eat")) return "**Eat some food to regenerate your health!**\n(Regenerates your health by `20-30 HP`)\n> `Type`: Regenerate\n> `Blockable`: False";
-        if(name.equalsIgnoreCase("breathe")) return "**Take in a deep breath and become stronger!**\n(Increases your attack strength by `3-5 HP`)\n> `Type`: Strength Gain\n> `Blockable`: False";
+        if(name.equalsIgnoreCase("breathe")) return "**Take in a deep breath and become stronger!**\n(`3-5 HP` strength boost)\n> `Type`: Strength Gain\n> `Blockable`: False";
         if(name.equalsIgnoreCase("shield")) return "**Use a shield to cover yourself!**\n(Lasts until the opponent uses a blockable move)\n> `Type`: Defense\n> `Blockable`: False";
         if(name.equalsIgnoreCase("block")) return "**Dodge the opponent's next attack!**\n(Lasts until the opponent uses a blockable move)\n> `Type`: Defense\n> `Blockable`: False";
-        if(name.equalsIgnoreCase("4th gear") || name.equalsIgnoreCase("4thgear")) return "**Bounce your opponent back to hell...**\n(Does `13-18 HP` to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
-        if(name.equalsIgnoreCase("hinokami")) return "**Slice your opponent's head off**\n(Does `13-18 HP` to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
-        if(name.equalsIgnoreCase("rasengan")) return "**Blast your opponents with some chakra!**\n(Does `14-19 HP` to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
-        if(name.equalsIgnoreCase("ora")) return "**Pound your opponents with multiple powerful shots in a very short amount of time!**\n(Does `15-20 HP` to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
+        if(name.equalsIgnoreCase("4th gear") || name.equalsIgnoreCase("4thgear")) return "**Bounce your opponent back to hell...**\n(Does `13-18 HP` damage to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
+        if(name.equalsIgnoreCase("hinokami")) return "**Slice your opponent's head off**\n(Does `13-18 HP` damage to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
+        if(name.equalsIgnoreCase("rasengan")) return "**Blast your opponents with some chakra!**\n(Does `14-19 HP` damage to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
+        if(name.equalsIgnoreCase("ora")) return "**Pound your opponents with multiple powerful shots in a very short amount of time!**\n(Does `15-20 HP` damage to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
+        if(name.equalsIgnoreCase("usasmash") || name.equalsIgnoreCase("usa smash")) return "**Go beyond plus ultra with a hard punch!**\n(Does `16-21 HP` to the opponent by default)\n> `Type`: Ultimate\n> `Blockable`: True";
+        if(name.equalsIgnoreCase("mob 100%") || name.equalsIgnoreCase("mob100")) return "**Lose control of your emotions and increase your strength!**\n(`6-10 HP` strength boost)\n> `Type`: Ultimate\n> `Blockable`: False";
         if(name.equalsIgnoreCase("serious punch") || name.equalsIgnoreCase("seriouspunch")) return "**Punch your opponent... *seriously*!**\n(Does `40-50 HP` to the opponent by default but does 20-30 HP when the opponent is blocking (not inclusive of strength gain))\n> `Type`: Ultimate\n> `Blockable`: False";
         if(name.equalsIgnoreCase("za warudo") || name.equalsIgnoreCase("zawarudo") || name.equalsIgnoreCase("the world")) return "**Freeze your opponent in time!**\n(This freezes the opponent for `5 seconds` allowing for the attacker to use as many moves as they can in 5 seconds!)\n> `Type`: Ultimate\n> `Blockable`: False";
         if(name.equalsIgnoreCase("yare yare daze") || name.equalsIgnoreCase("yare") || name.equalsIgnoreCase("yareyaredaze")) return "**yare yare daze**\n(Say *yare yare daze*, pound your opponent with an ora and make them weaker. Their attacks will `5-15 HP` weaker and take `15-20 HP` damage by default)\n> `Type`: Ultimate\n> `Blockable`: False";
@@ -132,8 +138,8 @@ public class DGame {
                             .setAuthor("Computer", "https://github.com/BooleanCube/lollipop-bot", "https://www.pngkey.com/png/full/0-8970_open-my-computer-icon-circle.png");
                     lastDisplay.add(event.replyEmbeds(e.build()).complete().retrieveOriginal().complete());
                     int x = (int)(Math.random()*3);
-                    int y = x + (int)(Math.random()*3)+1;
-                    int z = y + (int)(Math.random()*9)+1;
+                    int y = x + (int)(Math.random()*4)+1;
+                    int z = y + (int)(Math.random()*10)+1;
                     lastDisplay.add(c.sendMessageEmbeds(new EmbedBuilder()
                             .setAuthor(playerTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", playerTurn.member.getEffectiveAvatarUrl())
                             .setDescription("What is your move?")
@@ -176,8 +182,8 @@ public class DGame {
         }
         if(playerNotTurn.member != null && !playerNotTurn.isTimedOut()) {
             int x = (int)(Math.random()*3);
-            int y = x + (int)(Math.random()*3)+1;
-            int z = y + (int)(Math.random()*9)+1;
+            int y = x + (int)(Math.random()*4)+1;
+            int z = y + (int)(Math.random()*10)+1;
             lastDisplay.add(c.sendMessageEmbeds(new EmbedBuilder()
                     .setAuthor(playerNotTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", playerNotTurn.member.getEffectiveAvatarUrl())
                     .setDescription("What is your move?")
@@ -223,8 +229,8 @@ public class DGame {
                             .setAuthor("Computer", "https://github.com/BooleanCube/lollipop-bot", "https://www.pngkey.com/png/full/0-8970_open-my-computer-icon-circle.png");
                     lastDisplay.add(event.replyEmbeds(e.build()).complete().retrieveOriginal().complete());
                     int x = (int)(Math.random()*3);
-                    int y = x + (int)(Math.random()*3)+1;
-                    int z = y + (int)(Math.random()*9)+1;
+                    int y = x + (int)(Math.random()*4)+1;
+                    int z = y + (int)(Math.random()*10)+1;
                     lastDisplay.add(c.sendMessageEmbeds(new EmbedBuilder()
                             .setAuthor(playerTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", playerTurn.member.getEffectiveAvatarUrl())
                             .setDescription("What is your move?")
@@ -267,8 +273,8 @@ public class DGame {
         }
         if(playerNotTurn.member != null && !playerNotTurn.isTimedOut()) {
             int x = (int)(Math.random()*3);
-            int y = x + (int)(Math.random()*3)+1;
-            int z = y + (int)(Math.random()*9)+1;
+            int y = x + (int)(Math.random()*4)+1;
+            int z = y + (int)(Math.random()*10)+1;
             lastDisplay.add(c.sendMessageEmbeds(new EmbedBuilder()
                     .setAuthor(playerNotTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", playerNotTurn.member.getEffectiveAvatarUrl())
                     .setDescription("What is your move?")
@@ -319,8 +325,8 @@ public class DGame {
                             .setAuthor("Computer", "https://github.com/BooleanCube/lollipop-bot", "https://www.pngkey.com/png/full/0-8970_open-my-computer-icon-circle.png");
                     lastDisplay.get(0).editMessageEmbeds(e.build()).queue();
                     int x = (int)(Math.random()*3);
-                    int y = x + (int)(Math.random()*3)+1;
-                    int z = y + (int)(Math.random()*9)+1;
+                    int y = x + (int)(Math.random()*4)+1;
+                    int z = y + (int)(Math.random()*10)+1;
                     lastDisplay.get(1).editMessageEmbeds(new EmbedBuilder()
                             .setAuthor(playerNotTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", playerNotTurn.member.getEffectiveAvatarUrl())
                             .setDescription("What is your move?")
@@ -369,8 +375,8 @@ public class DGame {
         }
         if(playerTurn.isTimedOut()) {
             int x = (int)(Math.random()*3);
-            int y = x + (int)(Math.random()*3)+1;
-            int z = y + (int)(Math.random()*9)+1;
+            int y = x + (int)(Math.random()*4)+1;
+            int z = y + (int)(Math.random()*10)+1;
             if(lastDisplay.size() >= 2) {
                 lastDisplay.get(1).editMessageEmbeds(new EmbedBuilder()
                         .setAuthor(playerNotTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", playerNotTurn.member.getEffectiveAvatarUrl())
@@ -393,8 +399,8 @@ public class DGame {
         }
         else if(playerNotTurn.member != null && !playerNotTurn.isTimedOut()) {
             int x = (int)(Math.random()*3);
-            int y = x + (int)(Math.random()*3)+1;
-            int z = y + (int)(Math.random()*9)+1;
+            int y = x + (int)(Math.random()*4)+1;
+            int z = y + (int)(Math.random()*10)+1;
             if(lastDisplay.size() >= 2) {
                 lastDisplay.get(1).editMessageEmbeds(new EmbedBuilder()
                         .setAuthor(playerNotTurn.member.getEffectiveName() + "'s turn", "https://github.com/BooleanCube/lollipop-bot", playerNotTurn.member.getEffectiveAvatarUrl())
@@ -436,7 +442,7 @@ public class DGame {
     }
 
     /**
-     * Deletes all of the display messages except the final display message
+     * Deletes all the display messages except the final display message
      * (unused since we're editing the messages instead now)
      */
     public void deleteDisplayMessages() {
@@ -455,8 +461,8 @@ public class DGame {
     public String AIMove(Player h, Player o) {
 
         int x = (int)(Math.random()*3);
-        int y = x + (int)(Math.random()*3)+1;
-        int z = y + (int)(Math.random()*9)+1;
+        int y = x + (int)(Math.random()*4)+1;
+        int z = y + (int)(Math.random()*10)+1;
 
         String first = moveButtons[x].getId();
         String second = moveButtons[y].getId();
@@ -529,6 +535,9 @@ public class DGame {
                 playerNotTurn.HP -= damage;
                 return "RASENGAN!\n`Computer` hit their opponent with a rasengan and did `" + damage + " HP` damage!";
             }
+        } else if(move.startsWith("mob100")) {
+            playerTurn.strengthGain += (int)(Math.random()*5)+6;
+            return "`Computer` lost control of their emotions and became much stronger! Their attacks will do more damage..\n";
         } else if(move.startsWith("4thgear")) {
             if(playerNotTurn.isDefending) {
                 String name = playerNotTurn.member != null ? playerNotTurn.member.getAsMention() : "`Computer`";
@@ -560,6 +569,16 @@ public class DGame {
             playerNotTurn.timeoutDuration = Math.random()+5;
             playerTurn.isZaWarudo = true;
             return "ZA WARUDO!\n`Computer` stopped time. Their opponent is frozen for `5 seconds`.";
+        } else if(move.startsWith("usasmash")) {
+            if(playerNotTurn.isDefending) {
+                String name = playerNotTurn.member != null ? playerNotTurn.member.getAsMention() : "`Computer`";
+                playerNotTurn.isDefending = false;
+                return name + " blocked `Computer`'s USA Smash!";
+            } else {
+                int damage = (int)(Math.random()*6)+16+playerTurn.strengthGain;
+                playerNotTurn.HP -= damage;
+                return "Go Beyond Plus Ultra!\n`Computer` hit their opponent with a USA Smash and did `" + damage + " HP` damage!";
+            }
         }
         // Duel closes if anything above doesn't work for some reason
         Duel.memberToGame.remove(homePlayer.member.getIdLong());
