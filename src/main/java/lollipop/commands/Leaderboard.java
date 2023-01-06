@@ -81,13 +81,15 @@ public class Leaderboard implements Command {
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .setFooter("Vote for lollipop on top.gg to increase your multiplier!");
 
-            event.replyEmbeds(embed.build())
-                    .addActionRow(
-                            Button.primary(userId + ":previous", "Previous"),
-                            Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
-                            Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
-                            Button.primary(userId + ":next", "Next")
-                    ).queue(msg -> leaderboardMessages.add(msg.retrieveOriginal().complete().getIdLong()));
+            leaderboardMessages.add(
+                    event.replyEmbeds(embed.build())
+                            .addActionRow(
+                                    Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
+                                    Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
+                                    Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
+                                    Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
+                            ).complete().retrieveOriginal().complete().getIdLong()
+            );
         } else if(args.get(0).equals("global")) {
             User author = event.getUser();
             String userId = author.getId();
@@ -109,13 +111,15 @@ public class Leaderboard implements Command {
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .setFooter("Vote for lollipop on top.gg to increase your multiplier!");
 
-            event.replyEmbeds(embed.build())
-                    .addActionRow(
-                            Button.primary(userId + ":previous", "Previous"),
-                            Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
-                            Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
-                            Button.primary(userId + ":next", "Next")
-                    ).queue(msg -> leaderboardMessages.add(msg.retrieveOriginal().complete().getIdLong()));
+            leaderboardMessages.add(
+                    event.replyEmbeds(embed.build())
+                            .addActionRow(
+                                    Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
+                                    Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
+                                    Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
+                                    Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
+                            ).complete().retrieveOriginal().complete().getIdLong()
+            );
         }
     }
 

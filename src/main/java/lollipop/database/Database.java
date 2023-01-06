@@ -13,10 +13,7 @@ import javax.naming.LimitExceededException;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -65,9 +62,11 @@ public class Database {
             guildRank.add(lp);
         }
         guildRank.sort(Collections.reverseOrder());
-        ArrayList<Integer> globalRank = new ArrayList<>();
-        Collections.addAll(globalRank, currency.getValues().stream().mapToInt(i -> (int) i).boxed().toArray(Integer[]::new));
-        globalRank.sort(Collections.reverseOrder());
+        ArrayList<Integer> globalRank = currency.getValues().stream()
+                .mapToInt(i -> Integer.parseInt(String.valueOf(i)))
+                .boxed()
+                .sorted(Collections.reverseOrder())
+                .collect(Collectors.toCollection(ArrayList::new));
         int userLp = getUserBalance(id);
         return new int[]{guildRank.indexOf(userLp)+1, globalRank.indexOf(userLp)+1};
     }

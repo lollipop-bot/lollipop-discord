@@ -21,8 +21,7 @@ public class LeaderboardListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if (!event.isFromGuild()) return;
-        if(!Leaderboard.leaderboardMessages.contains(event.getIdLong())) return;
-        Leaderboard.leaderboardMessages.remove(event.getIdLong());
+        if(!Leaderboard.leaderboardMessages.contains(event.getMessageIdLong())) return;
 
         String[] id = event.getComponentId().split(":");
 
@@ -41,10 +40,12 @@ public class LeaderboardListener extends ListenerAdapter {
         switch (id[1]) {
             case "delete" -> {
                 message.delete().queue();
+                Leaderboard.leaderboardMessages.remove(event.getMessageIdLong());
                 event.deferEdit().queue();
             }
             case "done" -> {
                 final Button[] disabledButton = message.getButtons().stream().map(Button::asDisabled).toArray(Button[]::new);
+                Leaderboard.leaderboardMessages.remove(event.getMessageIdLong());
                 event.deferEdit().setActionRow(disabledButton).queue();
             }
             case "previous" -> {
@@ -87,10 +88,10 @@ public class LeaderboardListener extends ListenerAdapter {
 
         msg.editMessageEmbeds(embed.build()).queue();
         msg.editMessageComponents(ActionRow.of(
-                Button.primary(userId + ":previous", "Previous"),
+                Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
                 Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
                 Button.danger(userId + ":delete:" + msg.getId(), Emoji.fromUnicode("\uD83D\uDDD1")),
-                Button.primary(userId + ":next", "Next")
+                Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
         )).queue();
     }
 
@@ -117,10 +118,10 @@ public class LeaderboardListener extends ListenerAdapter {
 
         msg.editMessageEmbeds(embed.build()).queue();
         msg.editMessageComponents(ActionRow.of(
-                Button.primary(userId + ":previous", "Previous"),
+                Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
                 Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
                 Button.danger(userId + ":delete:" + msg.getId(), Emoji.fromUnicode("\uD83D\uDDD1")),
-                Button.primary(userId + ":next", "Next")
+                Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
         )).queue();
     }
 

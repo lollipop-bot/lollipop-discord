@@ -187,6 +187,7 @@ public class DuelsListener extends ListenerAdapter {
                 game.setupTimeout(event.getChannel());
             } else if(game.playerTurn.member == null) {
                 // ZA WARUDO AI
+                if(game.checkWin(event.getChannel())) return;
                 String moveId = game.AIMove(game.playerTurn, game.playerNotTurn);
                 String gif = DGame.gifMap.get(moveId);
                 StringBuilder aiMove = new StringBuilder("> " + game.getMoveString(moveId) + "\n\n");
