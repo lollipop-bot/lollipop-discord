@@ -13,7 +13,7 @@ public class LollipopReaction extends ListenerAdapter {
 
     /**
      * Triggered when a message is sent
-     * @param event
+     * @param event message recieved event
      */
     @Override
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {

@@ -20,7 +20,7 @@ import java.util.List;
 public class LeaderboardListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
-        if (!event.isFromGuild()) return;
+        if(!event.isFromGuild()) return;
         if(!Leaderboard.leaderboardMessages.contains(event.getMessageIdLong())) return;
 
         String[] id = event.getComponentId().split(":");

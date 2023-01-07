@@ -14,7 +14,7 @@ import lollipop.commands.search.charactercomps.Animes;
 import lollipop.commands.search.charactercomps.Mangas;
 import lollipop.commands.search.charactercomps.VoiceActors;
 import lollipop.commands.search.mangacomps.Chapters;
-import lollipop.commands.trivia.TGame;
+import lollipop.commands.trivia.models.TGame;
 import lollipop.commands.trivia.Trivia;
 import lollipop.pages.*;
 import mread.model.Chapter;
@@ -50,7 +50,9 @@ public class PageListener extends ListenerAdapter {
      */
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
+        if(!event.isFromGuild()) return;
         if(Objects.requireNonNull(event.getUser()).isBot()) return;
+
         long id = event.getMessageIdLong();
         if(News.messageToPage.containsKey(id)) {
             Newspaper page = News.messageToPage.get(id);

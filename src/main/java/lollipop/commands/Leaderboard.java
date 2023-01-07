@@ -4,8 +4,11 @@ import lollipop.*;
 import lollipop.database.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
@@ -15,6 +18,7 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 import java.awt.*;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Leaderboard implements Command {
@@ -58,7 +62,7 @@ public class Leaderboard implements Command {
         }
 
         final java.util.List<OptionMapping> options = event.getOptions();
-        final List<String> args = options.stream().map(OptionMapping::getAsString).collect(Collectors.toList());
+        final List<String> args = options.stream().map(OptionMapping::getAsString).toList();
 
         if(args.get(0).equals("guild")) {
             User author = event.getUser();
@@ -111,15 +115,20 @@ public class Leaderboard implements Command {
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .setFooter("Vote for lollipop on top.gg to increase your multiplier!");
 
-            leaderboardMessages.add(
-                    event.replyEmbeds(embed.build())
-                            .addActionRow(
-                                    Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
-                                    Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
-                                    Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
-                                    Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
-                            ).complete().retrieveOriginal().complete().getIdLong()
-            );
+            InteractionHook message = event.replyEmbeds(embed.build())
+                    .addActionRow(
+                            Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
+                            Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
+                            Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
+                            Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
+                    ).complete();
+            message.editOriginalComponents().setActionRow(
+                    Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")).asDisabled(),
+                    Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")).asDisabled(),
+                    Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")).asDisabled(),
+                    Button.secondary(userId + ":next", Emoji.fromUnicode("➡️")).asDisabled()
+            ).queueAfter(3, TimeUnit.MINUTES);
+            leaderboardMessages.add(message.retrieveOriginal().complete().getIdLong());
         }
     }
 
