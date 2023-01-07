@@ -1,4 +1,4 @@
-package lollipop.commands.trivia;
+package lollipop.commands.trivia.models;
 
 import awatch.model.Question;
 import net.dv8tion.jda.api.entities.User;
