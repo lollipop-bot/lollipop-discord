@@ -1,10 +1,10 @@
 package lollipop.commands.duel;
 
-import lollipop.CommandType;
-import lollipop.Constant;
-import lollipop.Command;
-import lollipop.Tools;
+import lollipop.*;
 import lollipop.commands.duel.models.DGame;
+import lollipop.commands.duel.models.DGamePT;
+import lollipop.commands.duel.models.DPlayer;
+import lollipop.commands.duel.models.DPlayerPT;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -45,7 +45,7 @@ public class Duel implements Command {
     }
 
     // Game Settings and Occupancy
-    public static HashMap<Long, DGame> memberToGame = new HashMap<>();
+    public static HashMap<Long, DGamePT> memberToGame = new HashMap<>();
     public static int[] occupiedShards;
 
     @Override
@@ -57,10 +57,9 @@ public class Duel implements Command {
                             .setColor(Color.red)
                             .setDescription("This command can only be used in guilds!")
                             .build()
-            ).queue();
+            ).setEphemeral(true).queue();
             return;
         }
-        final List<OptionMapping> options = event.getOptions();
         if(memberToGame.containsKey(event.getMember().getIdLong())) {
             event.replyEmbeds(new EmbedBuilder()
                     .setDescription("You are already in a duel! Finish your current duel to be able to start a new one...")
@@ -72,83 +71,62 @@ public class Duel implements Command {
         int shardId = event.getJDA().getShardInfo().getShardId();
         if(occupiedShards[shardId] >= 3) {
             event.replyEmbeds(new EmbedBuilder()
-                            .setDescription("There is a concurrent duel in this shard! Please wait until the current duel ends...")
-                            .setFooter("There is a limit of 1 duel per shard to prevent the players from having a laggy experience. Please be patient!")
+                            .setDescription("This shard has hit the maximum limit of duel games! Please wait until the current duels end...")
+                            .setFooter("There is a limit of 3 duels per shard to prevent the players from having a laggy experience. Please be patient!")
                             .setColor(Color.red)
                             .build()
             ).setEphemeral(true).queue();
             return;
         }
         else occupiedShards[shardId]++;
+
+        final List<OptionMapping> options = event.getOptions();
         if(options.isEmpty()) {
-            DGame DGame = new DGame();
-            DGame.homePlayer.member = event.getMember();
-            DGame.opposingPlayer.member = null; //AI
-            DGame.playerTurn = DGame.homePlayer;
-            DGame.playerNotTurn = DGame.opposingPlayer;
-            DGame.sendStartSelectMove(event, null);
-            DGame.setupTimeout(event.getChannel());
-            memberToGame.put(Objects.requireNonNull(event.getMember()).getIdLong(), DGame);
+            DPlayerPT homePlayer = new DPlayerPT(event.getMember());
+            DPlayerPT guestPlayer = new DPlayerPT(null);
+            DGamePT game = new DGamePT(homePlayer, guestPlayer);
+
+            Duel.memberToGame.put(event.getMember().getIdLong(), game);
+
+            game.initiateGame(event.getTextChannel());
         } else if(options.size() == 1) {
-            DGame DGame = new DGame();
-            Member target = options.get(0).getAsMember();
-            if(target == event.getGuild().getSelfMember()) {
-                DGame.homePlayer.member = event.getMember();
-                DGame.opposingPlayer.member = null; //AI
-                DGame.playerTurn = DGame.homePlayer;
-                DGame.playerNotTurn = DGame.opposingPlayer;
-                DGame.sendStartSelectMove(event, null);
-                DGame.setupTimeout(event.getChannel());
-                memberToGame.put(Objects.requireNonNull(event.getMember()).getIdLong(), DGame);
+            DPlayerPT homePlayer = new DPlayerPT(event.getMember());
+            BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> homePlayer.setMultiplierStatus(true), () -> homePlayer.setMultiplierStatus(false));
+
+            if(options.get(0).getAsMember().getIdLong() == Constant.BOT_ID) {
+                DPlayerPT guestPlayer = new DPlayerPT(null);
+                guestPlayer.setMultiplierStatus(false);
+                DGamePT game = new DGamePT(homePlayer, guestPlayer);
+
+                Duel.memberToGame.put(event.getMember().getIdLong(), game);
+
+                game.initiateGame(event.getTextChannel());
             } else {
-                if(target == null) {
+                DPlayerPT guestPlayer = new DPlayerPT(options.get(0).getAsMember());
+                BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> guestPlayer.setMultiplierStatus(true), () -> guestPlayer.setMultiplierStatus(false));
+                DGamePT game = new DGamePT(homePlayer, guestPlayer);
+
+                if(guestPlayer.getMember().getUser().isBot()) {
                     event.replyEmbeds(new EmbedBuilder()
-                            .setDescription("I couldn't find the specified member! Try mentioning them in the command...\n> Example: `" + Constant.PREFIX + "duel @bool`")
+                            .setDescription("You can't request a duel with other bots!\nTry using `/help duel` for usage examples!")
                             .setColor(Color.red)
                             .build()
-                    ).queue();
+                    ).setEphemeral(true).queue();
                     return;
                 }
-                if(target.getUser().isBot()) {
+                if(guestPlayer.getMember() == event.getMember()) {
                     event.replyEmbeds(new EmbedBuilder()
-                            .setDescription("You can't request a duel with other bots!\n> Example: `" + Constant.PREFIX + "duel @bool`")
+                            .setDescription("You can't request a duel with yourself!\nTry using `/help duel` for usage examples!")
                             .setColor(Color.red)
                             .build()
-                    ).queue();
+                    ).setEphemeral(true).queue();
                     return;
                 }
-                if(target == event.getMember()) {
-                    event.replyEmbeds(new EmbedBuilder()
-                            .setDescription("You can't request a duel with yourself!\n> Example: `" + Constant.PREFIX + "duel @bool`")
-                            .setColor(Color.red)
-                            .build()
-                    ).queue();
-                    return;
-                }
-                DGame.homePlayer.member = event.getMember();
-                DGame.opposingPlayer.member = target;
-                DGame.playerTurn = DGame.opposingPlayer;
-                DGame.playerNotTurn = DGame.homePlayer;
-                DGame.lastDisplay.add(event.reply(target.getAsMention()).complete().retrieveOriginal().complete());
-                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                        .setDescription(event.getMember().getAsMention() + " requested to duel you! Do you accept their duel request?")
-                        .setFooter("Quick! You have 30 seconds to accept!")
-                        .build()
-                ).setActionRow(
-                        Button.primary("accept", "accept")
-                ).queue(m -> DGame.lastDisplay.add(m));
-                DGame.timeout = event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                        .setDescription(target.getAsMention() + " didn't arrive in time! The duel request expired...")
-                        .setColor(Color.red)
-                        .build()
-                ).queueAfter(30, TimeUnit.SECONDS, m -> {
-                    DGame.deleteDisplayMessagesFull();
-                    Duel.memberToGame.remove(event.getMember().getIdLong());
-                    Duel.memberToGame.remove(target.getIdLong());
-                    occupiedShards[event.getJDA().getShardInfo().getShardId()]--;
-                });
-                Duel.memberToGame.put(event.getMember().getIdLong(), DGame);
-                Duel.memberToGame.put(target.getIdLong(), DGame);
+
+                Duel.memberToGame.put(homePlayer.getMember().getIdLong(), game);
+                Duel.memberToGame.put(guestPlayer.getMember().getIdLong(), game);
+
+                game.sendDuelRequest(event);
             }
         }
     }

@@ -5,7 +5,7 @@ import net.dv8tion.jda.api.entities.Member;
 /**
  * Player Model for duel games
  */
-public class Player {
+public class DPlayer {
     public Member member = null;
     public int strengthGain = 0;
     public int HP = 100;

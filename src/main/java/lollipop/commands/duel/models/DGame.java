@@ -21,13 +21,15 @@ import java.util.concurrent.TimeUnit;
  * Game Model for duel games
  */
 public class DGame {
-    public Player homePlayer = new Player();
-    public Player opposingPlayer = new Player();
-    public Player playerTurn = new Player();
-    public Player playerNotTurn = new Player();
+
+    public DPlayer homePlayer = new DPlayer();
+    public DPlayer opposingPlayer = new DPlayer();
+    public DPlayer playerTurn = new DPlayer();
+    public DPlayer playerNotTurn = new DPlayer();
     public ScheduledFuture<?> timeout = null;
     public ScheduledFuture<?> editTimeout = null;
     public ArrayList<Message> lastDisplay = new ArrayList<>();
+
     public static Button[] moveButtons = {
             Button.secondary("attack1", "punch"),
             Button.secondary("attack2", "kick"),
@@ -76,10 +78,8 @@ public class DGame {
      * Get a list of all moves possible
      * @return string
      */
-    public static String getAvailableMoves() {
-        StringBuilder sb = new StringBuilder();
-        for(Button b : moveButtons) sb.append("`").append(b.getLabel()).append("`, ");
-        return sb.substring(0, sb.length()-2);
+    public static Button[] getAvailableMoves() {
+        return moveButtons;
     }
 
     /**
@@ -428,7 +428,7 @@ public class DGame {
      * Switch the players turns
      */
     public void switchTurns() {
-        Player temp = playerTurn;
+        DPlayer temp = playerTurn;
         playerTurn = playerNotTurn;
         playerNotTurn = temp;
     }
@@ -458,7 +458,7 @@ public class DGame {
      * @param o opponent player (bot)
      * @return {@link String} move id
      */
-    public String AIMove(Player h, Player o) {
+    public String AIMove(DPlayer h, DPlayer o) {
 
         int x = (int)(Math.random()*3);
         int y = x + (int)(Math.random()*4)+1;
@@ -795,7 +795,7 @@ public class DGame {
      * @param c channel
      * @param p player
      */
-    public void surrender(MessageChannel c, Player p) {
+    public void surrender(MessageChannel c, DPlayer p) {
         String[] victoryMsg = {"You are too strong...", "That kind of power should be illegal!", "He is a god amongst men!", "How did you get so much power?", "Nobody dares to duel with you!"};
         Duel.memberToGame.remove(playerTurn.member.getIdLong());
         Duel.occupiedShards[c.getJDA().getShardInfo().getShardId()]--;

@@ -17,6 +17,9 @@ public class Constant {
     // slash command prefix
     public static String PREFIX = "/";
 
+    // bot website link
+    public static String WEBSITE = "https://lollipop-github.io/";
+
     // GIF file cache directory
     public static String GIFCACHE = "cache/gifs.txt";
 
