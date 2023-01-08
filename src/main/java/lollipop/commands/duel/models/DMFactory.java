@@ -17,7 +17,7 @@ public class DMFactory {
                 "ff",
                 "`%s` surrendered out of fear and quit the duel.",
                 "surrender the duel challenge",
-                "https://c.tenor.com/1WSdEj1xWfAAAAAd/one-punch-man-anime.gif",
+                "https://media.tenor.com/R_ANXhPyfz4AAAAC/axis-hetalia-white-flag.gif",
                 "Surrender your game and quit the duel",
                 DMType.FORFEIT,
                 false
@@ -29,7 +29,7 @@ public class DMFactory {
                 new DMove(
                         "punch",
                         "attack1",
-                        "`%s` punched their opponent and caused `%d HP` damage!",
+                        "`%s` punched their opponent causing `%d HP` damage!",
                         "Punch your opponents with tight fists!",
                         "https://c.tenor.com/6a42QlkVsCEAAAAd/anime-punch.gif",
                         "(`5-10 HP` damage on opponent)",
@@ -42,7 +42,7 @@ public class DMFactory {
                 new DMove(
                         "kick",
                         "attack2",
-                        "`%s` kicked their opponent and caused `%d HP` damage!",
+                        "`%s` kicked their opponent causing `%d HP` damage!",
                         "Kick your opponents fearlessly!",
                         "https://c.tenor.com/1sTe1w12WHwAAAAC/nezuko-kamado-tanjiro-kamado.gif",
                         "(`5-10 HP` damage on opponent)",
@@ -55,7 +55,7 @@ public class DMFactory {
                 new DMove(
                         "headbutt",
                         "attack3",
-                        "`%s` headbutted their opponent and caused `%d HP` damage!",
+                        "`%s` headbutted their opponent causing `%d HP` damage!",
                         "Use that head of yours to headbutt your opponents!",
                         "https://c.tenor.com/4AvIBPKxbOwAAAAd/demonslayer-headbutt.gif",
                         "(`5-10 HP` damage on opponent)",
@@ -68,7 +68,7 @@ public class DMFactory {
                 new DMove(
                         "chop",
                         "attack4",
-                        "`%s` chopped their opponent and caused `%d HP` damage!",
+                        "`%s` chopped their opponent causing `%d HP` damage!",
                         "Chop your opponents down with that firm knife hand!",
                         "https://c.tenor.com/FMO5562dLt4AAAAd/one-punch-man2-saitama-v-garou.gif",
                         "(`5-10 HP` damage on opponent)",
@@ -146,7 +146,7 @@ public class DMFactory {
                 new DMove(
                         "hinokami kagura",
                         "ultimate2",
-                        "**HINOKAMI KAGURA!**\n`%s` sliced their opponent swiftly and caused `%d HP` damage!",
+                        "**HINOKAMI KAGURA!**\n`%s` sliced their opponent swiftly causing `%d HP` damage!",
                         "Slice your opponents with the swift hinokami kagura!",
                         "https://c.tenor.com/LUAKGZSLoD8AAAAd/demon-slayer-tanjiro.gif",
                         "(`13-18 HP` damage on opponent)",
@@ -159,7 +159,7 @@ public class DMFactory {
                 new DMove(
                         "rasengan",
                         "ultimate3",
-                        "**RASENGAN!**\n`%s` blasted their opponent away and caused `%d HP` damage!",
+                        "**RASENGAN!**\n`%s` blasted their opponent away causing `%d HP` damage!",
                         "Blast your opponents with some chakra!",
                         "https://c.tenor.com/_zEr-rdppKMAAAAC/minato-naruto.gif",
                         "(`14-19 HP` damage on opponent)",
@@ -172,7 +172,7 @@ public class DMFactory {
                 new DMove(
                         "ora",
                         "ultimate4",
-                        "**ORA ORA ORA ORA ORAAAA!**\n`%s` pounded their opponent and caused `%d HP` damage!",
+                        "**ORA ORA ORA ORA ORAAAA!**\n`%s` pounded their opponent causing `%d HP` damage!",
                         "Pound your opponents with multiple powerful shots quickly!",
                         "https://c.tenor.com/LytxJSf81m4AAAAC/ora-beatdown-oraoraora.gif",
                         "(`15-20 HP` damage on opponent)",
@@ -185,7 +185,7 @@ public class DMFactory {
                 new DMove(
                         "us smash",
                         "ultimate5",
-                        "**United... States... SMASH!**\n`%s` smashed their opponent with more than 100% power!",
+                        "**United... States... SMASH!**\n`%s` smashed their opponent with more than 100%% power causing `%d HP` damage!",
                         "Go beyond plus ultra and smash your opponents on a US scale!",
                         "https://media.tenor.com/ZRDPXCwLXcIAAAAd/all-might-my-hero-academia.gif",
                         "(`16-20 HP` damage on your opponent)",
@@ -198,7 +198,7 @@ public class DMFactory {
                 new DMove(
                         "100%",
                         "ultimate6",
-                        "**98.. 99.. 100%**\n`%s` lost control of their emotions and gained `%d SP` strength!",
+                        "**98.. 99.. 100%%**\n`%s` lost control of their emotions and gained `%d SP` strength!",
                         "Lose control of your emotions and gain unfathomable strength!",
                         "https://media.tenor.com/8cNey0yg9xsAAAAC/mob-100.gif",
                         "(`6-10 SP` strength boost)",
@@ -211,7 +211,7 @@ public class DMFactory {
                 new DMove(
                         "serious punch",
                         "ultimate7",
-                        "**Anybody in my way... gets punched!**\n`%s` punched their opponent *seriosuly* and caused `%d HP` damage!",
+                        "**Anybody in my way... gets punched!**\n`%s` punched their opponent *seriosuly* causing `%d HP` damage!",
                         "Punch your opponents *seriously*!",
                         "https://c.tenor.com/vlsvbgqYz5QAAAAd/carnage-kabuto-saitama.gif",
                         "(`40-50 HP` damage on opponent but `20-30 HP` when opponent is blocking)",
@@ -271,13 +271,14 @@ public class DMFactory {
             idx += (int)(Math.random() * range)+1;
             result[i] = moves[idx];
         }
-        idx += (int)(Math.random() * (size-range*(count-1)));
+        idx += (int)(Math.random() * (size-range*(count-1)))+1;
         result[count-1] = moves[idx];
 
         return result;
     }
 
     public static DMove getMove(String moveName) {
+        if(moveName.equals("surrender")) return surrender;
         if(!moveMap.containsKey(moveName)) return null;
         return moveMap.get(moveName);
     }

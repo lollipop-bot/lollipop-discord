@@ -2,24 +2,17 @@ package lollipop.commands.duel;
 
 import lollipop.*;
 import lollipop.commands.duel.models.DGame;
-import lollipop.commands.duel.models.DGamePT;
 import lollipop.commands.duel.models.DPlayer;
-import lollipop.commands.duel.models.DPlayerPT;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 
 import java.awt.*;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class Duel implements Command {
 
@@ -45,7 +38,7 @@ public class Duel implements Command {
     }
 
     // Game Settings and Occupancy
-    public static HashMap<Long, DGamePT> memberToGame = new HashMap<>();
+    public static HashMap<Long, DGame> memberToGame = new HashMap<>();
     public static int[] occupiedShards;
 
     @Override
@@ -82,33 +75,33 @@ public class Duel implements Command {
 
         final List<OptionMapping> options = event.getOptions();
         if(options.isEmpty()) {
-            DPlayerPT homePlayer = new DPlayerPT(event.getMember());
-            DPlayerPT guestPlayer = new DPlayerPT(null);
-            DGamePT game = new DGamePT(homePlayer, guestPlayer);
+            DPlayer homePlayer = new DPlayer(event.getMember());
+            DPlayer guestPlayer = new DPlayer(null);
+            DGame game = new DGame(homePlayer, guestPlayer);
 
             Duel.memberToGame.put(event.getMember().getIdLong(), game);
 
             game.initiateGame(event.getTextChannel());
         } else if(options.size() == 1) {
-            DPlayerPT homePlayer = new DPlayerPT(event.getMember());
+            DPlayer homePlayer = new DPlayer(event.getMember());
             BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> homePlayer.setMultiplierStatus(true), () -> homePlayer.setMultiplierStatus(false));
 
             if(options.get(0).getAsMember().getIdLong() == Constant.BOT_ID) {
-                DPlayerPT guestPlayer = new DPlayerPT(null);
+                DPlayer guestPlayer = new DPlayer(null);
                 guestPlayer.setMultiplierStatus(false);
-                DGamePT game = new DGamePT(homePlayer, guestPlayer);
+                DGame game = new DGame(homePlayer, guestPlayer);
 
                 Duel.memberToGame.put(event.getMember().getIdLong(), game);
 
                 game.initiateGame(event.getTextChannel());
             } else {
-                DPlayerPT guestPlayer = new DPlayerPT(options.get(0).getAsMember());
+                DPlayer guestPlayer = new DPlayer(options.get(0).getAsMember());
                 BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> guestPlayer.setMultiplierStatus(true), () -> guestPlayer.setMultiplierStatus(false));
-                DGamePT game = new DGamePT(homePlayer, guestPlayer);
+                DGame game = new DGame(homePlayer, guestPlayer);
 
                 if(guestPlayer.getMember().getUser().isBot()) {
                     event.replyEmbeds(new EmbedBuilder()
-                            .setDescription("You can't request a duel with other bots!\nTry using `/help duel` for usage examples!")
+                            .setDescription("You can't request a duel with other bots!\nTry using `" + Constant.PREFIX + "help duel` for usage examples!")
                             .setColor(Color.red)
                             .build()
                     ).setEphemeral(true).queue();
@@ -116,7 +109,7 @@ public class Duel implements Command {
                 }
                 if(guestPlayer.getMember() == event.getMember()) {
                     event.replyEmbeds(new EmbedBuilder()
-                            .setDescription("You can't request a duel with yourself!\nTry using `/help duel` for usage examples!")
+                            .setDescription("You can't request a duel with yourself!\nTry using `" + Constant.PREFIX + "help duel` for usage examples!")
                             .setColor(Color.red)
                             .build()
                     ).setEphemeral(true).queue();

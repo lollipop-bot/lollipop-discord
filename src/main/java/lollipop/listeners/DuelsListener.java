@@ -3,7 +3,6 @@ package lollipop.listeners;
 import lollipop.Constant;
 import lollipop.commands.duel.Duel;
 import lollipop.commands.duel.models.DGame;
-import lollipop.commands.duel.models.DGamePT;
 import lollipop.commands.duel.models.DMFactory;
 import lollipop.commands.duel.models.DMove;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -13,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.awt.*;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Responds to player actions for lollipop duels
@@ -38,7 +36,7 @@ public class DuelsListener extends ListenerAdapter {
             return;
         }
 
-        DGamePT game = Duel.memberToGame.get(event.getMember().getIdLong());
+        DGame game = Duel.memberToGame.get(event.getMember().getIdLong());
 
         if(Objects.equals(event.getButton().getId(), "accept")) {
             if(event.getMember() != game.getGuestPlayer().getMember()) {
@@ -49,6 +47,9 @@ public class DuelsListener extends ListenerAdapter {
                 ).setEphemeral(true).queue();
                 return;
             }
+            event.deferEdit().queue();
+
+            game.getAcceptTimeout().cancel(false);
             game.initiateGame(event.getTextChannel());
         }
         else {
@@ -65,14 +66,13 @@ public class DuelsListener extends ListenerAdapter {
             }
 
             game.getGameTimeout().cancel(false);
+            event.deferEdit().queue();
 
             String moveName = event.getButton().getLabel();
             DMove move = DMFactory.getMove(moveName);
 
             assert move != null;
             game.playTurn(move);
-
-            game.checkWin(event.getTextChannel());
 
             // TODO: Make CPU AI generate a move and implement it
         }

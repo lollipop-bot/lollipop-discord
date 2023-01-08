@@ -6,8 +6,8 @@ public class DMove {
 
     private final String name;
     private final String phrase;
+    private String blockPhrase;
     private final String description;
-    private String blockDescription = null;
     private final String gif;
     private final DMType type;
     private final boolean blockable;
@@ -20,7 +20,7 @@ public class DMove {
         this.gif = gif;
         this.type = type;
         this.blockable = blockable;
-        if(this.blockable) this.blockDescription = "`%s` blocked `%s`'s " + this.name;
+        if(this.blockable) this.blockPhrase = "`%s` blocked `%s`'s " + this.name;
         switch (type) {
             case HEAL -> this.button = Button.success(id, name);
             case ATTACK -> this.button = Button.primary(id, name);
@@ -33,16 +33,16 @@ public class DMove {
         return name;
     }
 
-    public String getDescription() {
-        return description;
-    }
-
-    public String getBlockDescription() {
-        return blockDescription;
-    }
-
     public String getPhrase() {
         return phrase;
+    }
+
+    public String getBlockPhrase() {
+        return blockPhrase;
+    }
+
+    public String getDescription() {
+        return description;
     }
 
     public DMType getType() {

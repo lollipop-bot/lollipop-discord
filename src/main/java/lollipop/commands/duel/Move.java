@@ -4,7 +4,6 @@ import lollipop.CommandType;
 import lollipop.Constant;
 import lollipop.Command;
 import lollipop.Tools;
-import lollipop.commands.duel.models.DGame;
 import lollipop.commands.duel.models.DMFactory;
 import lollipop.commands.duel.models.DMove;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -17,7 +16,6 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import java.awt.*;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class Move implements Command {
     @Override
