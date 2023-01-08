@@ -21,7 +21,7 @@ public class LeaderboardListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if(!event.isFromGuild()) return;
-        if(!Leaderboard.leaderboardMessages.contains(event.getMessageIdLong())) return;
+        if(!Leaderboard.leaderboardMessages.containsKey(event.getMessageIdLong())) return;
 
         String[] id = event.getComponentId().split(":");
 
@@ -40,11 +40,13 @@ public class LeaderboardListener extends ListenerAdapter {
         switch (id[1]) {
             case "delete" -> {
                 message.delete().queue();
+                Leaderboard.leaderboardMessages.get(event.getMessageIdLong()).cancel(false);
                 Leaderboard.leaderboardMessages.remove(event.getMessageIdLong());
                 event.deferEdit().queue();
             }
             case "done" -> {
                 final Button[] disabledButton = message.getButtons().stream().map(Button::asDisabled).toArray(Button[]::new);
+                Leaderboard.leaderboardMessages.get(event.getMessageIdLong()).cancel(false);
                 Leaderboard.leaderboardMessages.remove(event.getMessageIdLong());
                 event.deferEdit().setActionRow(disabledButton).queue();
             }

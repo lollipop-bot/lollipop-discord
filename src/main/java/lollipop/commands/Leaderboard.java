@@ -16,14 +16,16 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class Leaderboard implements Command {
 
-    public static HashSet<Long> leaderboardMessages = new HashSet<>();
+    public static HashMap<Long, ScheduledFuture<?>> leaderboardMessages = new HashMap<>();
 
     @Override
     public String[] getAliases() {
@@ -68,9 +70,7 @@ public class Leaderboard implements Command {
             User author = event.getUser();
             String userId = author.getId();
 
-            int page = event.getOption("page", 1, OptionMapping::getAsInt);
-
-            List<Database.LBMember> memberList = Database.getLeaderboard(event.getGuild()).get(page - 1);
+            List<Database.LBMember> memberList = Database.getLeaderboard(event.getGuild()).get(0);
             Database.LBMember cMember = new Database.LBMember(Database.getUserGuildRank(userId, event.getGuild()), author.getAsTag(), Database.getUserBalance(userId));
 
             if(memberList.isEmpty()) {
@@ -85,22 +85,29 @@ public class Leaderboard implements Command {
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .setFooter("Vote for lollipop on top.gg to increase your multiplier!");
 
-            leaderboardMessages.add(
-                    event.replyEmbeds(embed.build())
-                            .addActionRow(
-                                    Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
-                                    Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
-                                    Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
-                                    Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
-                            ).complete().retrieveOriginal().complete().getIdLong()
-            );
+            InteractionHook message = event.replyEmbeds(embed.build())
+                    .addActionRow(
+                            Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
+                            Button.success(userId + ":done:1", Emoji.fromUnicode("✅")),
+                            Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
+                            Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
+                    ).complete();
+            long messageId = message.retrieveOriginal().complete().getIdLong();
+            ScheduledFuture<?> dispose = message.editOriginalComponents().setActionRow(
+                    Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")).asDisabled(),
+                    Button.success(userId + ":done:1", Emoji.fromUnicode("✅")).asDisabled(),
+                    Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")).asDisabled(),
+                    Button.secondary(userId + ":next", Emoji.fromUnicode("➡️")).asDisabled()
+            ).queueAfter(3, TimeUnit.MINUTES, msg -> {
+                leaderboardMessages.remove(messageId);
+            });
+
+            leaderboardMessages.put(messageId, dispose);
         } else if(args.get(0).equals("global")) {
             User author = event.getUser();
             String userId = author.getId();
 
-            int page = event.getOption("page", 1, OptionMapping::getAsInt);
-
-            List<Database.LBMember> memberList = Database.getLeaderboard(event.getJDA()).get(page - 1);
+            List<Database.LBMember> memberList = Database.getLeaderboard(event.getJDA()).get(0);
             Database.LBMember cMember = new Database.LBMember(Database.getUserGlobalRank(userId), author.getAsTag(), Database.getUserBalance(userId));
 
             if(memberList.isEmpty()) {
@@ -118,17 +125,21 @@ public class Leaderboard implements Command {
             InteractionHook message = event.replyEmbeds(embed.build())
                     .addActionRow(
                             Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")),
-                            Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")),
+                            Button.success(userId + ":done:1", Emoji.fromUnicode("✅")),
                             Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")),
                             Button.secondary(userId + ":next", Emoji.fromUnicode("➡️"))
                     ).complete();
-            message.editOriginalComponents().setActionRow(
+            long messageId = message.retrieveOriginal().complete().getIdLong();
+            ScheduledFuture<?> dispose = message.editOriginalComponents().setActionRow(
                     Button.secondary(userId + ":previous", Emoji.fromUnicode("⬅️")).asDisabled(),
-                    Button.success(userId + ":done:" + page, Emoji.fromUnicode("✅")).asDisabled(),
+                    Button.success(userId + ":done:1", Emoji.fromUnicode("✅")).asDisabled(),
                     Button.danger(userId + ":delete", Emoji.fromUnicode("\uD83D\uDDD1")).asDisabled(),
                     Button.secondary(userId + ":next", Emoji.fromUnicode("➡️")).asDisabled()
-            ).queueAfter(3, TimeUnit.MINUTES);
-            leaderboardMessages.add(message.retrieveOriginal().complete().getIdLong());
+            ).queueAfter(3, TimeUnit.MINUTES, msg -> {
+                leaderboardMessages.remove(messageId);
+            });
+
+            leaderboardMessages.put(messageId, dispose);
         }
     }
 
