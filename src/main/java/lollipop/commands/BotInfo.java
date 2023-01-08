@@ -37,9 +37,9 @@ public class BotInfo implements Command {
                         .setTitle("Bot Information")
                         .setDescription("""
                                 Lollipop is an anime/manga discord bot which allows any user to search for an anime or a manga from the web and get the results on discord and has many features like fun roleplay commands, useful utility commands and other fun commands.
-                                > [Bot Website](https://booleancube.github.io/projects/lollipop/lollipop.html)
+                                > [Bot Website](https://lollipop-bot.github.io/)
                                 > [Bot Invite Link](https://discord.com/api/oauth2/authorize?client_id=919061572649910292&permissions=1515854359872&scope=bot%20applications.commands)
-                                > [Github Repository](https://github.com/BooleanCube/lollipop-bot)
+                                > [Github Repository](https://github.com/lollipop-bot)
                                 > [Discord Bot List](https://discordbotlist.com/bots/lollipop-4786)
                                 > [Top.gg](https://top.gg/bot/919061572649910292)
                                 > [Infinity Bot List](https://infinitybots.gg/bots/919061572649910292)
