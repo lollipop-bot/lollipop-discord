@@ -1,10 +1,7 @@
 package lollipop;
 
 import lollipop.database.Database;
-import lollipop.listeners.DuelsListener;
-import lollipop.listeners.LeaderboardListener;
-import lollipop.listeners.LollipopReaction;
-import lollipop.listeners.PageListener;
+import lollipop.listeners.*;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -42,6 +39,7 @@ public class Main {
                 .setShardsTotal(4)
                 .addEventListeners(new Listener())
                 .addEventListeners(new DuelsListener())
+                .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
                 .addEventListeners(new LeaderboardListener())
                 .addEventListeners(new LollipopReaction())
@@ -56,6 +54,7 @@ public class Main {
                 .setActivity(Activity.watching("anime | " + Constant.PREFIX + "help"))
                 .addEventListeners(new Listener())
                 .addEventListeners(new DuelsListener())
+                .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
                 .addEventListeners(new LeaderboardListener())
                 .addEventListeners(new LollipopReaction());
