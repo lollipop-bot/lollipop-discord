@@ -116,8 +116,8 @@ public class DGame {
     }
 
     public void initiateGame(TextChannel channel) {
-        this.mentionMessage.delete().queue();
-        this.requestMessage.delete().queue();
+        if(this.mentionMessage != null) this.mentionMessage.delete().queue();
+        if(this.requestMessage != null) this.requestMessage.delete().queue();
 
         DMove[] options = new DMove[moveCount+1];
         System.arraycopy(DMFactory.getMoves(), 0, options, 0, moveCount);
@@ -148,58 +148,129 @@ public class DGame {
     public void playTurn(DMove move) {
         TextChannel channel = this.displayMessage.getTextChannel();
 
+        String turnDescription = performMove(move);
+        if(turnDescription == null) return;
+
+        if(this.checkWin(channel)) return;
+
+        boolean isTimedOut = this.idlePlayer.isTimedOut();
+        if (!isTimedOut) this.switchPlayerTurns();
+
+        if(turnPlayer.isCPU()) {
+            turnDescription += "\n\n";
+
+            DMove[] options = DMFactory.generateRandomMoves(moveCount);
+            DMove cpuMove = DCPUAI.minimax(this, options);
+
+            turnDescription += performMove(cpuMove);
+
+            if(this.checkWin(channel)) return;
+
+            boolean isPlayerTimedOut = this.idlePlayer.isTimedOut();
+            if (!isPlayerTimedOut) this.switchPlayerTurns();
+            else {
+                this.turnPlayer.setTimeoutDuration(0);
+
+                for(int i=0; i<3; i++) {
+                    turnDescription += "\n\n";
+
+                    options = DMFactory.generateRandomMoves(moveCount);
+                    cpuMove = DCPUAI.minimax(this, options);
+                    while(cpuMove.getName().equals("za warudo")) {
+                        options = DMFactory.generateRandomMoves(moveCount);
+                        cpuMove = DCPUAI.minimax(this, options);
+                    }
+
+                    turnDescription += performMove(cpuMove);
+
+                    if(this.checkWin(channel)) return;
+                }
+            }
+        }
+
         DMove[] options = new DMove[moveCount + 1];
         System.arraycopy(DMFactory.generateRandomMoves(moveCount), 0, options, 0, moveCount);
         options[moveCount] = DMFactory.getSurrender();
 
-        String turnDescription = "";
+        MessageEmbed messageEmbed = new EmbedBuilder()
+                .setAuthor(turnPlayer.getName() + "'s turn", Constant.WEBSITE, this.turnPlayer.getMember().getEffectiveAvatarUrl())
+                .setTitle(homePlayer.getName() + " vs " + guestPlayer.getName())
+                .setDescription(turnDescription)
+                .addField(
+                        homePlayer.getName(),
+                        "> Health: `" + this.homePlayer.getHP() + " HP`\n> Strength: `" + this.homePlayer.getSP() + " SP`",
+                        true
+                ).addField(
+                        guestPlayer.getName(),
+                        "> Health: `" + this.guestPlayer.getHP() + " HP`\n> Strength: `" + this.guestPlayer.getSP() + " SP`",
+                        true
+                )
+                .setImage(move.getGif())
+                .setFooter("Choose what you want to play... You have 30 seconds to react!")
+                .build();
+
+        if (!isTimedOut) {
+            this.displayMessage.editMessageEmbeds(messageEmbed)
+                    .setActionRow(
+                            Arrays.stream(options)
+                                    .map(DMove::getButton)
+                                    .map(Button::asDisabled)
+                                    .toArray(Button[]::new)
+                    ).queue();
+            this.displayMessage.editMessageComponents()
+                    .setActionRow(
+                            Arrays.stream(options)
+                                    .map(DMove::getButton)
+                                    .toArray(Button[]::new)
+                    ).queueAfter(5, TimeUnit.SECONDS);
+        } else {
+            this.displayMessage.editMessageEmbeds(messageEmbed)
+                    .setActionRow(
+                            Arrays.stream(options)
+                                    .map(DMove::getButton)
+                                    .toArray(Button[]::new)
+                    ).queue();
+        }
+
+        this.setupGameTimeout(channel);
+    }
+
+    private String performMove(DMove move) {
+        String turnDescription = "vote for lollipop or gae";
 
         switch (move.getName()) {
             case "surrender" -> {
+                TextChannel channel = this.displayMessage.getTextChannel();
+
                 if (this.gameTimeout != null) this.gameTimeout.cancel(false);
                 this.displayMessage.delete().queue();
                 Duel.memberToGame.remove(turnPlayer.getMember().getIdLong());
                 Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
 
-                EmbedBuilder embed = new EmbedBuilder()
+                EmbedBuilder embedBuilder = new EmbedBuilder()
                         .setColor(Color.green)
                         .setImage(move.getGif())
                         .setDescription(String.format(move.getPhrase(), turnPlayer.getName()))
                         .setFooter("Type " + Constant.PREFIX + "duel to start another duel with me!");
 
                 if (idlePlayer.isCPU()) {
-                    embed.setAuthor(idlePlayer.getName() + " won the duel!", cpuLink, cpuAvatar);
+                    DCPUAI.incrementGamesCount(true);
+                    embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", cpuLink, cpuAvatar);
 
-                    if (turnPlayer.hasMultiplier()) {
-                        int xp = (int) (Math.random() * 11) - 20;
-                        xp = (int) (xp / Constant.MULTIPLIER);
-                        Database.addToUserBalance(turnPlayer.getMember().getId(), xp);
-                        embed.setFooter(turnPlayer.getMember().getEffectiveName() + " lost " + (-1 * xp) + " lollipops!", lollipopAvatar);
-                        channel.sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        int xp = (int) (Math.random() * 11) - 20;
-                        Database.addToUserBalance(turnPlayer.getMember().getId(), xp);
-                        embed.setFooter(turnPlayer.getMember().getEffectiveName() + " lost " + (-1 * xp) + " lollipops!", lollipopAvatar);
-                        channel.sendMessageEmbeds(embed.build()).queue();
-                    }
+                    int xp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-40)/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
+                    Database.addToUserBalance(homePlayer.getMember().getId(), xp);
+                    embedBuilder.setFooter(homePlayer.getName() + " lost " + (-xp) + " lollipops!", lollipopAvatar);
+                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
                 } else {
-                    embed.setAuthor(idlePlayer.getName() + " won the duel!", Constant.WEBSITE, idlePlayer.getMember().getEffectiveAvatarUrl());
+                    embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", Constant.WEBSITE, idlePlayer.getMember().getEffectiveAvatarUrl());
                     Duel.memberToGame.remove(idlePlayer.getMember().getIdLong());
 
-                    if (idlePlayer.hasMultiplier()) {
-                        int xp = (int) (Math.random() * 31) + 70;
-                        xp = (int) (xp * Constant.MULTIPLIER);
-                        Database.addToUserBalance(idlePlayer.getMember().getId(), xp);
-                        embed.setFooter(idlePlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                        channel.sendMessageEmbeds(embed.build()).queue();
-                    } else {
-                        int xp = (int) (Math.random() * 31) + 70;
-                        Database.addToUserBalance(idlePlayer.getMember().getId(), xp);
-                        embed.setFooter(idlePlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                        channel.sendMessageEmbeds(embed.build()).queue();
-                    }
+                    int xp = guestPlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
+                    Database.addToUserBalance(guestPlayer.getMember().getId(), xp);
+                    embedBuilder.setFooter(guestPlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
+                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
                 }
-                return;
+                return null;
             }
             case "punch", "kick", "headbutt", "chop" -> {
                 if (this.idlePlayer.isDefending()) {
@@ -297,52 +368,7 @@ public class DGame {
             }
         }
 
-        if(this.checkWin(channel)) return;
-
-        boolean isTimedOut = this.idlePlayer.isTimedOut();
-        if (!isTimedOut) this.switchPlayerTurns();
-
-        MessageEmbed messageEmbed = new EmbedBuilder()
-                .setAuthor(turnPlayer.getName() + "'s turn", Constant.WEBSITE, this.turnPlayer.getMember().getEffectiveAvatarUrl())
-                .setTitle(homePlayer.getName() + " vs " + guestPlayer.getName())
-                .setDescription(turnDescription)
-                .addField(
-                        homePlayer.getName(),
-                        "> Health: `" + this.homePlayer.getHP() + " HP`\n> Strength: `" + this.homePlayer.getSP() + " SP`",
-                        true
-                ).addField(
-                        guestPlayer.getName(),
-                        "> Health: `" + this.guestPlayer.getHP() + " HP`\n> Strength: `" + this.guestPlayer.getSP() + " SP`",
-                        true
-                )
-                .setImage(move.getGif())
-                .setFooter("Choose what you want to play... You have 30 seconds to react!")
-                .build();
-
-        if (!isTimedOut) {
-            this.displayMessage.editMessageEmbeds(messageEmbed)
-                    .setActionRow(
-                            Arrays.stream(options)
-                                    .map(DMove::getButton)
-                                    .map(Button::asDisabled)
-                                    .toArray(Button[]::new)
-                    ).queue();
-            this.displayMessage.editMessageComponents()
-                    .setActionRow(
-                            Arrays.stream(options)
-                                    .map(DMove::getButton)
-                                    .toArray(Button[]::new)
-                    ).queueAfter(5, TimeUnit.SECONDS);
-        } else {
-            this.displayMessage.editMessageEmbeds(messageEmbed)
-                    .setActionRow(
-                            Arrays.stream(options)
-                                    .map(DMove::getButton)
-                                    .toArray(Button[]::new)
-                    ).queue();
-        }
-
-        this.setupGameTimeout(channel);
+        return turnDescription;
     }
 
     private void setupGameTimeout(TextChannel channel) {
@@ -359,6 +385,7 @@ public class DGame {
             int xp = turnPlayer.hasMultiplier() ? (int)((int)(Math.random()*11)-40/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
             embedBuilder.setFooter(turnPlayer.getName() + " lost " + -xp + " lollipops!", lollipopAvatar);
             this.gameTimeout = channel.sendMessageEmbeds(embedBuilder.build()).queueAfter(30, TimeUnit.SECONDS, me -> {
+                DCPUAI.incrementGamesCount(true);
                 Database.addToUserBalance(turnPlayer.getMember().getId(), xp);
                 Duel.memberToGame.remove(turnPlayer.getMember().getIdLong());
                 Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
@@ -402,33 +429,19 @@ public class DGame {
                     .setFooter("Type " + Constant.PREFIX + "duel to start another duel with me!");
 
             if(guestPlayer.isCPU()) {
-                if(homePlayer.hasMultiplier()) {
-                    int xp = (int)(Math.random()*11)-20;
-                    xp = (int)(xp/Constant.MULTIPLIER);
-                    Database.addToUserBalance(homePlayer.getMember().getId(), xp);
-                    embedBuilder.setFooter(homePlayer.getName() + " lost " + (-xp) + " lollipops!", lollipopAvatar);
-                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
-                } else {
-                    int xp = (int)(Math.random()*11)-20;
-                    Database.addToUserBalance(homePlayer.getMember().getId(), xp);
-                    embedBuilder.setFooter(homePlayer.getName() + " lost " + (-xp) + " lollipops!", lollipopAvatar);
-                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
-                }
+                DCPUAI.incrementGamesCount(true);
+
+                int xp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-40)/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
+                Database.addToUserBalance(homePlayer.getMember().getId(), xp);
+                embedBuilder.setFooter(homePlayer.getName() + " lost " + (-xp) + " lollipops!", lollipopAvatar);
+                channel.sendMessageEmbeds(embedBuilder.build()).queue();
             } else {
                 Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
 
-                if(guestPlayer.hasMultiplier()) {
-                    int xp = (int)(Math.random()*31)+70;
-                    xp = (int)(xp*Constant.MULTIPLIER);
-                    Database.addToUserBalance(guestPlayer.getMember().getId(), xp);
-                    embedBuilder.setFooter(guestPlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
-                } else {
-                    int xp = (int)(Math.random()*31)+70;
-                    Database.addToUserBalance(guestPlayer.getMember().getId(), xp);
-                    embedBuilder.setFooter(guestPlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
-                }
+                int xp = guestPlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
+                Database.addToUserBalance(guestPlayer.getMember().getId(), xp);
+                embedBuilder.setFooter(guestPlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
+                channel.sendMessageEmbeds(embedBuilder.build()).queue();
             }
             return true;
         } else if(guestPlayer.getHP() <= 0) {
@@ -436,12 +449,11 @@ public class DGame {
             this.displayMessage.delete().queue();
             Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
             Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
-
             if(!guestPlayer.isCPU()) Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
+            else DCPUAI.incrementGamesCount(false);
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setColor(Color.green)
-                    .setFooter("Type " + Constant.PREFIX + "duel to start another duel with me!")
                     .setAuthor(homePlayer.getName() + " won the duel!", Constant.WEBSITE, homePlayer.getMember().getEffectiveAvatarUrl())
                     .setTitle(victoryMsg[(int)(Math.random()*victoryMsg.length)])
                     .setImage(endGifLink)
@@ -450,18 +462,10 @@ public class DGame {
                             "> " + guestPlayer.getName() + "'s Health: `0 HP`"
                     );
 
-            if(homePlayer.hasMultiplier()) {
-                int xp = (int)(Math.random()*31)+70;
-                xp = (int)(xp*Constant.MULTIPLIER);
-                Database.addToUserBalance(homePlayer.getMember().getId(), xp);
-                embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                channel.sendMessageEmbeds(embedBuilder.build()).queue();
-            } else {
-                int xp = (int)(Math.random()*31)+70;
-                Database.addToUserBalance(homePlayer.getMember().getId(), xp);
-                embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                channel.sendMessageEmbeds(embedBuilder.build()).queue();
-            }
+            int xp = guestPlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
+            Database.addToUserBalance(homePlayer.getMember().getId(), xp);
+            embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
+            channel.sendMessageEmbeds(embedBuilder.build()).queue();
             return true;
         }
         return false;

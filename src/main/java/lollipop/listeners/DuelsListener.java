@@ -25,16 +25,7 @@ public class DuelsListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if(!event.isFromGuild()) return;
-        if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) {
-            event.replyEmbeds(
-                    new EmbedBuilder()
-                            .setDescription("**You haven't opened any duel games yet!**")
-                            .setColor(Color.red)
-                            .setFooter("If you want to start a duel, you can do so by issuing " + Constant.PREFIX + "duel")
-                            .build()
-            ).setEphemeral(true).queue();
-            return;
-        }
+        if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) return;
 
         DGame game = Duel.memberToGame.get(event.getMember().getIdLong());
 
@@ -73,8 +64,6 @@ public class DuelsListener extends ListenerAdapter {
 
             assert move != null;
             game.playTurn(move);
-
-            // TODO: Make CPU AI generate a move and implement it
         }
     }
 

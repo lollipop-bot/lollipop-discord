@@ -61,4 +61,8 @@ public class DMove {
         return gif;
     }
 
+    public String toString() {
+        return this.name + ": " + this.phrase;
+    }
+
 }

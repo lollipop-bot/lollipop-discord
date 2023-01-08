@@ -1,6 +1,7 @@
 package lollipop.commands.duel;
 
 import lollipop.*;
+import lollipop.commands.duel.models.DCPUAI;
 import lollipop.commands.duel.models.DGame;
 import lollipop.commands.duel.models.DPlayer;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -75,6 +76,8 @@ public class Duel implements Command {
 
         final List<OptionMapping> options = event.getOptions();
         if(options.isEmpty()) {
+            event.reply("Duels CPU " + event.getJDA().getShardInfo().getShardId() + " (`Difficulty Rating = " + DCPUAI.calculateRating() + "`)").queue();
+
             DPlayer homePlayer = new DPlayer(event.getMember());
             DPlayer guestPlayer = new DPlayer(null);
             DGame game = new DGame(homePlayer, guestPlayer);
@@ -87,6 +90,8 @@ public class Duel implements Command {
             BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> homePlayer.setMultiplierStatus(true), () -> homePlayer.setMultiplierStatus(false));
 
             if(options.get(0).getAsMember().getIdLong() == Constant.BOT_ID) {
+                event.reply("Duels CPU " + event.getJDA().getShardInfo().getShardId() + " (`Difficulty Rating = " + DCPUAI.calculateRating() + "`)").queue();
+
                 DPlayer guestPlayer = new DPlayer(null);
                 guestPlayer.setMultiplierStatus(false);
                 DGame game = new DGame(homePlayer, guestPlayer);
