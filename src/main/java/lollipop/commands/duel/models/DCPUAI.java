@@ -49,8 +49,8 @@ public class DCPUAI {
         if(player.getHP() < 25) scenario[0]++;
         if(cpu.getHP() > player.getHP()+50) scenario[0]++;
         if(cpu.getHP() > player.getHP()+30) scenario[0]++;
-        if(cpu.getHP() < 30) scenario[1]+=3;
-        if(cpu.getHP() < player.getHP()-50) { scenario[1]++; scenario[2]++; }
+        if(cpu.getHP() < 30) { scenario[1]+=3; scenario[2]++; }
+        if(cpu.getHP() < player.getHP()-50) { scenario[1]++; scenario[2]+=3; }
         else scenario[0]++;
         if(cpu.getHP() < player.getHP()-30) scenario[2]++;
         else scenario[0]++;
@@ -100,7 +100,6 @@ public class DCPUAI {
     public static String calculateRating() {
         if(totalGames == 0) return "Unknown";
         int percentage = gamesWon*100/totalGames;
-        System.out.println(gamesWon + " / " + totalGames);
         if(percentage < 20) return "Trivial; Win Rate = " + percentage + "%";
         else if(percentage < 40) return "Noob; Win Rate = " + percentage + "%";
         else if(percentage < 60) return "Amateur; Win Rate = " + percentage + "%";

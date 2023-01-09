@@ -2,7 +2,7 @@ package lollipop.commands.duel.models;
 
 import lollipop.Constant;
 import lollipop.commands.duel.Duel;
-import lollipop.database.Database;
+import lollipop.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
