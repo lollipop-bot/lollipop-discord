@@ -16,7 +16,6 @@ import lollipop.commands.search.mangacomps.Chapters;
 import lollipop.commands.trivia.models.TGame;
 import lollipop.commands.trivia.Trivia;
 import awatch.model.Question;
-import lollipop.database.Database;
 import lollipop.pages.*;
 import mread.controller.RClient;
 import mread.controller.RListener;
@@ -78,7 +77,7 @@ public class API implements RListener, AListener {
     }
 
     /**
-     * Get top rated mangas
+     * Get top-rated mangas
      * @param message message
      */
     public void getTopManga(InteractionHook message) {
@@ -109,7 +108,7 @@ public class API implements RListener, AListener {
     }
 
     /**
-     * get pages of a specified chater
+     * get pages of a specified chapter
      * @param event select menu interaction event
      * @param chapter chapter to get pages from
      */

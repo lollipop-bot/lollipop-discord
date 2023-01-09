@@ -1,9 +1,10 @@
-package lollipop.database;
+package lollipop;
 
 
 import discorddb.DatabaseManager;
 import discorddb.DatabaseObject;
-import lollipop.Tools;
+import lollipop.commands.leaderboard.models.LBMember;
+import lollipop.commands.leaderboard.models.LeaderboardResult;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.entities.Member;
@@ -11,7 +12,6 @@ import net.dv8tion.jda.api.entities.User;
 
 import javax.naming.LimitExceededException;
 import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.nio.file.FileAlreadyExistsException;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,12 +63,12 @@ public class Database {
         }
         guildRank.sort(Collections.reverseOrder());
         ArrayList<Integer> globalRank = currency.getValues().stream()
-                .mapToInt(i -> Integer.parseInt(String.valueOf(i)))
+                .mapToInt(i -> (int) i)
                 .boxed()
                 .sorted(Collections.reverseOrder())
                 .collect(Collectors.toCollection(ArrayList::new));
         int userLp = getUserBalance(id);
-        return new int[]{guildRank.indexOf(userLp)+1, globalRank.indexOf(userLp)+1};
+        return new int[]{Collections.binarySearch(guildRank, userLp)+1, Collections.binarySearch(globalRank, userLp)+1};
     }
 
     /**
@@ -85,7 +85,7 @@ public class Database {
         }
         guildRank.sort(Collections.reverseOrder());
         int userLp = getUserBalance(id);
-        return guildRank.indexOf(userLp)+1;
+        return Collections.binarySearch(guildRank, userLp)+1;
     }
 
     /**
@@ -95,12 +95,12 @@ public class Database {
      */
     public static int getUserGlobalRank(String id) {
         ArrayList<Integer> globalRank = currency.getValues().stream()
-                .mapToInt(i -> Integer.parseInt(String.valueOf(i)))
+                .mapToInt(i -> (int) i)
                 .boxed()
                 .sorted(Collections.reverseOrder())
                 .collect(Collectors.toCollection(ArrayList::new));
         int userLp = getUserBalance(id);
-        return globalRank.indexOf(userLp)+1;
+        return Collections.binarySearch(globalRank, userLp)+1;
     }
 
     /**
@@ -165,40 +165,11 @@ public class Database {
     }
 
     /**
-     * Gets the amount of keys in the currency datbase
-     * @return integer for number of users in currency datbase
+     * Gets the amount of keys in the currency database
+     * @return integer for number of users in currency database
      */
     public static int getCurrencyUserCount() {
         return currency.getKeys().size();
-    }
-
-    /**
-     * Static class for Leaderboard Member Statistics
-     */
-    public static class LBMember {
-
-        private final int rank;
-        private final String name;
-        private final int lollipops;
-
-        public LBMember(int rank, String name, int lollipops) {
-            this.rank = rank;
-            this.name = name;
-            this.lollipops = lollipops;
-        }
-
-        public int getRank() {
-            return rank;
-        }
-
-        public String getName() {
-            return name;
-        }
-
-        public int getLollipops() {
-            return lollipops;
-        }
-
     }
 
 }
