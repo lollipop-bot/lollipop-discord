@@ -64,4 +64,13 @@ public class Tools {
         return result;
     }
 
+    public static void addToSortedList(ArrayList<Integer> list, int element) {
+        int index = Collections.binarySearch(list, element);
+        if (index < 0)
+            index = -index - 1;
+        list.add(index, element);
+    }
+
+
+
 }
