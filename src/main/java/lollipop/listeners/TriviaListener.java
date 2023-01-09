@@ -4,7 +4,7 @@ import lollipop.BotStatistics;
 import lollipop.Constant;
 import lollipop.commands.trivia.Trivia;
 import lollipop.commands.trivia.models.TGame;
-import lollipop.database.Database;
+import lollipop.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
