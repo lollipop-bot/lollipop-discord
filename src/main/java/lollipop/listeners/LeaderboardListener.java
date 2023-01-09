@@ -1,7 +1,8 @@
 package lollipop.listeners;
 
-import lollipop.commands.Leaderboard;
-import lollipop.database.Database;
+import lollipop.commands.leaderboard.Leaderboard;
+import lollipop.Database;
+import lollipop.commands.leaderboard.models.LBMember;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.Emoji;
@@ -72,7 +73,7 @@ public class LeaderboardListener extends ListenerAdapter {
     }
 
     private void editMessage(Guild guild, Message msg, boolean next, User user, int page) {
-        List<List<Database.LBMember>> guildsList = Database.getLeaderboard(guild);
+        List<List<LBMember>> guildsList = Database.getLeaderboard(guild);
 
         if(next) {
             if(page == guildsList.size()) page = 1;
@@ -84,7 +85,7 @@ public class LeaderboardListener extends ListenerAdapter {
 
         String userId = user.getId();
 
-        Database.LBMember member = new Database.LBMember(Database.getUserGlobalRank(userId), user.getAsTag(), Database.getUserBalance(userId));
+        LBMember member = new LBMember(Database.getUserGlobalRank(userId), user.getAsTag(), Database.getUserBalance(userId));
         EmbedBuilder embed = new EmbedBuilder().setDescription("```" + Leaderboard.getTable(guildsList.get(page - 1)) + "```")
                 .addField("Your Rank", "`" + member.getRank() + ". " + member.getName() + " : " + member.getLollipops() + "`", false);
 
@@ -98,7 +99,7 @@ public class LeaderboardListener extends ListenerAdapter {
     }
 
     private void editMessage(JDA jda, Message msg, boolean next, User user, int page) {
-        List<List<Database.LBMember>> guildsList = Database.getLeaderboard(jda);
+        List<List<LBMember>> guildsList = Database.getLeaderboard(jda);
 
         if(next) {
             if(page == guildsList.size()) page = 1;
@@ -110,7 +111,7 @@ public class LeaderboardListener extends ListenerAdapter {
 
         String userId = user.getId();
 
-        Database.LBMember member = new Database.LBMember(Database.getUserGlobalRank(userId), user.getAsTag(), Database.getUserBalance(userId));
+        LBMember member = new LBMember(Database.getUserGlobalRank(userId), user.getAsTag(), Database.getUserBalance(userId));
         EmbedBuilder embed = new EmbedBuilder()
                 .setTitle("Global Leaderboard")
                 .setDescription("```" + Leaderboard.getTable(guildsList.get(page - 1)) + "```")

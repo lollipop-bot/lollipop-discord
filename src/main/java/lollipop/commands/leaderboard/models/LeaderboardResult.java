@@ -1,4 +1,4 @@
-package lollipop.database;
+package lollipop.commands.leaderboard.models;
 
 import java.util.List;
 

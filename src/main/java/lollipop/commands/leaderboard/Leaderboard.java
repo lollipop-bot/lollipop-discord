@@ -1,11 +1,10 @@
-package lollipop.commands;
+package lollipop.commands.leaderboard;
 
 import lollipop.*;
-import lollipop.database.Database;
+import lollipop.Database;
+import lollipop.commands.leaderboard.models.LBMember;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Emoji;
-import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.User;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -17,11 +16,9 @@ import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 public class Leaderboard implements Command {
 
@@ -70,8 +67,8 @@ public class Leaderboard implements Command {
             User author = event.getUser();
             String userId = author.getId();
 
-            List<Database.LBMember> memberList = Database.getLeaderboard(event.getGuild()).get(0);
-            Database.LBMember cMember = new Database.LBMember(Database.getUserGuildRank(userId, event.getGuild()), author.getAsTag(), Database.getUserBalance(userId));
+            List<LBMember> memberList = Database.getLeaderboard(event.getGuild()).get(0);
+            LBMember cMember = new LBMember(Database.getUserGuildRank(userId, event.getGuild()), author.getAsTag(), Database.getUserBalance(userId));
 
             if(memberList.isEmpty()) {
                 event.reply("No members on the page").setEphemeral(true).queue();
@@ -107,8 +104,8 @@ public class Leaderboard implements Command {
             User author = event.getUser();
             String userId = author.getId();
 
-            List<Database.LBMember> memberList = Database.getLeaderboard(event.getJDA()).get(0);
-            Database.LBMember cMember = new Database.LBMember(Database.getUserGlobalRank(userId), author.getAsTag(), Database.getUserBalance(userId));
+            List<LBMember> memberList = Database.getLeaderboard(event.getJDA()).get(0);
+            LBMember cMember = new LBMember(Database.getUserGlobalRank(userId), author.getAsTag(), Database.getUserBalance(userId));
 
             if(memberList.isEmpty()) {
                 event.reply("No members on the page").setEphemeral(true).queue();
@@ -143,7 +140,7 @@ public class Leaderboard implements Command {
         }
     }
 
-    public static String getTable(List<Database.LBMember> memberList) {
+    public static String getTable(List<LBMember> memberList) {
         StringBuilder table = new StringBuilder();
         int nameSize = memberList.stream()
                 .mapToInt(it -> Math.min(it.getName().length(), 22))
@@ -165,7 +162,7 @@ public class Leaderboard implements Command {
         table.append(String.format(rowFormat, "Rank ", "Name", "Lollipops"));
         table.append(divider);
 
-        for (Database.LBMember member : memberList) {
+        for (LBMember member : memberList) {
             String name = member.getName();
             table.append(String.format(rowFormat, member.getRank() + ".", name.substring(0, Math.min(22, name.length())), member.getLollipops()));
         }
