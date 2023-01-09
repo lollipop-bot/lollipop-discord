@@ -30,6 +30,6 @@ public class Constant {
     public static double MULTIPLIER = 1.5d;
 
     // Software Version Value
-    public static String VERSION = "v2.10.4";
+    public static String VERSION = "v2.10.6";
 
 }
