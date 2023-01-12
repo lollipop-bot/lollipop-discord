@@ -71,6 +71,12 @@ public class Tools {
         list.add(index, element);
     }
 
+    public static double ratingCurve(int x) {
+        return 0.5/(1+Math.pow(Math.E, 0.05*(-x+80)));
+    }
 
+    public static double factorCurve(int x) {
+        return -Math.pow(x-300, 2)/90000 + 1;
+    }
 
 }

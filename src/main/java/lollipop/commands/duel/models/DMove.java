@@ -11,9 +11,10 @@ public class DMove {
     private final String gif;
     private final DMType type;
     private final boolean blockable;
+    private final int[] influence;
     private Button button;
 
-    public DMove(String name, String id, String phrase, String descriptionPhrase, String gif, String detail, DMType type, boolean blockable) {
+    public DMove(String name, String id, String phrase, String descriptionPhrase, String gif, String detail, DMType type, boolean blockable, int[] influence) {
         this.name = name;
         this.phrase = phrase;
         this.description = "**" + descriptionPhrase + "**\n" + detail + "\n" + "> Type: " + type.toString() + "\n> Blockable: " + blockable;
@@ -27,6 +28,7 @@ public class DMove {
             case ULTIMATE, FORFEIT -> this.button = Button.danger(id, name);
             case STRENGTH, DEFENSE -> this.button = Button.secondary(id, name);
         }
+        this.influence = influence;
     }
 
     public String getName() {
@@ -63,6 +65,10 @@ public class DMove {
 
     public String toString() {
         return this.name + ": " + this.phrase;
+    }
+
+    public int[] getInfluence() {
+        return influence;
     }
 
 }

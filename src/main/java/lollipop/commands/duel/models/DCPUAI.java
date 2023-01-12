@@ -1,5 +1,9 @@
 package lollipop.commands.duel.models;
 
+import lollipop.Tools;
+import net.dv8tion.jda.api.JDA;
+import net.dv8tion.jda.api.sharding.ShardManager;
+
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -9,28 +13,13 @@ import java.util.HashMap;
  */
 public class DCPUAI {
 
-    private static int totalGames = 0;
-    private static int gamesWon = 0;
+    private static int[] duelsRating;
 
-    private static final HashMap<String, int[]> moveInfluence = new HashMap<>() {{
-        put("punch", new int[]{2, 0, 0, 0});
-        put("kick", new int[]{2, 0, 0, 0});
-        put("headbutt", new int[]{2, 0, 0, 0});
-        put("chop", new int[]{2, 0, 0, 0});
-        put("eat", new int[]{0, 1, 2, 0});
-        put("breathe", new int[]{1, 0, 0, 2});
-        put("shield", new int[]{0, 2, 0, 0});
-        put("block", new int[]{1, 2, 0, 0});
-        put("4th gear", new int[]{3, 0, 0, 0});
-        put("hinokami kagura", new int[]{3, 0, 0, 0});
-        put("rasengan", new int[]{3, 0, 0, 0});
-        put("ora", new int[]{3, 0, 0, 0});
-        put("us smash", new int[]{3, 0, 0, 0});
-        put("100%", new int[]{0, 0, 0, 4});
-        put("serious punch", new int[]{6, 0, 0, 0});
-        put("za warudo", new int[]{2, 2, 2, 2});
-        put("yare yare daze", new int[]{3, 0, 0, 0});
-    }};
+    // Default starts at 200 rating
+    public static void setupRating(ShardManager shards) {
+        duelsRating = new int[shards.getShardsTotal()];
+        Arrays.fill(duelsRating, 200);
+    }
 
     /**
      * Generates a scenario array based on the current status of the game <br>
@@ -46,17 +35,19 @@ public class DCPUAI {
         DPlayer cpu = game.getGuestPlayer();
         DPlayer player = game.getHomePlayer();
 
-        if(player.getHP() < 25) scenario[0]++;
-        if(cpu.getHP() > player.getHP()+50) scenario[0]++;
-        if(cpu.getHP() > player.getHP()+30) scenario[0]++;
+        if(player.getHP() < 25) scenario[0]+=2;
+        if(player.getHP() < 15) scenario[0]+=4;
+        if(cpu.getHP() > player.getHP()+50) { scenario[0]++; scenario[3]+=2; }
+        if(cpu.getHP() > player.getHP()+30) { scenario[0]++; scenario[3]++; }
         if(cpu.getHP() < 30) { scenario[1]+=3; scenario[2]++; }
         if(cpu.getHP() < player.getHP()-50) { scenario[1]++; scenario[2]+=3; }
-        else scenario[0]++;
-        if(cpu.getHP() < player.getHP()-30) scenario[2]++;
+        else if(cpu.getHP() < player.getHP()-30) scenario[2]++;
         else scenario[0]++;
         if(cpu.getSP() < player.getSP()-3) scenario[3]++;
         if(cpu.getSP() < player.getSP()-7) scenario[3]+=3;
         if(Math.abs(cpu.getHP()-player.getHP()) <= 15) scenario[3]++;
+        if(cpu.getHP() > player.getHP()) scenario[3]+=2;
+        if(cpu.isDefending()) scenario[1] = 0;
 
         return scenario;
     }
@@ -87,7 +78,7 @@ public class DCPUAI {
         DMove bestMove = null;
         int maxScore = -1;
         for(DMove move : options) {
-            int score = calculateScore(scenario, moveInfluence.get(move.getName()));
+            int score = calculateScore(scenario, move.getInfluence());
             if(score >= maxScore) {
                 maxScore = score;
                 bestMove = move;
@@ -97,19 +88,22 @@ public class DCPUAI {
         return bestMove;
     }
 
-    public static String calculateRating() {
-        if(totalGames == 0) return "Unknown";
-        int percentage = gamesWon*100/totalGames;
-        if(percentage < 20) return "Trivial; Win Rate = " + percentage + "%";
-        else if(percentage < 40) return "Noob; Win Rate = " + percentage + "%";
-        else if(percentage < 60) return "Amateur; Win Rate = " + percentage + "%";
-        else if(percentage < 80) return "Master; Win Rate = " + percentage + "%";
-        return "Unbeatable; Win Rate = " + percentage + "%";
+    public static String calculateRating(JDA jda) {
+        int shard = jda.getShardInfo().getShardId();
+        if(duelsRating[shard] < 64) return duelsRating[shard] + " (Trivial)";
+        else if(duelsRating[shard] < 128) return duelsRating[shard] + " (Noob)";
+        else if(duelsRating[shard] < 256) return duelsRating[shard] + " (Amateur)";
+        else if(duelsRating[shard] < 512) return duelsRating[shard] + " (Master)";
+        return duelsRating[shard] + " (Unbeatable)";
     }
 
-    public static void incrementGamesCount(boolean won) {
-        totalGames++;
-        if(won) gamesWon++;
+    public static void updateRating(JDA jda, boolean won, int playerHP, int cpuHP) {
+        int shard = jda.getShardInfo().getShardId();
+        double delta = won ? Tools.ratingCurve(cpuHP-playerHP) : -Tools.ratingCurve(playerHP-cpuHP);
+        delta = 1+delta*Tools.factorCurve(duelsRating[shard]);
+        System.out.println(duelsRating[shard]);
+        System.out.println(Tools.ratingCurve(Math.abs(cpuHP-playerHP)) + " " + Tools.factorCurve(duelsRating[shard]) + " " + delta);
+        duelsRating[shard] = Math.max(1, (int)(duelsRating[shard] * delta));
     }
 
 }

@@ -46,7 +46,7 @@ public class DuelsListener extends ListenerAdapter {
         else {
             if(event.getMessage().getIdLong() != game.getDisplayMessage().getIdLong()) return;
 
-            if(event.getMember() != game.getTurnPlayer().getMember()) {
+            if(event.getMember() != game.getTurnPlayer().getMember() && !event.getButton().getLabel().equals("surrender")) {
                 event.replyEmbeds(new EmbedBuilder()
                         .setDescription("**It is not your turn! Please wait for the other player to finish his turn!**")
                         .setColor(Color.red)

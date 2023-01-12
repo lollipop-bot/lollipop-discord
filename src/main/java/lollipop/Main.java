@@ -1,5 +1,6 @@
 package lollipop;
 
+import lollipop.commands.duel.models.DCPUAI;
 import lollipop.listeners.*;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
@@ -64,6 +65,9 @@ public class Main {
 
         // Setup Databases
         Database.setupDatabases();
+
+        // Setup multi-instance duels ai rating system
+        DCPUAI.setupRating(bot);
 
     }
 

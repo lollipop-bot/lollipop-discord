@@ -20,7 +20,8 @@ public class DMFactory {
                 "https://media.tenor.com/R_ANXhPyfz4AAAAC/axis-hetalia-white-flag.gif",
                 "Surrender your game and quit the duel",
                 DMType.FORFEIT,
-                false
+                false,
+                new int[]{-1, -1, -1, -1}
         );
 
         moves = new DMove[] {
@@ -34,7 +35,8 @@ public class DMFactory {
                         "https://c.tenor.com/6a42QlkVsCEAAAAd/anime-punch.gif",
                         "(`5-10 HP` damage on opponent)",
                         DMType.ATTACK,
-                        true
+                        true,
+                        new int[]{1, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -47,7 +49,8 @@ public class DMFactory {
                         "https://c.tenor.com/1sTe1w12WHwAAAAC/nezuko-kamado-tanjiro-kamado.gif",
                         "(`5-10 HP` damage on opponent)",
                         DMType.ATTACK,
-                        true
+                        true,
+                        new int[]{1, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -60,7 +63,8 @@ public class DMFactory {
                         "https://c.tenor.com/4AvIBPKxbOwAAAAd/demonslayer-headbutt.gif",
                         "(`5-10 HP` damage on opponent)",
                         DMType.ATTACK,
-                        true
+                        true,
+                        new int[]{1, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -73,7 +77,8 @@ public class DMFactory {
                         "https://c.tenor.com/FMO5562dLt4AAAAd/one-punch-man2-saitama-v-garou.gif",
                         "(`5-10 HP` damage on opponent)",
                         DMType.ATTACK,
-                        true
+                        true,
+                        new int[]{1, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -86,7 +91,8 @@ public class DMFactory {
                         "https://c.tenor.com/NUt8vwChgIcAAAAC/luffy-eating.gif",
                         "(`20-30 HP` health boost)",
                         DMType.HEAL,
-                        false
+                        false,
+                        new int[]{0, 1, 2, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -99,7 +105,8 @@ public class DMFactory {
                         "https://c.tenor.com/WGGJBAiyhxQAAAAC/demon-slayer-kimetsu-no-yaiba.gif",
                         "(`3-5 SP` strength boost)",
                         DMType.STRENGTH,
-                        false
+                        false,
+                        new int[]{1, 0, 0, 2}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -112,7 +119,8 @@ public class DMFactory {
                         "https://c.tenor.com/Z_0BQslObuIAAAAd/dragon-ball-barrier.gif",
                         "(Blocks your opponent's next blockable attack; wears off after 1 attack)",
                         DMType.DEFENSE,
-                        false
+                        false,
+                        new int[]{0, 2, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -125,7 +133,8 @@ public class DMFactory {
                         "https://media.tenor.com/8H0ommaqSPIAAAAd/blue-lock-bachira.gif",
                         "(Blocks your opponent's next blockable attack; wears off after 1 attack)",
                         DMType.DEFENSE,
-                        false
+                        false,
+                        new int[]{1, 2, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -138,7 +147,8 @@ public class DMFactory {
                         "https://c.tenor.com/Z6xWNeyumJMAAAAC/one-piece-fight.gif",
                         "(`13-18 HP` damage on opponent)",
                         DMType.ULTIMATE,
-                        true
+                        true,
+                        new int[]{4, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -151,7 +161,8 @@ public class DMFactory {
                         "https://c.tenor.com/LUAKGZSLoD8AAAAd/demon-slayer-tanjiro.gif",
                         "(`13-18 HP` damage on opponent)",
                         DMType.ULTIMATE,
-                        true
+                        true,
+                        new int[]{4, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -164,7 +175,8 @@ public class DMFactory {
                         "https://c.tenor.com/_zEr-rdppKMAAAAC/minato-naruto.gif",
                         "(`14-19 HP` damage on opponent)",
                         DMType.ULTIMATE,
-                        true
+                        true,
+                        new int[]{4, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -177,7 +189,8 @@ public class DMFactory {
                         "https://c.tenor.com/LytxJSf81m4AAAAC/ora-beatdown-oraoraora.gif",
                         "(`15-20 HP` damage on opponent)",
                         DMType.ULTIMATE,
-                        true
+                        true,
+                        new int[]{4, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -190,7 +203,8 @@ public class DMFactory {
                         "https://media.tenor.com/ZRDPXCwLXcIAAAAd/all-might-my-hero-academia.gif",
                         "(`16-20 HP` damage on your opponent)",
                         DMType.ULTIMATE,
-                        true
+                        true,
+                        new int[]{4, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -203,7 +217,8 @@ public class DMFactory {
                         "https://media.tenor.com/8cNey0yg9xsAAAAC/mob-100.gif",
                         "(`6-10 SP` strength boost)",
                         DMType.ULTIMATE,
-                        true
+                        true,
+                        new int[]{1, 0, 0, 4}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -216,7 +231,8 @@ public class DMFactory {
                         "https://c.tenor.com/vlsvbgqYz5QAAAAd/carnage-kabuto-saitama.gif",
                         "(`40-50 HP` damage on opponent but `20-30 HP` when opponent is blocking)",
                         DMType.ULTIMATE,
-                        false
+                        false,
+                        new int[]{8, 0, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -224,12 +240,13 @@ public class DMFactory {
                 new DMove(
                         "za warudo",
                         "ultimate8",
-                        "**ZA WARUDO!**\n`%s` stopped time. Their opponent is frozen for `6 seconds`!",
+                        "**ZA WARUDO!**\n`%s` stopped time. Their opponent is frozen for `3 seconds`!",
                         "Freeze time for your opponents and get moves ahead!",
                         "https://c.tenor.com/ETlOjJ8aU7EAAAAC/za-warudo-jojo-bizarre-adventure.gif",
                         "(Prevents the opponent from having a turn for 6 seconds)",
                         DMType.ULTIMATE,
-                        false
+                        false,
+                        new int[]{2, 2, 2, 2}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------
@@ -242,7 +259,8 @@ public class DMFactory {
                         "https://c.tenor.com/Wtn31Gl1CpYAAAAC/jotaro-ora.gif",
                         "(Opponents become `5-15 SP` weaker and damaged `15-20 HP`)",
                         DMType.ULTIMATE,
-                        false
+                        false,
+                        new int[]{4, 2, 0, 0}
                 ),
 
                 // --------------------------------------------------------------------------------------------------------

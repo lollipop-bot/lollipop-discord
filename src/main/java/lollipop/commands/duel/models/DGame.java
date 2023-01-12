@@ -188,6 +188,9 @@ public class DGame {
             }
         }
 
+        // in case of some errors with switching for message sending
+        if(turnPlayer.isCPU()) this.switchPlayerTurns();
+
         DMove[] options = new DMove[moveCount + 1];
         System.arraycopy(DMFactory.generateRandomMoves(moveCount), 0, options, 0, moveCount);
         options[moveCount] = DMFactory.getSurrender();
@@ -254,7 +257,7 @@ public class DGame {
                         .setFooter("Type " + Constant.PREFIX + "duel to start another duel with me!");
 
                 if (idlePlayer.isCPU()) {
-                    DCPUAI.incrementGamesCount(true);
+                    DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
                     embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", cpuLink, cpuAvatar);
 
                     int xp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-40)/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
@@ -345,7 +348,7 @@ public class DGame {
                 if (this.idlePlayer.isDefending()) {
                     int damage = (int) (Math.random() * 11) + 20 + this.turnPlayer.getSP();
                     this.idlePlayer.updateHP(-damage);
-                    turnDescription = String.format(move.getBlockPhrase(), idlePlayer.getName(), turnPlayer.getName());
+                    turnDescription = String.format(move.getPhrase(), turnPlayer.getName(), damage);
                     this.idlePlayer.setDefending(false);
                 } else {
                     int damage = (int) (Math.random() * 11) + 40 + this.turnPlayer.getSP();
@@ -355,7 +358,7 @@ public class DGame {
             }
             case "za warudo" -> {
                 this.idlePlayer.setTimeoutStart(System.currentTimeMillis());
-                this.idlePlayer.setTimeoutDuration(6);
+                this.idlePlayer.setTimeoutDuration(3);
                 turnDescription = String.format(move.getPhrase(), turnPlayer.getName());
             }
             case "yare yare daze" -> {
@@ -367,6 +370,11 @@ public class DGame {
                 this.idlePlayer.setDefending(false);
             }
         }
+
+        homePlayer.setHP(Math.max(0, homePlayer.getHP()));
+        homePlayer.setSP(Math.max(-5, homePlayer.getSP()));
+        guestPlayer.setHP(Math.max(0, guestPlayer.getHP()));
+        guestPlayer.setSP(Math.max(-5, guestPlayer.getSP()));
 
         return turnDescription;
     }
@@ -385,7 +393,7 @@ public class DGame {
             int xp = turnPlayer.hasMultiplier() ? (int)((int)(Math.random()*11)-40/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
             embedBuilder.setFooter(turnPlayer.getName() + " lost " + -xp + " lollipops!", lollipopAvatar);
             this.gameTimeout = channel.sendMessageEmbeds(embedBuilder.build()).queueAfter(30, TimeUnit.SECONDS, me -> {
-                DCPUAI.incrementGamesCount(true);
+                DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
                 Database.addToUserBalance(turnPlayer.getMember().getId(), xp);
                 Duel.memberToGame.remove(turnPlayer.getMember().getIdLong());
                 Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
@@ -429,7 +437,7 @@ public class DGame {
                     .setFooter("Type " + Constant.PREFIX + "duel to start another duel with me!");
 
             if(guestPlayer.isCPU()) {
-                DCPUAI.incrementGamesCount(true);
+                DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
 
                 int xp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-40)/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
                 Database.addToUserBalance(homePlayer.getMember().getId(), xp);
@@ -450,7 +458,7 @@ public class DGame {
             Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
             Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
             if(!guestPlayer.isCPU()) Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
-            else DCPUAI.incrementGamesCount(false);
+            else DCPUAI.updateRating(this.displayMessage.getJDA(), false, homePlayer.getHP(), guestPlayer.getHP());
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setColor(Color.green)
@@ -458,7 +466,7 @@ public class DGame {
                     .setTitle(victoryMsg[(int)(Math.random()*victoryMsg.length)])
                     .setImage(endGifLink)
                     .setDescription(
-                            "> " + homePlayer.getName() + "'s Health: `" + homePlayer.getHP() + "`\n" +
+                            "> " + homePlayer.getName() + "'s Health: `" + homePlayer.getHP() + " HP`\n" +
                             "> " + guestPlayer.getName() + "'s Health: `0 HP`"
                     );
 

@@ -76,7 +76,7 @@ public class Duel implements Command {
 
         final List<OptionMapping> options = event.getOptions();
         if(options.isEmpty()) {
-            event.reply("Duels CPU " + event.getJDA().getShardInfo().getShardId() + " (`Difficulty Rating = " + DCPUAI.calculateRating() + "`)").queue();
+            event.reply("Duels CPU " + event.getJDA().getShardInfo().getShardId() + " - `AI Rating = " + DCPUAI.calculateRating(event.getJDA()) + "`").queue();
 
             DPlayer homePlayer = new DPlayer(event.getMember());
             DPlayer guestPlayer = new DPlayer(null);
@@ -90,7 +90,7 @@ public class Duel implements Command {
             BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> homePlayer.setMultiplierStatus(true), () -> homePlayer.setMultiplierStatus(false));
 
             if(options.get(0).getAsMember().getIdLong() == Constant.BOT_ID) {
-                event.reply("Duels CPU " + event.getJDA().getShardInfo().getShardId() + " (`Difficulty Rating = " + DCPUAI.calculateRating() + "`)").queue();
+                event.reply("Duels CPU " + event.getJDA().getShardInfo().getShardId() + " - `AI Rating = " + DCPUAI.calculateRating(event.getJDA()) + "`").queue();
 
                 DPlayer guestPlayer = new DPlayer(null);
                 guestPlayer.setMultiplierStatus(false);
