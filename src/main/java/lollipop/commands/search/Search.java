@@ -33,7 +33,8 @@ public class Search implements Command {
 
     @Override
     public String getHelp() {
-        return "Searches for an anime/manga/charcater and NSFW content is locked to NSFW channels only!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [anime/manga/character] [query]`";
+        return "Searches for an anime, manga, character, or user on the internet! NSFW content is locked to NSFW channels only.\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [anime/manga/character/user] [query]`";
     }
 
     public static HashMap<Long, AnimePage> messageToAnimePage = new HashMap<>();
