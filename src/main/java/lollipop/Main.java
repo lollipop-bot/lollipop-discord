@@ -1,8 +1,7 @@
 package lollipop;
 
-import lollipop.listeners.DuelsListener;
-import lollipop.listeners.LollipopReaction;
-import lollipop.listeners.PageListener;
+import lollipop.commands.duel.models.DCPUAI;
+import lollipop.listeners.*;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -40,7 +39,9 @@ public class Main {
                 .setShardsTotal(4)
                 .addEventListeners(new Listener())
                 .addEventListeners(new DuelsListener())
+                .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
+                .addEventListeners(new LeaderboardListener())
                 .addEventListeners(new LollipopReaction())
                 .addEventListeners(new BotStatistics());
         ShardManager bot = lollipop.build();
@@ -53,7 +54,9 @@ public class Main {
                 .setActivity(Activity.watching("anime | " + Constant.PREFIX + "help"))
                 .addEventListeners(new Listener())
                 .addEventListeners(new DuelsListener())
+                .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
+                .addEventListeners(new LeaderboardListener())
                 .addEventListeners(new LollipopReaction());
         //JDA test = testClient.build();
 
@@ -62,6 +65,9 @@ public class Main {
 
         // Setup Databases
         Database.setupDatabases();
+
+        // Setup multi-instance duels ai rating system
+        DCPUAI.setupRating(bot);
 
     }
 

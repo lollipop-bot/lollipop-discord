@@ -38,7 +38,7 @@ public class Defend implements Command {
 
     @Override
     public void run(SlashCommandInteractionEvent event) {
-        String[] gifs = new String[]{"https://c.tenor.com/aq0i3wbHc08AAAAC/dagger-anime.gif", "https://c.tenor.com/TPaJW2RZyIYAAAAC/anime-dodge.gif", "https://c.tenor.com/_RiEmuK5xS8AAAAd/garou-defend.gif", "https://c.tenor.com/WO8INqwCItcAAAAC/dragon-ball-anime.gif", "https://c.tenor.com/ObXEEfb_m1cAAAAC/goten-dbz.gif", "https://c.tenor.com/Z8Q13fWVtQkAAAAC/block-deflect.gif"};
+        String[] gifs = new String[]{"https://c.tenor.com/aq0i3wbHc08AAAAC/dagger-anime.gif", "https://media.tenor.com/8H0ommaqSPIAAAAd/blue-lock-bachira.gif", "https://c.tenor.com/TPaJW2RZyIYAAAAC/anime-dodge.gif", "https://c.tenor.com/_RiEmuK5xS8AAAAd/garou-defend.gif", "https://c.tenor.com/WO8INqwCItcAAAAC/dragon-ball-anime.gif", "https://c.tenor.com/ObXEEfb_m1cAAAAC/goten-dbz.gif", "https://c.tenor.com/Z8Q13fWVtQkAAAAC/block-deflect.gif"};
         event.replyEmbeds(new EmbedBuilder()
                 .setDescription("\uD83D\uDE46 *block* \uD83D\uDE45 \n" + event.getUser().getAsMention() + " defended themselves!")
                 .setImage(gifs[(int)(Math.random()*gifs.length)])

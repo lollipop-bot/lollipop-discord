@@ -1,6 +1,7 @@
 package lollipop.commands.trivia;
 
 import lollipop.*;
+import lollipop.commands.trivia.models.TGame;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;

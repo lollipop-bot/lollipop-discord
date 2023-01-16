@@ -64,4 +64,19 @@ public class Tools {
         return result;
     }
 
+    public static void addToSortedList(ArrayList<Integer> list, int element) {
+        int index = Collections.binarySearch(list, element);
+        if (index < 0)
+            index = -index - 1;
+        list.add(index, element);
+    }
+
+    public static double ratingCurve(int x) {
+        return 0.5/(1+Math.pow(Math.E, 0.05*(-x+80)));
+    }
+
+    public static double factorCurve(int x) {
+        return -Math.pow(x-300, 2)/90000 + 1;
+    }
+
 }
