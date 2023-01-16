@@ -149,6 +149,7 @@ public class DGame {
         TextChannel channel = this.displayMessage.getTextChannel();
 
         String turnDescription = performMove(move);
+        String moveGif = move.getGif();
         if(turnDescription == null) return;
 
         if(this.checkWin(channel)) return;
@@ -163,6 +164,7 @@ public class DGame {
             DMove cpuMove = DCPUAI.minimax(this, options);
 
             turnDescription += performMove(cpuMove);
+            moveGif = cpuMove.getGif();
 
             if(this.checkWin(channel)) return;
 
@@ -170,8 +172,9 @@ public class DGame {
             if (!isPlayerTimedOut) this.switchPlayerTurns();
             else {
                 this.turnPlayer.setTimeoutDuration(0);
+                int turns = (int) (2 + Math.random()*2);
 
-                for(int i=0; i<3; i++) {
+                for(int i=0; i<turns; i++) {
                     turnDescription += "\n\n";
 
                     options = DMFactory.generateRandomMoves(moveCount);
@@ -208,7 +211,7 @@ public class DGame {
                         "> Health: `" + this.guestPlayer.getHP() + " HP`\n> Strength: `" + this.guestPlayer.getSP() + " SP`",
                         true
                 )
-                .setImage(move.getGif())
+                .setImage(moveGif)
                 .setFooter("Choose what you want to play... You have 30 seconds to react!")
                 .build();
 
