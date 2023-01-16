@@ -501,8 +501,8 @@ public class API implements RListener, AListener {
      * @param nsfw nsfw allowed
      */
     public void searchAnime(InteractionHook message, String query, boolean nsfw) {
-        animeClient.searchAnime(query, nsfw);
         messageToEdit.push(message);
+        animeClient.searchAnime(query, nsfw);
     }
 
     /**
@@ -511,8 +511,8 @@ public class API implements RListener, AListener {
      * @param query character name
      */
     public void searchCharacter(InteractionHook message, String query) {
-        animeClient.searchCharacter(query);
         messageToEdit.push(message);
+        animeClient.searchCharacter(query);
     }
 
     /**
@@ -521,8 +521,8 @@ public class API implements RListener, AListener {
      * @param query username
      */
     public void searchUser(InteractionHook message, String query) {
-        animeClient.searchUser(query);
         messageToEdit.push(message);
+        animeClient.searchUser(query);
     }
 
     /**
@@ -532,9 +532,9 @@ public class API implements RListener, AListener {
      */
     public void getCharacterAnimes(SelectMenuInteractionEvent event, CharacterPage page) {
         Character character = page.characters.get(page.pageNumber-1);
-        animeClient.getCharacterAnimes(character);
         eventToReply.push(event);
         eventToCharacterPage.put(event, page);
+        animeClient.getCharacterAnimes(character);
     }
 
     /**
@@ -544,9 +544,9 @@ public class API implements RListener, AListener {
      */
     public void getCharacterMangas(SelectMenuInteractionEvent event, CharacterPage page) {
         Character character = page.characters.get(page.pageNumber-1);
-        animeClient.getCharacterMangas(character);
         eventToReply.push(event);
         eventToCharacterPage.put(event, page);
+        animeClient.getCharacterMangas(character);
     }
 
     /**
@@ -556,9 +556,9 @@ public class API implements RListener, AListener {
      */
     public void getCharacterVoices(SelectMenuInteractionEvent event, CharacterPage page) {
         Character character = page.characters.get(page.pageNumber-1);
-        animeClient.getCharacterVoices(character);
         eventToReply.push(event);
         eventToCharacterPage.put(event, page);
+        animeClient.getCharacterVoices(character);
     }
 
     /**
@@ -566,8 +566,8 @@ public class API implements RListener, AListener {
      * @param message message
      */
     public void randomQuote(InteractionHook message) {
-        animeClient.randomQuote();
         messageToEdit.push(message);
+        animeClient.randomQuote();
     }
 
     /**
@@ -577,9 +577,9 @@ public class API implements RListener, AListener {
      */
     public void getEpisodes(SelectMenuInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
-        animeClient.getEpisodes(id);
         eventToReply.push(event);
         eventToAnimePage.put(event, page);
+        animeClient.getEpisodes(id);
     }
 
     /**
@@ -589,9 +589,9 @@ public class API implements RListener, AListener {
      */
     public void getCharacters(SelectMenuInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
-        animeClient.getCharacters(id);
         eventToReply.push(event);
         eventToAnimePage.put(event, page);
+        animeClient.getCharacters(id);
     }
 
     /**
@@ -601,9 +601,9 @@ public class API implements RListener, AListener {
      */
     public void getNews(SelectMenuInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
-        animeClient.getNews(id);
         eventToReply.push(event);
         eventToAnimePage.put(event, page);
+        animeClient.getNews(id);
     }
 
     /**
@@ -613,9 +613,9 @@ public class API implements RListener, AListener {
      */
     public void getStatistics(SelectMenuInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
-        animeClient.getStatistics(id);
         eventToReply.push(event);
         eventToAnimePage.put(event, page);
+        animeClient.getStatistics(id);
     }
 
     /**
@@ -625,9 +625,9 @@ public class API implements RListener, AListener {
      */
     public void getThemes(SelectMenuInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
-        animeClient.getThemes(id);
         eventToReply.push(event);
         eventToAnimePage.put(event, page);
+        animeClient.getThemes(id);
     }
 
     /**
@@ -637,9 +637,9 @@ public class API implements RListener, AListener {
      */
     public void getRecommendation(SelectMenuInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
-        animeClient.getRecommendation(id);
         eventToReply.push(event);
         eventToAnimePage.put(event, page);
+        animeClient.getRecommendation(id);
     }
 
     /**
@@ -649,9 +649,9 @@ public class API implements RListener, AListener {
      */
     public void getReview(SelectMenuInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
-        animeClient.getReview(id);
         eventToReply.push(event);
         eventToAnimePage.put(event, page);
+        animeClient.getReview(id);
     }
 
     /**
@@ -659,8 +659,8 @@ public class API implements RListener, AListener {
      * @param message message
      */
     public void getTopAnime(InteractionHook message) {
-        animeClient.getTop();
         messageToEdit.push(message);
+        animeClient.getTop();
     }
 
     /**
@@ -668,8 +668,8 @@ public class API implements RListener, AListener {
      * @param message message
      */
     public void getPopularAnime(InteractionHook message) {
-        animeClient.getPopular();
         messageToEdit.push(message);
+        animeClient.getPopular();
     }
 
     /**
@@ -677,8 +677,8 @@ public class API implements RListener, AListener {
      * @param message message
      */
     public void getLatestAnime(InteractionHook message) {
-        animeClient.getLatest();
         messageToEdit.push(message);
+        animeClient.getLatest();
     }
 
     /**
@@ -687,8 +687,8 @@ public class API implements RListener, AListener {
      * @param nsfw nsfw allowed
      */
     public void randomAnime(InteractionHook message, boolean nsfw) {
-        animeClient.randomAnime(nsfw);
         messageToEdit.push(message);
+        animeClient.randomAnime(nsfw);
     }
 
     /**
@@ -697,8 +697,8 @@ public class API implements RListener, AListener {
      * @param nsfw nsfw allowed
      */
     public void randomManga(InteractionHook message, boolean nsfw) {
-        mangaClient.randomManga(nsfw);
         messageToEdit.push(message);
+        mangaClient.randomManga(nsfw);
     }
 
     /**
@@ -707,8 +707,8 @@ public class API implements RListener, AListener {
      * @param nsfw nsfw allowed
      */
     public void randomCharacter(InteractionHook message, boolean nsfw) {
-        animeClient.randomCharacter(nsfw);
         messageToEdit.push(message);
+        animeClient.randomCharacter(nsfw);
     }
 
     /**
@@ -716,8 +716,8 @@ public class API implements RListener, AListener {
      * @param message message
      */
     public void randomGIF(InteractionHook message) {
-        animeClient.randomGIF();
         messageToEdit.push(message);
+        animeClient.randomGIF();
     }
 
     /**
@@ -752,8 +752,8 @@ public class API implements RListener, AListener {
             }
 
         };
-        animeClient.randomTrivia(available);
         messageToEdit.push(message);
+        animeClient.randomTrivia(available);
     }
 
     /**
@@ -928,7 +928,7 @@ public class API implements RListener, AListener {
                         SelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
-                                .addOption("Sort by alphabetical order", "alphabetical")
+                                .addOption("Sort in alphabetical order", "alphabetical")
                                 .build()
                 ),
                 ActionRow.of(
