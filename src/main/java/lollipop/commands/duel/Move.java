@@ -5,6 +5,7 @@ import lollipop.Constant;
 import lollipop.Command;
 import lollipop.Tools;
 import lollipop.commands.duel.models.DMFactory;
+import lollipop.commands.duel.models.DMType;
 import lollipop.commands.duel.models.DMove;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -14,8 +15,10 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 
 import java.awt.*;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class Move implements Command {
     @Override
@@ -30,12 +33,14 @@ public class Move implements Command {
 
     @Override
     public String getHelp() {
-        return "Gives detail about a specific move that is available in a duel!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [move*]`";
+        return "Learn about the available moves and move types in the lollipop duel system.\n" +
+                "In the move field, choose `all` to get a list of all available moves, or choose a specific move to get a detailed description!\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [move]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
-        OptionData option = new OptionData(OptionType.STRING, "move", "available move name", true);
+        OptionData option = new OptionData(OptionType.STRING, "move", "Choose the move you want to learn about.", true);
         option.addChoice("all", "all");
         for(DMove move : DMFactory.getMoves()) option.addChoice(move.getName(), move.getName());
         return Tools.defaultSlashCmd(this)
@@ -48,31 +53,36 @@ public class Move implements Command {
         String moveName = options.get(0).getAsString();
 
         if(moveName.equalsIgnoreCase("all")) {
-            event.replyEmbeds(
-                    new EmbedBuilder()
-                            .setTitle("Available Duel Moves")
-                            .setDescription(String.join(", ", Arrays.stream(DMFactory.getMoves()).map(DMove::getName).toArray(String[]::new)))
-                            .setFooter("Try /move [moveName] to get details on a specific move")
-                            .setColor(Color.GREEN)
-                            .build()
-            ).queue();
+            ArrayList<DMove> moves = Arrays.stream(DMFactory.getMoves()).collect(Collectors.toCollection(ArrayList::new));
+            EmbedBuilder embedBuilder = new EmbedBuilder()
+                    .setTitle("Available Duel Moves")
+                    .setDescription(
+                            """
+                            **ATTACK** moves deal minimum damage to the opponent or break opponent blocks.
+                            **DEFENSE** moves defend from future blockable attacks from the opponent. (Blocks break after an attack)
+                            **HEAL** moves heal the turn player and boosts their HP.
+                            **STRENGTH** moves increase the turn player's SP and helps them deal more damage in their future attacks.
+                            **ULTIMATE** moves are rare moves that can turn the game around with their unique functionality.
+                            """
+                    )
+                    .addField("Attack Moves", "`" + String.join("`, `", moves.stream().filter(move -> move.getType()==DMType.ATTACK).map(DMove::getName).toArray(String[]::new)) + "`", false)
+                    .addField("Defense Moves", "`" + String.join("`, `", moves.stream().filter(move -> move.getType()==DMType.DEFENSE).map(DMove::getName).toArray(String[]::new)) + "`", false)
+                    .addField("Healing Moves", "`" + String.join("`, `", moves.stream().filter(move -> move.getType()==DMType.HEAL).map(DMove::getName).toArray(String[]::new)) + "`", false)
+                    .addField("Strength Moves", "`" + String.join("`, `", moves.stream().filter(move -> move.getType()==DMType.STRENGTH).map(DMove::getName).toArray(String[]::new)) + "`", false)
+                    .addField("Ultimate Moves", "`" + String.join("`, `", moves.stream().filter(move -> move.getType()==DMType.ULTIMATE).map(DMove::getName).toArray(String[]::new)) + "`", false)
+                    .setFooter("Try `/move move:[move name]` to get details on a specific move")
+                    .setColor(Color.GREEN);
+            event.replyEmbeds(embedBuilder.build()).queue();
             return;
         }
         DMove move = DMFactory.getMove(moveName);
-        if(move == null) {
-            event.replyEmbeds(new EmbedBuilder()
-                    .setDescription("I could not find an available move under that name! Please try again with a different input or do `" + Constant.PREFIX + "move all` to get a list of all the available moves!")
-                    .setColor(Color.red)
-                    .build()
-            ).queue();
-        } else {
-            event.replyEmbeds(new EmbedBuilder()
-                            .setTitle(move.getName())
-                            .setDescription(move.getDescription())
-                            .setFooter("Try /move all to see all available duel moves!")
-                            .setColor(Color.GREEN)
-                            .build()
-            ).queue();
-        }
+        event.replyEmbeds(new EmbedBuilder()
+                .setTitle(move.getName())
+                .setDescription(move.getDescription())
+                .setFooter("Try `/move move:all` to see all available duel moves!")
+                .setImage(move.getGif())
+                .setColor(Color.GREEN)
+                .build()
+        ).queue();
     }
 }
