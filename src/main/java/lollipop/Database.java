@@ -68,7 +68,7 @@ public class Database {
                 .sorted(Collections.reverseOrder())
                 .collect(Collectors.toCollection(ArrayList::new));
         int userLp = getUserBalance(id);
-        return new int[]{Collections.binarySearch(guildRank, userLp)+1, Collections.binarySearch(globalRank, userLp)+1};
+        return new int[]{Collections.binarySearch(guildRank, userLp, Collections.reverseOrder())+1, Collections.binarySearch(globalRank, userLp, Collections.reverseOrder())+1};
     }
 
     /**
@@ -85,7 +85,7 @@ public class Database {
         }
         guildRank.sort(Collections.reverseOrder());
         int userLp = getUserBalance(id);
-        return Collections.binarySearch(guildRank, userLp)+1;
+        return Collections.binarySearch(guildRank, userLp, Collections.reverseOrder())+1;
     }
 
     /**
@@ -100,7 +100,7 @@ public class Database {
                 .sorted(Collections.reverseOrder())
                 .collect(Collectors.toCollection(ArrayList::new));
         int userLp = getUserBalance(id);
-        return Collections.binarySearch(globalRank, userLp)+1;
+        return Collections.binarySearch(globalRank, userLp, Collections.reverseOrder())+1;
     }
 
     /**
@@ -123,7 +123,6 @@ public class Database {
         HashMap<String, Integer> userToLollipops = new HashMap<>();
         for(Member member : guild.getMembers()) userToLollipops.put(member.getId(), getUserBalance(member.getId()));
         userToLollipops = Tools.sortByValue(userToLollipops);
-        LeaderboardResult.LBMember cMember;
         int rank = 0;
         for(String id : userToLollipops.keySet()) {
             Member member = guild.getMemberById(id);
