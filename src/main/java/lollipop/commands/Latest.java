@@ -63,7 +63,7 @@ public class Latest implements Command {
             ScheduledFuture<?> timeout = msg.editOriginalEmbeds(
                     new EmbedBuilder()
                             .setColor(Color.red)
-                            .setDescription("No recently released animes were found for this season! Try again later!")
+                            .setDescription("No recently released anime shows were found for this season! Try again later!")
                             .build()
             ).queueAfter(5, TimeUnit.SECONDS, me -> messageToAnimePage.remove(message.getIdLong()));
             messageToAnimePage.put(message.getIdLong(), new AnimePage(null, message, 1, event.getUser(), timeout));

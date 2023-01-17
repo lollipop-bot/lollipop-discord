@@ -66,7 +66,7 @@ public class Popular implements Command {
             Message message = msg.retrieveOriginal().complete();
             ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
                     .setColor(Color.red)
-                    .setDescription("Could not get the most popular animes! Please try again later!")
+                    .setDescription("Could not get the most popular anime shows! Please try again later!")
                     .build()
             ).queueAfter(5, TimeUnit.SECONDS, me -> messageToAnimePage.remove(message.getIdLong()));
             messageToAnimePage.put(message.getIdLong(), new AnimePage(null, message, 1, event.getUser(), timeout));
