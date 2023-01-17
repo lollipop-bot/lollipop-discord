@@ -62,20 +62,20 @@ public class Top implements Command {
             Message message = msg.retrieveOriginal().complete();
             ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
                     .setColor(Color.red)
-                    .setDescription("Could not retreive the top animes! Please try again later!")
+                    .setDescription("Could not retrieve the top anime shows! Please try again later!")
                     .build()
             ).queueAfter(5, TimeUnit.SECONDS, me -> messageToAnimePage.remove(message.getIdLong()));
             messageToAnimePage.put(message.getIdLong(), new AnimePage(null, message, 1, event.getUser(), timeout));
             api.getTopAnime(msg);
         } else if(args.get(0).equals("manga")) {
             InteractionHook msg = event.replyEmbeds(new EmbedBuilder().setDescription("Getting the `Top` mangas...").build()).complete();
-//            Message message = msg.retrieveOriginal().complete();
-//            ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
-//                    .setColor(Color.red)
-//                    .setDescription("Could not retreive the top mangas! Please try again later!")
-//                    .build()
-//            ).queueAfter(5, TimeUnit.SECONDS, me -> messageToMangaPage.remove(message.getIdLong()));
-//            messageToMangaPage.put(message.getIdLong(), new MangaPage(null, message, 1, event.getUser(), timeout));
+            Message message = msg.retrieveOriginal().complete();
+            ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
+                    .setColor(Color.red)
+                    .setDescription("Could not retrieve the top mangas! Please try again later!")
+                    .build()
+            ).queueAfter(5, TimeUnit.SECONDS, me -> messageToMangaPage.remove(message.getIdLong()));
+            messageToMangaPage.put(message.getIdLong(), new MangaPage(null, message, 1, event.getUser(), timeout));
             api.getTopManga(msg);
         }
     }
