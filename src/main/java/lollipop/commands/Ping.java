@@ -26,7 +26,9 @@ public class Ping implements Command {
 
     @Override
     public String getHelp() {
-        return "Gives you the gateway and rest ping of the bot.\n" +
+        return "Ping the host server and find the application's latency.\n" +
+                "Experiencing lag or downtime? Contact [lollipop support](" + Constant.WEBSITE + "#support) to find help with your issues\n" +
+                "`/ping` retrieves the application's gateway latency and rest latency\n" +
                 "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
@@ -39,8 +41,8 @@ public class Ping implements Command {
     public void run(SlashCommandInteractionEvent event) {
         event.replyEmbeds(new EmbedBuilder()
                 .setTitle("Ping!")
-                .addField("Gateway Ping", event.getJDA().getGatewayPing() + "ms", true)
-                .addField("Rest Ping", event.getJDA().getRestPing().complete() + "ms", true)
+                .addField("Gateway Ping", event.getJDA().getGatewayPing() + " ms", true)
+                .addField("Rest Ping", event.getJDA().getRestPing().complete() + " ms", true)
                 .build()
         ).queue();
     }

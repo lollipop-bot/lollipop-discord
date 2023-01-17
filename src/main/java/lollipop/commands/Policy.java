@@ -22,6 +22,8 @@ public class Policy implements Command {
     @Override
     public String getHelp() {
         return "Displays the privacy policy lollipop follows.\n" +
+                "Lollipop's privacy policy can also be found on the [lollipop website](" + Constant.WEBSITE + "/privacy) where it is referenced in greater detail\n" +
+                "In short, lollipop doesn't collect much harmful data\n" +
                 "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 

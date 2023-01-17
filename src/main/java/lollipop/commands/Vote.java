@@ -23,7 +23,11 @@ public class Vote implements Command {
 
     @Override
     public String getHelp() {
-        return "Vote for lollipop!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Vote for lollipop on all the various discord bot lists!\n" +
+                "Voting for lollipop on [top.gg](https://top.gg/) gives lollipop users a 1.5x lollipop currency multiplier boost\n" +
+                "Voting for lollipop on other discord bot lists helps spread word about lollipop and grows the application\n" +
+                "All votes are greatly appreciated by the developers\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override
@@ -36,7 +40,7 @@ public class Vote implements Command {
         event.replyEmbeds(
                 new EmbedBuilder()
                         .setTitle("Vote for lollipop!")
-                        .setDescription("**Voting on top.gg gives you a 1.5x lollipop multiplier to grow your balance faster!**")
+                        .setDescription("**Voting on top.gg gives you a 1.5x lollipop multiplier to grow your currency profile faster!**")
                         .setFooter("Every vote towards lollipop helps and is really appreciated! Dropping a review doesn't hurt either..")
                         .setThumbnail("https://cdn-icons-png.flaticon.com/512/927/927295.png")
                         .build()

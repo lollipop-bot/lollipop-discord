@@ -36,7 +36,10 @@ public class Top implements Command {
 
     @Override
     public String getHelp() {
-        return "Gets the top 25 anime in the world!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Explore the top twenty best rated anime and manga series being released of the season.\n" +
+                "The best rated anime shows come with a trailer component to watch and the best rated mangas come with ratings\n" +
+                "To learn more about each series in detail, use the `/search` command and check out it's components\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [type]`";
     }
 
     @Override
@@ -59,20 +62,20 @@ public class Top implements Command {
             Message message = msg.retrieveOriginal().complete();
             ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
                     .setColor(Color.red)
-                    .setDescription("Could not retreive the top animes! Please try again later!")
+                    .setDescription("Could not retrieve the top anime shows! Please try again later!")
                     .build()
             ).queueAfter(5, TimeUnit.SECONDS, me -> messageToAnimePage.remove(message.getIdLong()));
             messageToAnimePage.put(message.getIdLong(), new AnimePage(null, message, 1, event.getUser(), timeout));
             api.getTopAnime(msg);
         } else if(args.get(0).equals("manga")) {
             InteractionHook msg = event.replyEmbeds(new EmbedBuilder().setDescription("Getting the `Top` mangas...").build()).complete();
-//            Message message = msg.retrieveOriginal().complete();
-//            ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
-//                    .setColor(Color.red)
-//                    .setDescription("Could not retreive the top mangas! Please try again later!")
-//                    .build()
-//            ).queueAfter(5, TimeUnit.SECONDS, me -> messageToMangaPage.remove(message.getIdLong()));
-//            messageToMangaPage.put(message.getIdLong(), new MangaPage(null, message, 1, event.getUser(), timeout));
+            Message message = msg.retrieveOriginal().complete();
+            ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
+                    .setColor(Color.red)
+                    .setDescription("Could not retrieve the top mangas! Please try again later!")
+                    .build()
+            ).queueAfter(5, TimeUnit.SECONDS, me -> messageToMangaPage.remove(message.getIdLong()));
+            messageToMangaPage.put(message.getIdLong(), new MangaPage(null, message, 1, event.getUser(), timeout));
             api.getTopManga(msg);
         }
     }

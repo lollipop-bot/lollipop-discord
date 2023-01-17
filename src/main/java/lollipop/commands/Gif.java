@@ -23,7 +23,10 @@ public class Gif implements Command {
 
     @Override
     public String getHelp() {
-        return "Sends a random GIF about anime!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Retrieve an arbitrarily chosen anime-related GIF\n" +
+                "`/gif` returns fancy anime GIFs that can be saved and used later in conversations\n" +
+                "No NSFW GIFs should appear at all\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

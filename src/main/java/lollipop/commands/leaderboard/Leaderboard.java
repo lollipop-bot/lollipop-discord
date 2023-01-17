@@ -36,13 +36,16 @@ public class Leaderboard implements Command {
 
     @Override
     public String getHelp() {
-        return "Display the current leaderboard of lollipop players!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Display the current leaderboard of lollipop players ranked on terms of player currencies!\n" +
+                "Lollipop currency can be earned by using commands and playing games such as `/duel` and `/trivia`\n" +
+                "To find your own ranking and currency profile, you can use `/profile`\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this).addOptions(
-                new OptionData(OptionType.STRING, "scope", "guild / global", true)
+                new OptionData(OptionType.STRING, "scope", "Select a scope for the leaderboard to rank the desired players.", true)
                         .addChoice("guild", "guild")
                         .addChoice("global", "global")
         );

@@ -34,7 +34,9 @@ public class Dashboard implements Command {
 
     @Override
     public String getHelp() {
-        return "Shows you the statistics and resource usage of the bot!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Display the statistics and resource usage of the bot!\n" +
+                "(Owner-only command)\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

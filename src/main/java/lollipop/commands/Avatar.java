@@ -30,13 +30,16 @@ public class Avatar implements Command {
 
     @Override
     public String getHelp() {
-        return "Displays the mentioned user's avatar!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [user]`";
+        return "Display the profile picture of a discord account sized properly.\n" +
+                "`/avatar` can be used to access another discord member's avatar link or to save it\n" +
+                "The picture will be perfectly sized in a 512x512 resolution size\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [member]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this)
-                .addOption(OptionType.USER, "user", "specified member", false);
+                .addOption(OptionType.USER, "member", "Mention a member to access their discord avatar.", false);
     }
 
     @Override

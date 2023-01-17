@@ -26,7 +26,9 @@ public class RandomQuote implements Command {
 
     @Override
     public String getHelp() {
-        return "Throws back a random anime related quote at you!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Revisit a randomly picked quote from a random anime show.\n" +
+                "`/quote` will retrieve a random quote from a random anime that can be used to hype up your discord profile\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

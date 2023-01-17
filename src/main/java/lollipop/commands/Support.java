@@ -22,7 +22,10 @@ public class Support implements Command {
 
     @Override
     public String getHelp() {
-        return "Find support for issues with lollipop!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Find support for your issues with lollipop!\n" +
+                "Experiencing lag or downtime? Find support in the [lollipop website](" + Constant.WEBSITE + "#support)\n" +
+                "or... join the support server in the `/support` command and ask in the #report-bug channel in the Lollipop category\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

@@ -428,7 +428,7 @@ public class ALoader {
         } catch(Exception e) { return null; }
         anime.parseData(result);
         Question question = new Question(anime, new ArrayList<>(List.of(anime.title)));
-        question.generateOptions(available, 3);
+        question.generateOptions(available, 3, anime.title);
         Collections.shuffle(question.options);
         return question;
     }

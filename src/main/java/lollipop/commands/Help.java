@@ -36,7 +36,9 @@ public class Help implements Command {
 
     @Override
     public String getHelp() {
-        return "Shows you a list of all the commands!\n" +
+        return "Learn more about lollipop and explore all the available commands!\n" +
+                "`/help` will retrieve a list of all commands sorted into their corresponding category\n" +
+                "Specifying a command name within the `/help` command parameters will give a detailed description of the given command\n" +
                 "Usage: `" + Constant.PREFIX + getAliases()[0] + " <command*>`";
     }
 

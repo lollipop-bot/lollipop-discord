@@ -24,7 +24,9 @@ public class Eat implements Command {
 
     @Override
     public String getHelp() {
-        return "*nom nom nom*\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Show yourself off eating a lot of tasty food!\n" +
+                "`/eat` allows users to role-play eating to indicate that they are currently eating\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

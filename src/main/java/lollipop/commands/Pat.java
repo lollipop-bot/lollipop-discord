@@ -28,13 +28,15 @@ public class Pat implements Command {
 
     @Override
     public String getHelp() {
-        return "Pat somebody!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [user]`";
+        return "Pat another member in the guild on their head!\n" +
+                "`/pat` allows the user to role-play themselves patting on other people's heads\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [member]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this)
-                .addOption(OptionType.USER, "user", "mention a user", true);
+                .addOption(OptionType.USER, "member", "Mention the member you want to pat on the head.", true);
     }
 
     @Override

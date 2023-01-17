@@ -28,13 +28,16 @@ public class Attack implements Command {
 
     @Override
     public String getHelp() {
-        return "Attack somebody!\bUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Attack another member in the guild!\n" +
+                "`/attack` is a role-play command to declare war *figuratively* and will not function in duels\n" +
+                "To defend from outside attacks, use `/defend`\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this)
-                .addOption(OptionType.USER, "user", "mention a user", true);
+                .addOption(OptionType.USER, "member", "Mention the member you want to attack in the guild.", true);
     }
 
     @Override

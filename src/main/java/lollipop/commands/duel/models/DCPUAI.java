@@ -101,8 +101,6 @@ public class DCPUAI {
         int shard = jda.getShardInfo().getShardId();
         double delta = won ? Tools.ratingCurve(cpuHP-playerHP) : -Tools.ratingCurve(playerHP-cpuHP);
         delta = 1+delta*Tools.factorCurve(duelsRating[shard]);
-        System.out.println(duelsRating[shard]);
-        System.out.println(Tools.ratingCurve(Math.abs(cpuHP-playerHP)) + " " + Tools.factorCurve(duelsRating[shard]) + " " + delta);
         duelsRating[shard] = Math.max(1, (int)(duelsRating[shard] * delta));
     }
 
