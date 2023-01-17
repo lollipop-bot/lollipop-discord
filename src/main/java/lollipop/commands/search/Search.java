@@ -33,7 +33,7 @@ public class Search implements Command {
 
     @Override
     public String getHelp() {
-        return "Search for an animes, mangas, characters, or MyAnimeList users all over the internet! NSFW content is locked to NSFW channels only.\n" +
+        return "Search for animes, mangas, characters, or MAL users! NSFW content is locked to NSFW channels only.\n" +
                 "If the lollipop search engine fails to load results, try again with the japanese title or check the applications rest latency by using `/ping`\n" +
                 "If all else fails, please wait 1 minute to surpass the rate limiter and try again\n" +
                 "To make search results more accurate, ensure no typos are made in the query\n" +
