@@ -27,7 +27,11 @@ public class Trivia implements Command {
 
     @Override
     public String getHelp() {
-        return "Play an anime trivia game!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Guess the anime in a trivia game to win lollipop currency.\n" +
+                "Winners are rewarded with 40-60 lollipops for every correct answer, but they will lose 10-20 lollipops for every incorrect answer\n" +
+                "Player will be presented with additional data to narrow down down the 4 options and guess the correct anime series\n" +
+                "All titles are randomly generated and there is guaranteed to be only one correct answer\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

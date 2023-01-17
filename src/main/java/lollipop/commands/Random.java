@@ -34,13 +34,16 @@ public class Random implements Command {
 
     @Override
     public String getHelp() {
-        return "Get a random anime!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Discover an arbitrarily chosen anime, manga or character from all over the internet!\n" +
+                "The random anime shows come with a trailer component, but the random mangas and characters don't come with additional components\n" +
+                "To learn more about each series in detail, use the `/search` command and check out it's components\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this).addOptions(
-                new OptionData(OptionType.STRING, "type", "anime / manga / character", true)
+                new OptionData(OptionType.STRING, "type", "Select the type of random results you want to discover.", true)
                         .addChoice("anime", "anime")
                         .addChoice("manga", "manga")
                         .addChoice("character", "character")

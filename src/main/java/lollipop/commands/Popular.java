@@ -36,14 +36,17 @@ public class Popular implements Command {
 
     @Override
     public String getHelp() {
-        return "Gets the 25 most popular anime/manga in the world!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [type]`";
+        return "Explore the top twenty most popular anime and manga series being released of the season.\n" +
+                "The most popular animes come with a trailer component to watch and the most popular mangas come with view counts\n" +
+                "To learn more about each series in detail, use the `/search` command and check out it's components\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [type]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this)
                 .addOptions(
-                        new OptionData(OptionType.STRING, "type", "anime / manga", true)
+                        new OptionData(OptionType.STRING, "type", "Select the type of most popular series you want to explore.", true)
                                 .addChoice("anime", "anime")
                                 .addChoice("manga", "manga")
                 );
@@ -52,7 +55,7 @@ public class Popular implements Command {
     @Override
     public void run(SlashCommandInteractionEvent event) {
         final List<OptionMapping> options = event.getOptions();
-        final List<String> args = options.stream().map(OptionMapping::getAsString).collect(Collectors.toList());
+        final List<String> args = options.stream().map(OptionMapping::getAsString).toList();
         API api = new API();
         if(args.get(0).equals("anime")) {
             InteractionHook msg = event.replyEmbeds(
@@ -74,13 +77,13 @@ public class Popular implements Command {
                             .setDescription("Getting the `Most Popular` mangas...")
                             .build()
             ).complete();
-//            Message message = msg.retrieveOriginal().complete();
-//            ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
-//                    .setColor(Color.red)
-//                    .setDescription("Could not get the most popular mangas! Please try again later!")
-//                    .build()
-//            ).queueAfter(5, TimeUnit.SECONDS, me -> messageToMangaPage.remove(message.getIdLong()));
-//            messageToMangaPage.put(message.getIdLong(), new MangaPage(null, message, 1, event.getUser(), timeout));
+            Message message = msg.retrieveOriginal().complete();
+            ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
+                    .setColor(Color.red)
+                    .setDescription("Could not get the most popular mangas! Please try again later!")
+                    .build()
+            ).queueAfter(5, TimeUnit.SECONDS, me -> messageToMangaPage.remove(message.getIdLong()));
+            messageToMangaPage.put(message.getIdLong(), new MangaPage(null, message, 1, event.getUser(), timeout));
             api.getPopularManga(msg);
         }
     }

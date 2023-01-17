@@ -28,13 +28,15 @@ public class Baka implements Command {
 
     @Override
     public String getHelp() {
-        return "Call somebody a baka!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [user]`";
+        return "Call another member in the guild a \"**baka**\"\n" +
+                "`/baka` is a role-play command to call somebody stupid in an argument\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [member]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this)
-                .addOption(OptionType.USER, "user", "mention a user", true);
+                .addOption(OptionType.USER, "member", "Mention the member you want to call \"baka\".", true);
     }
 
     @Override

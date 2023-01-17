@@ -22,7 +22,11 @@ public class BotInfo implements Command {
 
     @Override
     public String getHelp() {
-        return "Displays information about the bot!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Learn more about lollipop and the application's developers.\n" +
+                "Visit [lollipop's website](" + Constant.WEBSITE + ") to get a better understanding of how the application works\n" +
+                "Invite lollipop to your server and even view the open-source code for the application\n" +
+                "Vote for lollipop on all of it's bot list profiles\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

@@ -28,7 +28,10 @@ public class Defend implements Command {
 
     @Override
     public String getHelp() {
-        return "Defend yourself from an attack!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Defend yourself from an outside attack!\n" +
+                "`/defend` allowed users to role-play defending from other attacking members\n" +
+                "To attack another member in the guild, use `/attack`\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

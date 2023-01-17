@@ -34,13 +34,13 @@ public class Move implements Command {
     @Override
     public String getHelp() {
         return "Learn about the available moves and move types in the lollipop duel system.\n" +
-                "In the move field, choose `all` to get a list of all available moves, or choose a specific move to get a detailed description!\n" +
+                "In the move field, choose `all` to get a list of all available moves, or choose a specific move to get a detailed description\n" +
                 "Usage: `" + Constant.PREFIX + getAliases()[0] + " [move]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
-        OptionData option = new OptionData(OptionType.STRING, "move", "Choose the move you want to learn about.", true);
+        OptionData option = new OptionData(OptionType.STRING, "move", "Select the move you want to learn about.", true);
         option.addChoice("all", "all");
         for(DMove move : DMFactory.getMoves()) option.addChoice(move.getName(), move.getName());
         return Tools.defaultSlashCmd(this)

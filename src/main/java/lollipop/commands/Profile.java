@@ -25,13 +25,16 @@ public class Profile implements Command {
 
     @Override
     public String getHelp() {
-        return "Shows a user's profile!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [user*]`";
+        return "Display a guild member's lollipop currency profile.\n" +
+                "`/profile` shows a member's title, rank, lollipop count, and general profile attributes\n" +
+                "To view a list of the richest lollipop users, use the `/leaderboard` command\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [member*]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this)
-                .addOption(OptionType.USER, "user", "Mention user to show their profile.", false);
+                .addOption(OptionType.USER, "member", "Mention user to show their profile.", false);
     }
 
     @Override

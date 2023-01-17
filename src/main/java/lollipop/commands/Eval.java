@@ -58,7 +58,9 @@ public class Eval implements Command {
 
     @Override
     public String getHelp() {
-        return "Evaluates the given expression!\nUsage: `" + Constant.PREFIX + getAliases()[0] + " [expression]`";
+        return "Evaluate any inputted expression!\n" +
+                "(Owner-only command)\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [expression]`";
     }
 
     @Override

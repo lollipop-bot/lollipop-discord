@@ -45,7 +45,6 @@ public class Manager {
                 new Eat().getSlashCmd(),
                 new Gif().getSlashCmd(),
                 new Help(this).getSlashCmd(),
-                new Hentai().getSlashCmd(),
                 new Janken().getSlashCmd(),
                 new Latest().getSlashCmd(),
                 new Leaderboard().getSlashCmd(),
@@ -84,7 +83,6 @@ public class Manager {
                 new Eat().getSlashCmd(),
                 new Gif().getSlashCmd(),
                 new Help(this).getSlashCmd(),
-                new Hentai().getSlashCmd(),
                 new Janken().getSlashCmd(),
                 new Latest().getSlashCmd(),
                 new Leaderboard().getSlashCmd(),
@@ -138,7 +136,6 @@ public class Manager {
         addCommand(new Dashboard());
         addCommand(new Janken());
         addCommand(new Latest());
-        addCommand(new Hentai());
         addCommand(new Baka());
         addCommand(new RandomQuote());
         addCommand(new BitesTheDust());

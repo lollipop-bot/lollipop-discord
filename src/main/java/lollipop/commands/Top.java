@@ -36,7 +36,10 @@ public class Top implements Command {
 
     @Override
     public String getHelp() {
-        return "Gets the top 25 anime in the world!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Explore the top twenty best rated anime and manga series being released of the season.\n" +
+                "The best rated anime shows come with a trailer component to watch and the best rated mangas come with ratings\n" +
+                "To learn more about each series in detail, use the `/search` command and check out it's components\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [type]`";
     }
 
     @Override

@@ -5,7 +5,6 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.utils.data.DataArray;
 import net.dv8tion.jda.api.utils.data.DataObject;
 
-import javax.annotation.Nonnull;
 import java.util.*;
 
 /**
@@ -28,12 +27,16 @@ public class Question implements ModelData {
 
     /**
      * Generates num amount of options from available
+     *
      * @param available available options
-     * @param num number of options to generate
+     * @param num       number of options to generate
+     * @param correct   title of the correct option
      */
-    public void generateOptions(HashSet<String> available, int num) {
+    public void generateOptions(HashSet<String> available, int num, String correct) {
         for(int i=0; i<num; i++) {
             String title = available.iterator().next();
+            while(title.equals(correct))
+                title = available.iterator().next();
             this.options.add(title);
             available.remove(title);
         }

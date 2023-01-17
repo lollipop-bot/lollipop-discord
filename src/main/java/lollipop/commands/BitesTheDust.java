@@ -29,7 +29,11 @@ public class BitesTheDust implements Command {
 
     @Override
     public String getHelp() {
-        return "Deletes your recent messages in a channel!\nUsage: `" + Constant.PREFIX + getAliases()[0] + "`";
+        return "Go back in time and delete your most recent messages!\n" +
+                "`/biteszadust` will work only delete the user's messages in the most recent 30 messages in the same channel\n" +
+                "It will not work across multiple channels and can be used to clean your most recent messages only\n" +
+                "If you haven't been active in the past 30 messages, nothing will happen\n" +
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + "`";
     }
 
     @Override

@@ -30,16 +30,17 @@ public class Duel implements Command {
     @Override
     public String getHelp() {
         return "Challenge a player to a duel in a fun competitive battle role-playing game! Leave the user field empty to play against a CPU.\n" +
-                "In a duel, you can play signature anime moves turn-by-turn against an opponent in a battle to the death.\n" +
-                "The goal is to bring your opponent down to `0 HP`.\n" +
+                "In a duel, you can play signature anime moves turn-by-turn against an opponent in a battle to the death\n" +
+                "Winners will earn 70-100 lollipops but if you lose against a CPU you will lose 30-50 lollipops\n" +
+                "The goal is to bring your opponent down to `0 HP`\n" +
                 "You can learn about all the available moves by using the `/move` command\n" +
-                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [user*]`";
+                "Usage: `" + Constant.PREFIX + getAliases()[0] + " [member*]`";
     }
 
     @Override
     public CommandData getSlashCmd() {
         return Tools.defaultSlashCmd(this)
-                .addOption(OptionType.USER, "user", "Mention the user you want to challenge. Leave this field empty if you want to duel against an available CPU.", false);
+                .addOption(OptionType.USER, "member", "Mention the player you want to challenge. Leave this field empty if you want to duel against an available CPU.", false);
     }
 
     // Game Settings and Occupancy
