@@ -37,5 +37,6 @@ public interface Command {
      * @param event slash command interaction event
      */
     void run(SlashCommandInteractionEvent event);
+    int cooldownInSeconds();
 
 }

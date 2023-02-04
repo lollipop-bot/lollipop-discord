@@ -88,4 +88,9 @@ public class Popular implements Command {
         }
     }
 
+    @Override
+    public int cooldownInSeconds() {
+        return 0;
+    }
+
 }

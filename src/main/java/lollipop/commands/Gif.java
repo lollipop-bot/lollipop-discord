@@ -46,4 +46,9 @@ public class Gif implements Command {
         api.randomGIF(message);
     }
 
+    @Override
+    public int cooldownInSeconds() {
+        return 0;
+    }
+
 }

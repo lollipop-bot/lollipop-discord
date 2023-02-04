@@ -8,6 +8,7 @@ import lollipop.commands.Eval;
 import lollipop.commands.leaderboard.Leaderboard;
 import lollipop.commands.search.Search;
 import lollipop.commands.trivia.Trivia;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
@@ -22,6 +23,7 @@ import java.util.stream.Collectors;
 public class Manager {
 
     private final Map<String, Command> commands = new HashMap<>();
+    private HashMap<Long, HashMap<String, Long>> cmdRegTimePerUser = new HashMap<Long, HashMap<String, Long>>();
 
     public Manager() {
         setCommands();
@@ -222,7 +224,31 @@ public class Manager {
         } else {
             final String command = event.getName();
             if(commands.containsKey(command)) {
+
+                if(cmdRegTimePerUser.containsKey(event.getUser().getIdLong())) {
+                    if (cmdRegTimePerUser.get(event.getUser().getIdLong()).containsKey(event.getName())) {
+                        long cTMs = System.currentTimeMillis();
+                        if (cTMs - cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) < (commands.get(event.getName()).cooldownInSeconds() * 1000L)) {
+                            event.replyEmbeds(new EmbedBuilder().setDescription("There is still " +
+                                    (((cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) + (commands.get(event.getName()).cooldownInSeconds() * 1000L)) - cTMs) / 1000) +
+                                    " seconds before you may use " + event.getName()).build()).setEphemeral(true).queue();
+                            return;
+                        }
+                    }
+                }
                 commands.get(command).run(event);
+
+                if (!cmdRegTimePerUser.containsKey(event.getUser().getIdLong()))
+                {
+                    HashMap<String, Long> cmdCooldownDurations = new HashMap<>();
+                    cmdCooldownDurations.put(event.getName(), System.currentTimeMillis());
+                    cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdCooldownDurations);
+                }
+                else
+                {
+                    cmdRegTimePerUser.get(event.getUser().getIdLong()).put(event.getName(), System.currentTimeMillis());
+                    cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdRegTimePerUser.get(event.getUser().getIdLong()));
+                }
                 int xp = (int)(Math.random()*6)+1;
                 if(Math.random()<0.4) Database.addToUserBalance(event.getUser().getId(), xp);
             }

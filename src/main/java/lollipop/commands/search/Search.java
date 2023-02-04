@@ -155,4 +155,9 @@ public class Search implements Command {
         else Tools.wrongUsage(event, this);
     }
 
+    @Override
+    public int cooldownInSeconds() {
+        return 0;
+    }
+
 }

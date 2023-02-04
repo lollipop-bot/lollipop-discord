@@ -60,6 +60,11 @@ public class Dashboard implements Command {
         event.replyEmbeds(msg.build()).queue();
     }
 
+    @Override
+    public int cooldownInSeconds() {
+        return 0;
+    }
+
     /**
      * Gets info about memory usage of the server
      * @return memory info in string
