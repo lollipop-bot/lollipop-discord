@@ -177,6 +177,8 @@ public class Manager {
         for(Command c : values) if(!commands.contains(c)) commands.add(c);
         return commands;
     }
+    public Map<String, Command> getCommandMap() {return commands;}
+    public HashMap<Long, HashMap<String, Long>> getCooldownRegistrationMap(){return cmdRegTimePerUser;}
 
     /**
      * Gets a list of all commands from the command manager
@@ -207,6 +209,20 @@ public class Manager {
     void run(SlashCommandInteractionEvent event) {
         final String msg = event.getCommandString();
         if(event.getMember() == null) return;
+
+        if(commands.containsKey(event.getName())) {
+            if (cmdRegTimePerUser.containsKey(event.getUser().getIdLong())) {
+                if (cmdRegTimePerUser.get(event.getUser().getIdLong()).containsKey(event.getName())) {
+                    long cTMs = System.currentTimeMillis();
+                    if (cTMs - cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) < (commands.get(event.getName()).cooldownInSeconds() * 1000L)) {
+                        event.replyEmbeds(new EmbedBuilder().setDescription("There is still " +
+                                (((cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) + (commands.get(event.getName()).cooldownInSeconds() * 1000L)) - cTMs) / 1000) +
+                                " seconds before you may use " + event.getName()).build()).setEphemeral(true).queue();
+                        return;
+                    }
+                }
+            }
+        }
         if(event.getInteraction().isFromGuild()) {
             if(!event.getGuild().getSelfMember().hasPermission(event.getGuildChannel(), Permission.MESSAGE_SEND))
                 return;
@@ -217,66 +233,30 @@ public class Manager {
                             .queue(m -> m.deleteOriginal().queueAfter(5, TimeUnit.SECONDS));
                     return;
                 }
-                if(cmdRegTimePerUser.containsKey(event.getUser().getIdLong())) {
-                    if (cmdRegTimePerUser.get(event.getUser().getIdLong()).containsKey(event.getName())) {
-                        long cTMs = System.currentTimeMillis();
-                        if (cTMs - cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) < (commands.get(event.getName()).cooldownInSeconds() * 1000L)) {
-                            event.replyEmbeds(new EmbedBuilder().setDescription("There is still " +
-                                    (((cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) + (commands.get(event.getName()).cooldownInSeconds() * 1000L)) - cTMs) / 1000) +
-                                    " seconds before you may use " + event.getName()).build()).setEphemeral(true).queue();
-                            return;
-                        }
-                    }
-                }
                 commands.get(command).run(event);
-
-                if (!cmdRegTimePerUser.containsKey(event.getUser().getIdLong()))
-                {
-                    HashMap<String, Long> cmdCooldownDurations = new HashMap<>();
-                    cmdCooldownDurations.put(event.getName(), System.currentTimeMillis());
-                    cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdCooldownDurations);
-                }
-                else
-                {
-                    cmdRegTimePerUser.get(event.getUser().getIdLong()).put(event.getName(), System.currentTimeMillis());
-                    cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdRegTimePerUser.get(event.getUser().getIdLong()));
-                }
-
                 int xp = (int)(Math.random()*6)+1;
                 if(Math.random()<0.4) Database.addToUserBalance(event.getUser().getId(), xp);
             }
         } else {
             final String command = event.getName();
             if(commands.containsKey(command)) {
-
-                if(cmdRegTimePerUser.containsKey(event.getUser().getIdLong())) {
-                    if (cmdRegTimePerUser.get(event.getUser().getIdLong()).containsKey(event.getName())) {
-                        long cTMs = System.currentTimeMillis();
-                        if (cTMs - cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) < (commands.get(event.getName()).cooldownInSeconds() * 1000L)) {
-                            event.replyEmbeds(new EmbedBuilder().setDescription("There is still " +
-                                    (((cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) + (commands.get(event.getName()).cooldownInSeconds() * 1000L)) - cTMs) / 1000) +
-                                    " seconds before you may use " + event.getName()).build()).setEphemeral(true).queue();
-                            return;
-                        }
-                    }
-                }
                 commands.get(command).run(event);
-
-                if (!cmdRegTimePerUser.containsKey(event.getUser().getIdLong()))
-                {
-                    HashMap<String, Long> cmdCooldownDurations = new HashMap<>();
-                    cmdCooldownDurations.put(event.getName(), System.currentTimeMillis());
-                    cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdCooldownDurations);
-                }
-                else
-                {
-                    cmdRegTimePerUser.get(event.getUser().getIdLong()).put(event.getName(), System.currentTimeMillis());
-                    cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdRegTimePerUser.get(event.getUser().getIdLong()));
-                }
                 int xp = (int)(Math.random()*6)+1;
                 if(Math.random()<0.4) Database.addToUserBalance(event.getUser().getId(), xp);
             }
         }
+        if(commands.containsKey(event.getName()))
+            if (!cmdRegTimePerUser.containsKey(event.getUser().getIdLong()))
+            {
+                HashMap<String, Long> cmdCooldownDurations = new HashMap<>();
+                cmdCooldownDurations.put(event.getName(), System.currentTimeMillis());
+                cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdCooldownDurations);
+            }
+            else
+            {
+                cmdRegTimePerUser.get(event.getUser().getIdLong()).put(event.getName(), System.currentTimeMillis());
+                cmdRegTimePerUser.put(event.getUser().getIdLong(), cmdRegTimePerUser.get(event.getUser().getIdLong()));
+            }
     }
 
 }
