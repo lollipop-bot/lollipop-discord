@@ -134,4 +134,9 @@ public class Duel implements Command {
         }
     }
 
+    @Override
+    public int cooldownInSeconds() {
+        return 0;
+    }
+
 }

@@ -52,4 +52,9 @@ public class RandomQuote implements Command {
         api.randomQuote(message);
     }
 
+    @Override
+    public int cooldownInSeconds() {
+        return 0;
+    }
+
 }
