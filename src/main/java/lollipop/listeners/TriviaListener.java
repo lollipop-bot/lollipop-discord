@@ -61,7 +61,7 @@ public class TriviaListener extends ListenerAdapter {
                 BotStatistics.sendMultiplier(game.user.getId(), success, failure);
             } else {
                 Runnable success = () -> {
-                    int xp = (int)(Math.random()*11)-20;
+                    int xp = (int)(Math.random()*11)-40;
                     xp = (int)(xp/Constant.MULTIPLIER);
                     Database.addToUserBalance(event.getUser().getId(), xp);
                     event.editMessageEmbeds(
@@ -70,12 +70,12 @@ public class TriviaListener extends ListenerAdapter {
                                     .setColor(Color.red)
                                     .setDescription("You guessed the wrong anime!")
                                     .setThumbnail("https://cdn.discordapp.com/emojis/886080067195772970.webp?size=80&quality=lossless")
-                                    .setFooter("You lost " + (-1*xp) + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
+                                    .setFooter("You lost " + -xp + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                                     .build()
                     ).setActionRows(Collections.emptyList()).queue();
                 };
                 Runnable failure = () -> {
-                    int xp = (int)(Math.random()*11)-20;
+                    int xp = (int)(Math.random()*11)-40;
                     Database.addToUserBalance(event.getUser().getId(), xp);
                     event.editMessageEmbeds(
                             new EmbedBuilder()
@@ -83,7 +83,7 @@ public class TriviaListener extends ListenerAdapter {
                                     .setColor(Color.red)
                                     .setDescription("You guessed the wrong anime!")
                                     .setThumbnail("https://cdn.discordapp.com/emojis/886080067195772970.webp?size=80&quality=lossless")
-                                    .setFooter("You lost " + (-1*xp) + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
+                                    .setFooter("You lost " + -xp + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                                     .build()
                     ).setActionRows(Collections.emptyList()).queue();
                 };

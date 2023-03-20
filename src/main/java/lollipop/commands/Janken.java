@@ -122,7 +122,7 @@ public class Janken implements Command {
                 BotStatistics.sendMultiplier(event.getUser().getId(), success, failure);
             } else if(random > num) {
                 Runnable success = () -> {
-                    int xp = (int)(Math.random()*6)-10;
+                    int xp = (int)(Math.random()*6)-20;
                     xp = (int)(xp/Constant.MULTIPLIER);
                     Database.addToUserBalance(event.getUser().getId(), xp);
                     e.setTitle(loss[(int)(Math.random()*loss.length)]);
@@ -133,7 +133,7 @@ public class Janken implements Command {
                     event.replyEmbeds(e.build()).queue();
                 };
                 Runnable failure = () -> {
-                    int xp = (int)(Math.random()*6)-10;
+                    int xp = (int)(Math.random()*6)-20;
                     Database.addToUserBalance(event.getUser().getId(), xp);
                     e.setTitle(loss[(int)(Math.random()*loss.length)]);
                     e.addField("Your Hand", choice, true);
@@ -145,7 +145,7 @@ public class Janken implements Command {
                 BotStatistics.sendMultiplier(event.getUser().getId(), success, failure);
             } else {
                 Runnable success = () -> {
-                    int xp = (int)(Math.random()*6)+10;
+                    int xp = (int)(Math.random()*6)+15;
                     xp = (int)(xp*Constant.MULTIPLIER);
                     Database.addToUserBalance(event.getUser().getId(), xp);
                     e.setTitle(victory[(int)(Math.random()*victory.length)]);
@@ -156,7 +156,7 @@ public class Janken implements Command {
                     event.replyEmbeds(e.build()).queue();
                 };
                 Runnable failure = () -> {
-                    int xp = (int)(Math.random()*6)+10;
+                    int xp = (int)(Math.random()*6)+15;
                     Database.addToUserBalance(event.getUser().getId(), xp);
                     e.setTitle(victory[(int)(Math.random()*victory.length)]);
                     e.addField("Your Hand", choice, true);
