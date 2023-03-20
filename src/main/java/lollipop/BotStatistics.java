@@ -78,7 +78,7 @@ public class BotStatistics extends ListenerAdapter {
             request.addHeader("authorization", Secret.INFINITYBOTLIST);
             request.addHeader("Accept", "application/json");
             request.addHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-            StringEntity params = new StringEntity("{\"servers\":\"" + guilds + "\",\"shards\":\"" + shards + "\"}");
+            StringEntity params = new StringEntity("{\"servers\":\"" + guilds + "\",\"shards\":\"" + shards + "\",\"users\":\"" + users + "\"}");
             request.setEntity(params);
             HttpResponse response = client.execute(request);
             System.out.println(response);
