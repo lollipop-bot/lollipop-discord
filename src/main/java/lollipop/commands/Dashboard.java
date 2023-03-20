@@ -102,7 +102,7 @@ public class Dashboard implements Command {
         int availableProcessors = operatingSystemMXBean.getAvailableProcessors();
         long processCpuTime = operatingSystemMXBean.getProcessCpuTime();
         double cpuProcLoad = operatingSystemMXBean.getProcessCpuLoad();
-        double cpuSysLoad = operatingSystemMXBean.getSystemCpuLoad();
+        double cpuSysLoad = operatingSystemMXBean.getCpuLoad();
         double systemLoad = operatingSystemMXBean.getSystemLoadAverage();
         StringBuilder sb = new StringBuilder();
         sb.append("CPU Process Time: `").append(processCpuTime).append("`\nProcess CPU Load: `").append(cpuProcLoad)

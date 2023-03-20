@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
@@ -26,7 +27,7 @@ public class DGame {
     private ScheduledFuture<?> acceptTimeout;
     private ScheduledFuture<?> gameTimeout;
 
-    private Message mentionMessage;
+    private InteractionHook mentionMessage;
     private Message requestMessage;
     private Message displayMessage;
 
@@ -76,11 +77,11 @@ public class DGame {
         return this.displayMessage;
     }
 
-    public Message getMentionMessage() {
+    public InteractionHook getMentionMessage() {
         return this.mentionMessage;
     }
 
-    public void setMentionMessage(Message mentionMessage) {
+    public void setMentionMessage(InteractionHook mentionMessage) {
         this.mentionMessage = mentionMessage;
     }
 
@@ -93,7 +94,7 @@ public class DGame {
     }
 
     public void sendDuelRequest(SlashCommandInteractionEvent event) {
-        this.mentionMessage = event.reply(guestPlayer.getMember().getAsMention()).complete().retrieveOriginal().complete();
+        event.reply(guestPlayer.getMember().getAsMention()).queue(this::setMentionMessage);
         event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                 .setDescription(homePlayer.getMember().getAsMention() + " requested to duel you! Do you accept their duel request?")
                 .setFooter("Quick! You have 30 seconds to accept!")
@@ -107,7 +108,7 @@ public class DGame {
                 .setColor(Color.red)
                 .build()
         ).queueAfter(30, TimeUnit.SECONDS, m -> {
-            this.mentionMessage.delete().queue();
+            this.getMentionMessage().deleteOriginal().queue();
             this.getRequestMessage().delete().queue();
             Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
             Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
@@ -116,8 +117,8 @@ public class DGame {
     }
 
     public void initiateGame(TextChannel channel) {
-        if(this.mentionMessage != null) this.mentionMessage.delete().queue();
-        if(this.requestMessage != null) this.requestMessage.delete().queue();
+        if(this.getMentionMessage() != null) this.getMentionMessage().deleteOriginal().queue();
+        if(this.getRequestMessage() != null) this.getRequestMessage().delete().queue();
 
         DMove[] options = new DMove[moveCount+1];
         System.arraycopy(DMFactory.getMoves(), 0, options, 0, moveCount);
