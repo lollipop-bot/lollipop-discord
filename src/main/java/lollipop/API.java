@@ -185,26 +185,13 @@ public class API implements RListener, AListener {
 
     @Override
     public void sendPopularManga(ArrayList<Manga> popular) {
-//        InteractionHook message = messageToEdit.removeFirst();
-//        Message msg = message.retrieveOriginal().complete();
-//        if(popular == null) return;
-//        MangaPage page = Popular.messageToMangaPage.get(msg.getIdLong());
-//        page.timeout.cancel(false);
-//        message.editOriginalEmbeds(popular.get(0).toRankEmbed().setFooter("Page 1/" + popular.size()).build()).setActionRow(
-//                Button.secondary("left", Emoji.fromUnicode("⬅")),
-//                Button.secondary("right", Emoji.fromUnicode("➡"))
-//        ).complete();
-//        page.mangas = popular;
-//        message.editOriginalComponents()
-//                .setActionRow(
-//                        Button.secondary("left", Emoji.fromUnicode("⬅")).asDisabled(),
-//                        Button.secondary("right", Emoji.fromUnicode("➡")).asDisabled()
-//                )
-//                .queueAfter(3, TimeUnit.MINUTES, i -> Popular.messageToMangaPage.remove(msg.getIdLong()));
-//
         InteractionHook message = messageToEdit.removeFirst();
+        Message msg = message.retrieveOriginal().complete();
         try {
             if(popular == null) return;
+            MangaPage page = Popular.messageToMangaPage.get(msg.getIdLong());
+            page.timeout.cancel(false);
+            page.mangas = popular;
             EmbedBuilder builder = new EmbedBuilder()
                     .setTitle("Most Popular Mangas");
             for(Manga manga : popular)
@@ -222,25 +209,13 @@ public class API implements RListener, AListener {
 
     @Override
     public void sendTopManga(ArrayList<Manga> top) {
-//        InteractionHook message = messageToEdit.removeFirst();
-//        Message msg = message.retrieveOriginal().complete();
-//        if(popular == null) return;
-//        MangaPage page = Popular.messageToMangaPage.get(msg.getIdLong());
-//        page.timeout.cancel(false);
-//        message.editOriginalEmbeds(popular.get(0).toRankEmbed().setFooter("Page 1/" + popular.size()).build()).setActionRow(
-//                Button.secondary("left", Emoji.fromUnicode("⬅")),
-//                Button.secondary("right", Emoji.fromUnicode("➡"))
-//        ).complete();
-//        page.mangas = popular;
-//        message.editOriginalComponents()
-//                .setActionRow(
-//                        Button.secondary("left", Emoji.fromUnicode("⬅")).asDisabled(),
-//                        Button.secondary("right", Emoji.fromUnicode("➡")).asDisabled()
-//                )
-//                .queueAfter(3, TimeUnit.MINUTES, i -> Popular.messageToMangaPage.remove(msg.getIdLong()));
         InteractionHook message = messageToEdit.removeFirst();
+        Message msg = message.retrieveOriginal().complete();
         try {
             if(top == null) return;
+            MangaPage page = Top.messageToMangaPage.get(msg.getIdLong());
+            page.timeout.cancel(false);
+            page.mangas = top;
             EmbedBuilder builder = new EmbedBuilder()
                     .setTitle("Top Rated Mangas");
             for(Manga manga : top)
@@ -258,25 +233,13 @@ public class API implements RListener, AListener {
 
     @Override
     public void sendLatestManga(ArrayList<Manga> latest) {
-//        InteractionHook message = messageToEdit.removeFirst();
-//        Message msg = message.retrieveOriginal().complete();
-//        if(popular == null) return;
-//        MangaPage page = Popular.messageToMangaPage.get(msg.getIdLong());
-//        page.timeout.cancel(false);
-//        message.editOriginalEmbeds(popular.get(0).toRankEmbed().setFooter("Page 1/" + popular.size()).build()).setActionRow(
-//                Button.secondary("left", Emoji.fromUnicode("⬅")),
-//                Button.secondary("right", Emoji.fromUnicode("➡"))
-//        ).complete();
-//        page.mangas = popular;
-//        message.editOriginalComponents()
-//                .setActionRow(
-//                        Button.secondary("left", Emoji.fromUnicode("⬅")).asDisabled(),
-//                        Button.secondary("right", Emoji.fromUnicode("➡")).asDisabled()
-//                )
-//                .queueAfter(3, TimeUnit.MINUTES, i -> Popular.messageToMangaPage.remove(msg.getIdLong()));
         InteractionHook message = messageToEdit.removeFirst();
+        Message msg = message.retrieveOriginal().complete();
         try {
             if(latest == null) return;
+            MangaPage page = Latest.messageToMangaPage.get(msg.getIdLong());
+            page.timeout.cancel(false);
+            page.mangas = latest;
             EmbedBuilder builder = new EmbedBuilder()
                     .setTitle("Latest Manga Releases");
             for(Manga manga : latest)
