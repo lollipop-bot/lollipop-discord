@@ -35,10 +35,10 @@ public class DCPUAI {
         DPlayer cpu = game.getGuestPlayer();
         DPlayer player = game.getHomePlayer();
 
-        if(player.getHP() < 25) scenario[0]+=2;
-        if(player.getHP() < 15) scenario[0]+=4;
-        if(cpu.getHP() > player.getHP()+50) { scenario[0]++; scenario[3]+=2; }
-        if(cpu.getHP() > player.getHP()+30) { scenario[0]++; scenario[3]++; }
+        if(player.getHP()-cpu.getSP() < 25) scenario[0]+=2;
+        if(player.getHP()-cpu.getSP() < 15) scenario[0]+=4;
+        if(cpu.getHP() > player.getHP()+50-cpu.getSP()) { scenario[0]++; scenario[3]+=2; }
+        if(cpu.getHP() > player.getHP()+30-cpu.getSP()) { scenario[0]++; scenario[3]++; }
         if(cpu.getHP() < 30) { scenario[1]+=3; scenario[2]++; }
         if(cpu.getHP() < player.getHP()-50) { scenario[1]++; scenario[2]+=3; }
         else if(cpu.getHP() < player.getHP()-30) scenario[2]++;
@@ -46,8 +46,8 @@ public class DCPUAI {
         if(cpu.getSP() < player.getSP()-3) scenario[3]++;
         if(cpu.getSP() < player.getSP()-7) scenario[3]+=3;
         if(Math.abs(cpu.getHP()-player.getHP()) <= 15) scenario[3]++;
-        if(cpu.getHP() > player.getHP()) scenario[3]+=2;
-        if(cpu.isDefending()) scenario[1] = 0;
+        if(cpu.getHP() > player.getHP()-cpu.getSP()) scenario[3]+=2;
+        if(cpu.isDefending()) scenario[1] = -1;
 
         return scenario;
     }
