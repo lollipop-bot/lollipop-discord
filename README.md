@@ -22,7 +22,7 @@ Lollipop is an anime/manga discord bot which allows any user to search for an an
 </a>
 
 <a href='https://infinitybots.gg/bots/919061572649910292' title='widget'>
-    <img src='https://infinitybots.gg/bots/919061572649910292/widget?size=large'></img>
+    <img src="https://widgets.infinitybots.gg/bot/919061572649910292/?size=large"></img> 
 </a>
 
 ### Features
