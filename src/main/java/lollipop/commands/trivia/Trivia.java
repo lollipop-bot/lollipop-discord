@@ -70,7 +70,7 @@ public class Trivia implements Command {
 
     @Override
     public int cooldownDuration() {
-        return 0;
+        return 10;
     }
 
 }
