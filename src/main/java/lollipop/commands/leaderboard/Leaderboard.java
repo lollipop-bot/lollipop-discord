@@ -144,8 +144,8 @@ public class Leaderboard implements Command {
     }
 
     @Override
-    public int cooldownInSeconds() {
-        return 0;
+    public int cooldownDuration() {
+        return 10;
     }
 
     public static String getTable(List<LBMember> memberList) {

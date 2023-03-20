@@ -115,7 +115,7 @@ public class Eval implements Command {
     }
 
     @Override
-    public int cooldownInSeconds() {
+    public int cooldownDuration() {
         return 0;
     }
 

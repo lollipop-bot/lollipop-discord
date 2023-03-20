@@ -69,7 +69,7 @@ public class Trivia implements Command {
     }
 
     @Override
-    public int cooldownInSeconds() {
+    public int cooldownDuration() {
         return 0;
     }
 

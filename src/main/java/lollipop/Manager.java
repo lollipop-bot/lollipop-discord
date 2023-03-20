@@ -16,7 +16,9 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 
+import java.awt.*;
 import java.util.*;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
@@ -207,17 +209,16 @@ public class Manager {
      * @param event slash command interaction event
      */
     void run(SlashCommandInteractionEvent event) {
-        final String msg = event.getCommandString();
         if(event.getMember() == null) return;
 
         if(commands.containsKey(event.getName())) {
             if (cmdRegTimePerUser.containsKey(event.getUser().getIdLong())) {
                 if (cmdRegTimePerUser.get(event.getUser().getIdLong()).containsKey(event.getName())) {
                     long cTMs = System.currentTimeMillis();
-                    if (cTMs - cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) < (commands.get(event.getName()).cooldownInSeconds() * 1000L)) {
-                        event.replyEmbeds(new EmbedBuilder().setDescription("There is still " +
-                                (((cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) + (commands.get(event.getName()).cooldownInSeconds() * 1000L)) - cTMs) / 1000) +
-                                " seconds before you may use " + event.getName()).build()).setEphemeral(true).queue();
+                    if (cTMs - cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) < (commands.get(event.getName()).cooldownDuration() * 1000L)) {
+                        event.replyEmbeds(new EmbedBuilder().setDescription("Please wait `" +
+                                (((cmdRegTimePerUser.get(event.getUser().getIdLong()).get(event.getName()) + (commands.get(event.getName()).cooldownDuration() * 1000L)) - cTMs) / 1000) +
+                                " seconds` before you can use `" + Constant.PREFIX + event.getName() + "`").setColor(Color.RED).build()).setEphemeral(true).queue();
                         return;
                     }
                 }

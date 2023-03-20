@@ -56,8 +56,8 @@ public class Baka implements Command {
     }
 
     @Override
-    public int cooldownInSeconds() {
-        return 0;
+    public int cooldownDuration() {
+        return 5;
     }
 
 }
