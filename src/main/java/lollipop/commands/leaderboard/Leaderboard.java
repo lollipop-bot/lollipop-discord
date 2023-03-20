@@ -143,6 +143,11 @@ public class Leaderboard implements Command {
         }
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 10;
+    }
+
     public static String getTable(List<LBMember> memberList) {
         StringBuilder table = new StringBuilder();
         int nameSize = memberList.stream()

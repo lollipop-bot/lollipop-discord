@@ -8,6 +8,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
@@ -26,7 +27,7 @@ public class DGame {
     private ScheduledFuture<?> acceptTimeout;
     private ScheduledFuture<?> gameTimeout;
 
-    private Message mentionMessage;
+    private InteractionHook mentionMessage;
     private Message requestMessage;
     private Message displayMessage;
 
@@ -76,11 +77,11 @@ public class DGame {
         return this.displayMessage;
     }
 
-    public Message getMentionMessage() {
+    public InteractionHook getMentionMessage() {
         return this.mentionMessage;
     }
 
-    public void setMentionMessage(Message mentionMessage) {
+    public void setMentionMessage(InteractionHook mentionMessage) {
         this.mentionMessage = mentionMessage;
     }
 
@@ -93,7 +94,7 @@ public class DGame {
     }
 
     public void sendDuelRequest(SlashCommandInteractionEvent event) {
-        this.mentionMessage = event.reply(guestPlayer.getMember().getAsMention()).complete().retrieveOriginal().complete();
+        event.reply(guestPlayer.getMember().getAsMention()).queue(this::setMentionMessage);
         event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                 .setDescription(homePlayer.getMember().getAsMention() + " requested to duel you! Do you accept their duel request?")
                 .setFooter("Quick! You have 30 seconds to accept!")
@@ -107,7 +108,7 @@ public class DGame {
                 .setColor(Color.red)
                 .build()
         ).queueAfter(30, TimeUnit.SECONDS, m -> {
-            this.mentionMessage.delete().queue();
+            this.getMentionMessage().deleteOriginal().queue();
             this.getRequestMessage().delete().queue();
             Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
             Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
@@ -116,8 +117,8 @@ public class DGame {
     }
 
     public void initiateGame(TextChannel channel) {
-        if(this.mentionMessage != null) this.mentionMessage.delete().queue();
-        if(this.requestMessage != null) this.requestMessage.delete().queue();
+        if(this.getMentionMessage() != null) this.getMentionMessage().deleteOriginal().queue();
+        if(this.getRequestMessage() != null) this.getRequestMessage().delete().queue();
 
         DMove[] options = new DMove[moveCount+1];
         System.arraycopy(DMFactory.getMoves(), 0, options, 0, moveCount);
@@ -259,23 +260,26 @@ public class DGame {
                         .setDescription(String.format(move.getPhrase(), turnPlayer.getName()))
                         .setFooter("Type " + Constant.PREFIX + "duel to start another duel with me!");
 
+                int lxp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-80)/Constant.MULTIPLIER) : (int)(Math.random()*11)-80;
+                Database.addToUserBalance(homePlayer.getMember().getId(), lxp);
+
                 if (idlePlayer.isCPU()) {
                     DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
-                    embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", cpuLink, cpuAvatar);
 
-                    int xp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-40)/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
-                    Database.addToUserBalance(homePlayer.getMember().getId(), xp);
-                    embedBuilder.setFooter(homePlayer.getName() + " lost " + (-xp) + " lollipops!", lollipopAvatar);
-                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
+                    embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", cpuLink, cpuAvatar);
+                    embedBuilder.setFooter(turnPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
                 } else {
-                    embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", Constant.WEBSITE, idlePlayer.getMember().getEffectiveAvatarUrl());
                     Duel.memberToGame.remove(idlePlayer.getMember().getIdLong());
 
                     int xp = guestPlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
                     Database.addToUserBalance(guestPlayer.getMember().getId(), xp);
-                    embedBuilder.setFooter(guestPlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                    channel.sendMessageEmbeds(embedBuilder.build()).queue();
+
+                    embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", Constant.WEBSITE, idlePlayer.getMember().getEffectiveAvatarUrl());
+                    embedBuilder.setFooter(idlePlayer.getName() + " gained " + xp + " lollipops / " + turnPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
                 }
+
+                channel.sendMessageEmbeds(embedBuilder.build()).queue();
+
                 return null;
             }
             case "punch", "kick", "headbutt", "chop" -> {
@@ -392,21 +396,23 @@ public class DGame {
                 .setTitle(victoryMsg[(int)(Math.random()*victoryMsg.length)])
                 .setDescription(turnPlayer.getName() + " fled and abandoned the duel game...");
 
+        int lxp = turnPlayer.hasMultiplier() ? (int)((int)(Math.random()*11)-80/Constant.MULTIPLIER) : (int)(Math.random()*11)-80;
+
         if(idlePlayer.isCPU()) {
-            int xp = turnPlayer.hasMultiplier() ? (int)((int)(Math.random()*11)-40/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
-            embedBuilder.setFooter(turnPlayer.getName() + " lost " + -xp + " lollipops!", lollipopAvatar);
+            embedBuilder.setFooter(turnPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
             this.gameTimeout = channel.sendMessageEmbeds(embedBuilder.build()).queueAfter(30, TimeUnit.SECONDS, me -> {
                 DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
-                Database.addToUserBalance(turnPlayer.getMember().getId(), xp);
+                Database.addToUserBalance(turnPlayer.getMember().getId(), lxp);
                 Duel.memberToGame.remove(turnPlayer.getMember().getIdLong());
                 Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
                 this.displayMessage.delete().queue();
             });
         } else {
             int xp = idlePlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
-            embedBuilder.setFooter(idlePlayer.getName() + " won " + xp + " lollipops!", lollipopAvatar);
+            embedBuilder.setFooter(idlePlayer.getName() + " gained " + xp + " lollipops / " + turnPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
             this.gameTimeout = channel.sendMessageEmbeds(embedBuilder.build()).queueAfter(30, TimeUnit.SECONDS, me -> {
                 Database.addToUserBalance(idlePlayer.getMember().getId(), xp);
+                Database.addToUserBalance(turnPlayer.getMember().getId(), lxp);
                 Duel.memberToGame.remove(turnPlayer.getMember().getIdLong());
                 Duel.memberToGame.remove(idlePlayer.getMember().getIdLong());
                 Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
@@ -439,21 +445,23 @@ public class DGame {
                     )
                     .setFooter("Type " + Constant.PREFIX + "duel to start another duel with me!");
 
+            int lxp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-80)/Constant.MULTIPLIER) : (int)(Math.random()*11)-80;
+            Database.addToUserBalance(homePlayer.getMember().getId(), lxp);
+
             if(guestPlayer.isCPU()) {
                 DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
 
-                int xp = homePlayer.hasMultiplier() ? (int)(((int)(Math.random()*11)-40)/Constant.MULTIPLIER) : (int)(Math.random()*11)-40;
-                Database.addToUserBalance(homePlayer.getMember().getId(), xp);
-                embedBuilder.setFooter(homePlayer.getName() + " lost " + (-xp) + " lollipops!", lollipopAvatar);
-                channel.sendMessageEmbeds(embedBuilder.build()).queue();
+                embedBuilder.setFooter(homePlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
             } else {
                 Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
 
                 int xp = guestPlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
                 Database.addToUserBalance(guestPlayer.getMember().getId(), xp);
-                embedBuilder.setFooter(guestPlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
-                channel.sendMessageEmbeds(embedBuilder.build()).queue();
+                embedBuilder.setFooter(guestPlayer.getName() + " gained " + xp + " lollipops / " + homePlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
             }
+
+            channel.sendMessageEmbeds(embedBuilder.build()).queue();
+
             return true;
         } else if(guestPlayer.getHP() <= 0) {
             this.gameTimeout.cancel(false);
@@ -473,9 +481,16 @@ public class DGame {
                             "> " + guestPlayer.getName() + "'s Health: `0 HP`"
                     );
 
-            int xp = guestPlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
+            int xp = homePlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
             Database.addToUserBalance(homePlayer.getMember().getId(), xp);
-            embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops!", lollipopAvatar);
+            if(guestPlayer.isCPU()) {
+                embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops", lollipopAvatar);
+            } else {
+                int lxp = guestPlayer.hasMultiplier() ? (int) ((int) (Math.random() * 11) - 80 / Constant.MULTIPLIER) : (int) (Math.random() * 11) - 80;
+                Database.addToUserBalance(guestPlayer.getMember().getId(), lxp);
+                embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops / " + guestPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
+            }
+
             channel.sendMessageEmbeds(embedBuilder.build()).queue();
             return true;
         }

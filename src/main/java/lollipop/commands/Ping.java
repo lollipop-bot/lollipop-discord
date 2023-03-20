@@ -47,4 +47,9 @@ public class Ping implements Command {
         ).queue();
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 1;
+    }
+
 }

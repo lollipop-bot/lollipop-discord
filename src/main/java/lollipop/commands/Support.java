@@ -44,4 +44,9 @@ public class Support implements Command {
         ).queue();
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 1;
+    }
+
 }

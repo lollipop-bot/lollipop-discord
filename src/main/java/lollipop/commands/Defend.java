@@ -48,4 +48,9 @@ public class Defend implements Command {
                 .build()).queue();
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 5;
+    }
+
 }

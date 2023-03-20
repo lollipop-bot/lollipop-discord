@@ -98,4 +98,9 @@ public class Random implements Command {
         }
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 10;
+    }
+
 }

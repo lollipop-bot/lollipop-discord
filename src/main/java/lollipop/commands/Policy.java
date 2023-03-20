@@ -48,4 +48,9 @@ public class Policy implements Command {
                         .build()
         ).queue();
     }
+
+    @Override
+    public int cooldownDuration() {
+        return 1;
+    }
 }

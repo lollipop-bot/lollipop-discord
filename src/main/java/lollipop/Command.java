@@ -3,8 +3,6 @@ package lollipop;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
-import java.util.List;
-
 public interface Command {
 
     /**
@@ -37,5 +35,11 @@ public interface Command {
      * @param event slash command interaction event
      */
     void run(SlashCommandInteractionEvent event);
+
+    /**
+     * Cooldown constant for each command
+     * @return integer for cooldown timeout duration in seconds
+     */
+    int cooldownDuration();
 
 }

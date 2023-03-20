@@ -117,6 +117,11 @@ public class Profile implements Command {
         BotStatistics.sendMultiplier(target.getId(), success, failure);
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 5;
+    }
+
     /**
      * Lollipops to Level relationship
      * @param lollipops number of lollipops

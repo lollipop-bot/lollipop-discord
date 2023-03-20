@@ -80,4 +80,9 @@ public class Top implements Command {
         }
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 30;
+    }
+
 }

@@ -85,4 +85,9 @@ public class Move implements Command {
                 .build()
         ).queue();
     }
+
+    @Override
+    public int cooldownDuration() {
+        return 5;
+    }
 }

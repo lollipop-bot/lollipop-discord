@@ -73,4 +73,9 @@ public class BitesTheDust implements Command {
         event.reply("Successfully travelled back 30 messages in time without leaving any traces behind!").setEphemeral(true).queue();
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 5;
+    }
+
 }

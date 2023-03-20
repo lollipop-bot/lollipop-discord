@@ -82,4 +82,9 @@ public class Latest implements Command {
         }
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 30;
+    }
+
 }

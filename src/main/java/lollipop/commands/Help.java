@@ -98,4 +98,9 @@ public class Help implements Command {
         ).queue();
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 1;
+    }
+
 }

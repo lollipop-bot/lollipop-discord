@@ -114,4 +114,9 @@ public class Eval implements Command {
         } catch (Exception e) {event.reply(e.getMessage()).queue();}
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 0;
+    }
+
 }

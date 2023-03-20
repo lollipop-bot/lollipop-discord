@@ -43,4 +43,9 @@ public class Eat implements Command {
                 .build()).queue();
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 5;
+    }
+
 }

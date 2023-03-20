@@ -68,4 +68,9 @@ public class Trivia implements Command {
         api.randomTrivia(msg);
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 10;
+    }
+
 }

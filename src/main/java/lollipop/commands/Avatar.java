@@ -88,4 +88,9 @@ public class Avatar implements Command {
         }
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 5;
+    }
+
 }

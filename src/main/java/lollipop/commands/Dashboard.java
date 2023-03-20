@@ -16,7 +16,6 @@ import java.lang.management.RuntimeMXBean;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
 public class Dashboard implements Command {
 
@@ -60,6 +59,11 @@ public class Dashboard implements Command {
         event.replyEmbeds(msg.build()).queue();
     }
 
+    @Override
+    public int cooldownDuration() {
+        return 0;
+    }
+
     /**
      * Gets info about memory usage of the server
      * @return memory info in string
@@ -97,7 +101,7 @@ public class Dashboard implements Command {
         int availableProcessors = operatingSystemMXBean.getAvailableProcessors();
         long processCpuTime = operatingSystemMXBean.getProcessCpuTime();
         double cpuProcLoad = operatingSystemMXBean.getProcessCpuLoad();
-        double cpuSysLoad = operatingSystemMXBean.getSystemCpuLoad();
+        double cpuSysLoad = operatingSystemMXBean.getCpuLoad();
         double systemLoad = operatingSystemMXBean.getSystemLoadAverage();
         StringBuilder sb = new StringBuilder();
         sb.append("CPU Process Time: `").append(processCpuTime).append("`\nProcess CPU Load: `").append(cpuProcLoad)
