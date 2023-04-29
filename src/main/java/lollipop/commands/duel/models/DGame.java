@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -100,7 +102,8 @@ public class DGame {
                 .setFooter("Quick! You have 30 seconds to accept!")
                 .build()
         ).setActionRow(
-                Button.primary("accept", "accept")
+                Button.primary("accept", "accept"),
+                Button.danger("deny", "deny")
         ).queue(this::setRequestMessage);
 
         this.acceptTimeout = event.getChannel().sendMessageEmbeds(new EmbedBuilder()
@@ -108,14 +111,18 @@ public class DGame {
                 .setColor(Color.red)
                 .build()
         ).queueAfter(30, TimeUnit.SECONDS, m -> {
-            this.getMentionMessage().deleteOriginal().queue();
-            this.getRequestMessage().delete().queue();
-            Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
-            Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
-            Duel.occupiedShards[event.getJDA().getShardInfo().getShardId()]--;
+            denyDuelRequest(event);
         });
     }
 
+    public void denyDuelRequest(GenericInteractionCreateEvent event)
+    {
+        this.getMentionMessage().deleteOriginal().queue();
+        this.getRequestMessage().delete().queue();
+        Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
+        Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
+        Duel.occupiedShards[event.getJDA().getShardInfo().getShardId()]--;
+    }
     public void initiateGame(TextChannel channel) {
         if(this.getMentionMessage() != null) this.getMentionMessage().deleteOriginal().queue();
         if(this.getRequestMessage() != null) this.getRequestMessage().delete().queue();
