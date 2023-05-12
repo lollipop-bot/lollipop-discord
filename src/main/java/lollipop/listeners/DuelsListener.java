@@ -43,7 +43,7 @@ public class DuelsListener extends ListenerAdapter {
             game.getAcceptTimeout().cancel(false);
             game.initiateGame(event.getTextChannel());
         }
-        else if (Objects.equals(event.getButton().getId(), "deny"))
+        else if (Objects.equals(event.getButton().getId(), "decline"))
         {
             if(event.getMember() != game.getGuestPlayer().getMember()) {
                 event.replyEmbeds(new EmbedBuilder()

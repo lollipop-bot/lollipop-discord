@@ -103,7 +103,7 @@ public class DGame {
                 .build()
         ).setActionRow(
                 Button.primary("accept", "accept"),
-                Button.danger("deny", "deny")
+                Button.danger("decline", "decline")
         ).queue(this::setRequestMessage);
 
         this.acceptTimeout = event.getChannel().sendMessageEmbeds(new EmbedBuilder()
