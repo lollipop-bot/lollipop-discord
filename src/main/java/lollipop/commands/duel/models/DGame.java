@@ -7,6 +7,8 @@ import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
+import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -100,7 +102,8 @@ public class DGame {
                 .setFooter("Quick! You have 30 seconds to accept!")
                 .build()
         ).setActionRow(
-                Button.primary("accept", "accept")
+                Button.primary("accept", "accept"),
+                Button.danger("decline", "decline")
         ).queue(this::setRequestMessage);
 
         this.acceptTimeout = event.getChannel().sendMessageEmbeds(new EmbedBuilder()
@@ -108,14 +111,18 @@ public class DGame {
                 .setColor(Color.red)
                 .build()
         ).queueAfter(30, TimeUnit.SECONDS, m -> {
-            this.getMentionMessage().deleteOriginal().queue();
-            this.getRequestMessage().delete().queue();
-            Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
-            Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
-            Duel.occupiedShards[event.getJDA().getShardInfo().getShardId()]--;
+            denyDuelRequest(event);
         });
     }
 
+    public void denyDuelRequest(GenericInteractionCreateEvent event)
+    {
+        this.getMentionMessage().deleteOriginal().queue();
+        this.getRequestMessage().delete().queue();
+        Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
+        Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
+        Duel.occupiedShards[event.getJDA().getShardInfo().getShardId()]--;
+    }
     public void initiateGame(TextChannel channel) {
         if(this.getMentionMessage() != null) this.getMentionMessage().deleteOriginal().queue();
         if(this.getRequestMessage() != null) this.getRequestMessage().delete().queue();
@@ -264,10 +271,16 @@ public class DGame {
                 Database.addToUserBalance(homePlayer.getMember().getId(), lxp);
 
                 if (idlePlayer.isCPU()) {
+                    int lastRating = DCPUAI.getDuelsRating(channel.getJDA().getShardInfo().getShardId());
                     DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
-
+                    int currentRating = DCPUAI.getDuelsRating(channel.getJDA().getShardInfo().getShardId());
+                    char ratingChange = ' ';
+                    if(lastRating>=currentRating)
+                        ratingChange = '-';
+                    else
+                        ratingChange = '+';
                     embedBuilder.setAuthor(idlePlayer.getName() + " won the duel!", cpuLink, cpuAvatar);
-                    embedBuilder.setFooter(turnPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
+                    embedBuilder.setFooter("New AI rating: " + currentRating + " ("+ ratingChange + Math.abs(currentRating - lastRating) +")"+ "\n"+ turnPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
                 } else {
                     Duel.memberToGame.remove(idlePlayer.getMember().getIdLong());
 
@@ -449,9 +462,15 @@ public class DGame {
             Database.addToUserBalance(homePlayer.getMember().getId(), lxp);
 
             if(guestPlayer.isCPU()) {
+                int lastRating = DCPUAI.getDuelsRating(channel.getJDA().getShardInfo().getShardId());
                 DCPUAI.updateRating(this.displayMessage.getJDA(), true, homePlayer.getHP(), guestPlayer.getHP());
-
-                embedBuilder.setFooter(homePlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
+                int currentRating = DCPUAI.getDuelsRating(channel.getJDA().getShardInfo().getShardId());
+                char ratingChange = ' ';
+                if(lastRating>=currentRating)
+                    ratingChange = '-';
+                else
+                    ratingChange = '+';
+                embedBuilder.setFooter("New AI rating: " + currentRating + " ("+ ratingChange + Math.abs(currentRating - lastRating) +")"+ "\n"+ homePlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
             } else {
                 Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
 
@@ -468,8 +487,12 @@ public class DGame {
             this.displayMessage.delete().queue();
             Duel.occupiedShards[channel.getJDA().getShardInfo().getShardId()]--;
             Duel.memberToGame.remove(homePlayer.getMember().getIdLong());
+            int lastRating = -1;
             if(!guestPlayer.isCPU()) Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
-            else DCPUAI.updateRating(this.displayMessage.getJDA(), false, homePlayer.getHP(), guestPlayer.getHP());
+            else {
+                lastRating = DCPUAI.getDuelsRating(channel.getJDA().getShardInfo().getShardId());
+                DCPUAI.updateRating(this.displayMessage.getJDA(), false, homePlayer.getHP(), guestPlayer.getHP());
+            }
 
             EmbedBuilder embedBuilder = new EmbedBuilder()
                     .setColor(Color.green)
@@ -484,13 +507,18 @@ public class DGame {
             int xp = homePlayer.hasMultiplier() ? (int)((int)(Math.random()*31)+70*Constant.MULTIPLIER) : (int)(Math.random()*31)+70;
             Database.addToUserBalance(homePlayer.getMember().getId(), xp);
             if(guestPlayer.isCPU()) {
-                embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops", lollipopAvatar);
+                int currentRating = DCPUAI.getDuelsRating(channel.getJDA().getShardInfo().getShardId());
+                char ratingChange = ' ';
+                if(lastRating>=currentRating)
+                    ratingChange = '-';
+                else
+                    ratingChange = '+';
+                embedBuilder.setFooter("New AI rating: " + currentRating + " ("+ ratingChange + Math.abs(currentRating - lastRating) +")"+ "\n"+ homePlayer.getName() + " gained " + xp + " lollipops", lollipopAvatar);
             } else {
                 int lxp = guestPlayer.hasMultiplier() ? (int) ((int) (Math.random() * 11) - 80 / Constant.MULTIPLIER) : (int) (Math.random() * 11) - 80;
                 Database.addToUserBalance(guestPlayer.getMember().getId(), lxp);
                 embedBuilder.setFooter(homePlayer.getName() + " gained " + xp + " lollipops / " + guestPlayer.getName() + " lost " + -lxp + " lollipops", lollipopAvatar);
             }
-
             channel.sendMessageEmbeds(embedBuilder.build()).queue();
             return true;
         }
