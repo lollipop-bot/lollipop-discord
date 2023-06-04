@@ -29,6 +29,7 @@ public class LeaderboardListener extends ListenerAdapter {
         if (!event.getMember().getId().equals(id[0])) {
             event.reply("You are not the one who requested the leaderboard. Use `/leaderboard` to create a new one.")
                     .setEphemeral(true).queue();
+            return;
         }
 
         Message message = event.getMessage();
