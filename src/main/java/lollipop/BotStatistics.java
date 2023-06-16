@@ -1,5 +1,6 @@
 package lollipop;
 
+import awatch.controller.AConstants;
 import lollipop.Constant;
 import lollipop.Secret;
 import net.dv8tion.jda.api.events.ReadyEvent;
@@ -14,7 +15,11 @@ import org.discordbots.api.client.DiscordBotListAPI;
 import org.jetbrains.annotations.NotNull;
 import threading.ThreadManagement;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.URL;
 import java.util.stream.Collectors;
 
 public class BotStatistics extends ListenerAdapter {
@@ -73,7 +78,7 @@ public class BotStatistics extends ListenerAdapter {
         // Setup Infinity Bot List Statistics and Server Count
         client = HttpClientBuilder.create().build();
         try {
-            HttpPost request = new HttpPost("https://api.infinitybotlist.com/bots/stats");
+            HttpPost request = new HttpPost("https://spider.infinitybots.gg/bots/stats");
             request.addHeader("content-type", "application/json");
             request.addHeader("authorization", Secret.INFINITYBOTLIST);
             request.addHeader("Accept", "application/json");

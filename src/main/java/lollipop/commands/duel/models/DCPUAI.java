@@ -15,6 +15,14 @@ public class DCPUAI {
 
     private static int[] duelsRating;
 
+    public static int[] getDuelsRating()
+    {
+        return duelsRating;
+    }
+    public static int getDuelsRating(int shardID)
+    {
+        return duelsRating[shardID];
+    }
     // Default starts at 200 rating
     public static void setupRating(ShardManager shards) {
         duelsRating = new int[shards.getShardsTotal()];
