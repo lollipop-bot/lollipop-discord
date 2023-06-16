@@ -29,8 +29,7 @@ public class Janken implements Command {
     public String getHelp() {
         return "Play a quick game of jankenpon to earn some lollipops.\n" +
                 "Jankenpon is your traditional non-transitive rock-paper-scissors game\n" +
-                "Winner are rewarded with 10-15 lollipops\n" +
-                "Losers are punished by losing 5-10 lollipops\n" +
+                "Winner are rewarded with 10-15 lollipops but losers are punished by losing 5-10 lollipops\n" +
                 "Tie game results in no lollipop currency distribution\n" +
                 "Usage: `" + Constant.PREFIX + getAliases()[0] + " [rock/paper/scissors]`";
     }

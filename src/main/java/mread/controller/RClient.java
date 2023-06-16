@@ -4,6 +4,8 @@ import java.util.Set;
 
 import mread.model.Chapter;
 import mread.model.Manga;
+import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.interactions.InteractionHook;
 import threading.ThreadManagement;
 
 public class RClient {
@@ -15,42 +17,42 @@ public class RClient {
 	}
 
 	// genre can be null
-	public void browseManga(int page, String genre) {
-        ThreadManagement.execute(() -> listener.sendMangas(RLoader.browseManga(page, genre)));
+	public void browseManga(int page, String genre, InteractionHook message) {
+        ThreadManagement.execute(() -> listener.sendMangas(RLoader.browseManga(page, genre), message));
 	}
 
 	// search for manga by keyword
-	public void searchManga(String query) {
-		ThreadManagement.execute(() -> listener.sendMangas(RLoader.searchManga(query)));
+	public void searchManga(String query, InteractionHook message) {
+		ThreadManagement.execute(() -> listener.sendMangas(RLoader.searchManga(query), message));
 	}
 
     // get popular mangas
-    public void getPopularManga() {
-        ThreadManagement.execute(() -> listener.sendPopularManga(RLoader.getPopularManga()));
+    public void getPopularManga(InteractionHook message) {
+        ThreadManagement.execute(() -> listener.sendPopularManga(RLoader.getPopularManga(), message));
     }
 
     // get top rated mangas
-    public void getTopManga() {
-        ThreadManagement.execute(() -> listener.sendTopManga(RLoader.getTopManga()));
+    public void getTopManga(InteractionHook message) {
+        ThreadManagement.execute(() -> listener.sendTopManga(RLoader.getTopManga(), message));
     }
 
     // get latest mangas
-    public void getLatestManga() {
-        ThreadManagement.execute(() -> listener.sendLatestManga(RLoader.getLatestManga()));
+    public void getLatestManga(InteractionHook message) {
+        ThreadManagement.execute(() -> listener.sendLatestManga(RLoader.getLatestManga(), message));
     }
 
-    public void randomManga(boolean nsfw) {
-        ThreadManagement.execute(() -> listener.sendRandomManga(RLoader.getRandomManga(nsfw)));
+    public void randomManga(boolean nsfw, InteractionHook message) {
+        ThreadManagement.execute(() -> listener.sendRandomManga(RLoader.getRandomManga(nsfw), message));
     }
 
 	// get chapters
-	public void chapters(Manga manga) {
-		ThreadManagement.execute(() -> listener.sendChapters(RLoader.getChapters(manga)));
+	public void chapters(Manga manga, SelectMenuInteractionEvent event) {
+		ThreadManagement.execute(() -> listener.sendChapters(RLoader.getChapters(manga), event));
 	}
 
 	// get pages
-	public void pages(Chapter chapter) {
-		ThreadManagement.execute(() -> listener.sendPages(RLoader.getPages(chapter)));
+	public void pages(Chapter chapter, SelectMenuInteractionEvent event) {
+		ThreadManagement.execute(() -> listener.sendPages(RLoader.getPages(chapter), event));
 	}
 
 	// get all genres
