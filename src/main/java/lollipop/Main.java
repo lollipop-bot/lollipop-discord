@@ -60,8 +60,9 @@ public class Main {
                 .addEventListeners(new LollipopReaction());
         //JDA test = testClient.build();
 
-        // Setup Cache Refresh Cycle
+        // Setup Cache Refresh Cycle and heartbeat for statuspage
         ThreadManagement.setupCacheRefresh();
+        ThreadManagement.setupHearbeat();
 
         // Setup Databases
         Database.setupDatabases();

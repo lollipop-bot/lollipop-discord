@@ -3,7 +3,12 @@ package threading;
 import awatch.controller.ALoader;
 import lollipop.BotStatistics;
 import mread.controller.RLoader;
+import org.apache.http.client.HttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 
+import javax.net.ssl.HttpsURLConnection;
+import java.io.IOException;
+import java.net.URL;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -41,7 +46,7 @@ public class ThreadManagement {
             ALoader.userCache.clear();
             RLoader.mangaCache.clear();
         };
-        scheduler.scheduleWithFixedDelay(apiRefresh, 6, 6, TimeUnit.HOURS);
+        scheduler.scheduleWithFixedDelay(apiRefresh, 6, 12, TimeUnit.HOURS);
     }
 
     /**
@@ -50,6 +55,26 @@ public class ThreadManagement {
     public static void setupStatisticsCycle() {
         Runnable statsRefresh = BotStatistics::setStatistics;
         scheduler.scheduleWithFixedDelay(statsRefresh, 6, 12, TimeUnit.HOURS);
+    }
+
+    public static void setupHearbeat() {
+        Runnable heartbeat = () -> {
+            // Statuspage heartbeat
+            HttpClient client = HttpClientBuilder.create().build();
+            try {
+                URL web = new URL("https://uptime.betterstack.com/api/v1/heartbeat/F7UDxUpdNi91efmmdJriY4zN");
+                HttpsURLConnection con = (HttpsURLConnection) web.openConnection();
+                con.setRequestMethod("GET");
+                con.setRequestProperty("Content-Type", "application/json");
+                con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
+                con.setConnectTimeout(5000); // Sets Connection Timeout to 5 seconds
+                con.setReadTimeout(5000); // Sets Read Timeout to 5 seconds
+                con.getInputStream();
+            } catch(IOException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        scheduler.scheduleAtFixedRate(heartbeat, 0, 15, TimeUnit.MINUTES);
     }
 
 }

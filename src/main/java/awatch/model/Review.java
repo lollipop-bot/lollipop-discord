@@ -18,7 +18,7 @@ public class Review implements ModelData {
     public String authorUrl;
     public String url;
     public String details;
-    public int votes = 0;
+    public boolean spoiler = false;
     public int score = 0;
     private boolean isEmpty = false;
 
@@ -29,7 +29,7 @@ public class Review implements ModelData {
      * @return string
      */
     public String toString() {
-        return Arrays.toString(new String[]{authorName, authorIcon, authorUrl, url, details, Integer.toString(votes), Integer.toString(score)});
+        return Arrays.toString(new String[]{authorName, authorIcon, authorUrl, url, details, Boolean.toString(spoiler), Integer.toString(score)});
     }
 
     /**
@@ -47,13 +47,14 @@ public class Review implements ModelData {
             return;
         }
         DataObject res = arr.getObject(0);
+        System.out.println(res.toPrettyString());
         this.authorName = res.getObject("user").getString("username", "Unkown Name");
         this.authorIcon = res.getObject("user").getObject("images").getObject("jpg").getString("image_url", "https://api-private.atlassian.com/users/63729d1b358a0c5f1c38cf368ad9d693/avatar");
         this.authorUrl = res.getObject("user").getString("url", "https://myanimelist.net/reviews.php");
         this.url = res.getString("url", "https://myanimelist.net/reviews.php");
         this.details = res.getString("review", "Empty Review Description");
-        this.votes = res.getInt("votes", 0);
-        this.score = res.getObject("scores").getInt("overall", 0);
+        this.spoiler = res.getBoolean("is_spoiler", false);
+        this.score = res.getInt("score");
     }
 
     /**
@@ -79,7 +80,7 @@ public class Review implements ModelData {
                             details.length()>=1970 ?
                                     details.substring(0,1960) + "...\n[Read More!](" + url + ")" :
                                     details + "\n[Read More!](" + url + ")" )
-                    .addField("Votes", Integer.toString(votes), true)
+                    .addField("Spoilers?", spoiler ? "Yes" : "No", true)
                     .addField("Score", Integer.toString(score), true);
         } else {
             return new EmbedBuilder()

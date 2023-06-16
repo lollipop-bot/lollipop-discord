@@ -43,6 +43,23 @@ public class DuelsListener extends ListenerAdapter {
             game.getAcceptTimeout().cancel(false);
             game.initiateGame(event.getTextChannel());
         }
+        else if (Objects.equals(event.getButton().getId(), "decline"))
+        {
+            if(event.getMember() != game.getGuestPlayer().getMember()) {
+                event.replyEmbeds(new EmbedBuilder()
+                        .setDescription("This message was not intended towards you!")
+                        .setColor(Color.red)
+                        .build()
+                ).setEphemeral(true).queue();
+                return;
+            }
+            game.getAcceptTimeout().cancel(false);
+            event.getChannel().sendMessageEmbeds(new EmbedBuilder()
+                    .setDescription(game.getGuestPlayer().getMember().getAsMention() + " did not accept youre duel request...")
+                    .setColor(Color.red)
+                    .build()).queue();
+            game.denyDuelRequest(event);
+        }
         else {
             if(event.getMessage().getIdLong() != game.getDisplayMessage().getIdLong()) return;
 

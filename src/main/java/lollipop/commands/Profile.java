@@ -2,6 +2,7 @@ package lollipop.commands;
 
 import lollipop.*;
 import lollipop.Database;
+import lollipop.commands.leaderboard.models.LBMember;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Member;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
@@ -10,6 +11,7 @@ import net.dv8tion.jda.api.interactions.commands.build.CommandData;
 
 import java.awt.*;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 
 public class Profile implements Command {
 
@@ -81,13 +83,22 @@ public class Profile implements Command {
         int guildSize = event.getGuild().getMemberCount();
         int globalSize = Database.getCurrencyUserCount();
         double level = lollipopsToLevel(lollipops);
-        String title = "Noob";
-        if(level > 80) title = "OwO";
-        else if(level > 60) title = "Senpai";
-        else if(level > 40) title = "Otaku";
-        else if(level > 20) title = "Weeb";
-        if(target.isBoosting()) title += ", Booster";
-        if(target.isOwner()) title += ", Owner";
+        ArrayList<String> title = new ArrayList<>();
+        if(target.getUser().getIdLong()==815017361215979541L || target.getUser().getIdLong()==525126007330570259L) title.add("Developer");
+        if(target.isOwner()) title.add("Owner");
+        if(target.isBoosting()) title.add("Booster");
+        //leaderboard titles
+        int rank = Database.getUserGlobalRank(target.getId());
+        if(rank <= 3)
+            title.add("#"+rank + " global");
+        else if(rank <= 5)
+            title.add("Top 5");
+        else if(rank <= 10)
+            title.add("Top 10");
+        else if(rank <= 25)
+            title.add("Top 25");
+        else if(rank <= 50)
+            title.add("Top 50");
         builder.setAuthor(target.getEffectiveName() + "'s profile", "https://top.gg/bot/919061572649910292");
         builder.setThumbnail(target.getEffectiveAvatarUrl() + "?size=512");
         builder.setColor(target.getColor());
@@ -97,7 +108,13 @@ public class Profile implements Command {
             builder.setImage(banner);
         }
         else builder.setImage("https://user-images.githubusercontent.com/47650058/147891305-58aa09b6-2053-4180-9a9a-8c09826567f1.png");
-        builder.setDescription("**Title:** `" + title + "`\n");
+        StringBuilder titleStringFormatted = new StringBuilder("");
+        for (String s:title) {
+            titleStringFormatted.append(s);
+            if(title.indexOf(s)!= title.size()-1)
+               titleStringFormatted.append(", ");
+        }
+        builder.setDescription("**Title:** `" + titleStringFormatted + "`\n");
         builder.addField("Level", level + " \uD83E\uDE99", true);
         builder.addField("Rank", "**Guild:** " + ranks[0] + "/" + guildSize + "\n**Global:** " + ranks[1] + "/" + globalSize, true);
         builder.addField("Lollipops", lollipops + " \uD83C\uDF6D", true);

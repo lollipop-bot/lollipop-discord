@@ -31,7 +31,7 @@ public class Duel implements Command {
     public String getHelp() {
         return "Challenge a player to a duel in a fun competitive battle role-playing game!\n" +
                 "In a duel, you can play signature anime moves turn-by-turn against an opponent in a battle to the death\n" +
-                "Winners will earn 70-100 lollipops but if you lose against a CPU you will lose 30-50 lollipops\n" +
+                "Victors are rewarded with 70-100 lollipops but losers are punished by losing 70-80 lollipops\n" +
                 "The goal is to bring your opponent down to `0 HP`\n" +
                 "You can learn about all the available moves by using the `/move` command\n" +
                 "Usage: `" + Constant.PREFIX + getAliases()[0] + " [member*]`";
