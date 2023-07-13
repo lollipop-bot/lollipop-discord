@@ -1,11 +1,13 @@
 package mread.model;
 
 import awatch.controller.AConstants;
+import lollipop.pages.ChapterList;
 import mread.ModelData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;
 import org.jsoup.nodes.Element;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Chapter implements ModelData {
@@ -14,6 +16,7 @@ public class Chapter implements ModelData {
 	public String url;
 	public String publication;
 	public List<String> pages;
+    public ArrayList<Chapter> parentList;
 
     // components
     public User user;
@@ -28,12 +31,13 @@ public class Chapter implements ModelData {
      * @param publication chapter publication
      * @param pages chapter pages
      */
-	public Chapter(String title, String url, String publication, List<String> pages) {
+	public Chapter(String title, String url, String publication, List<String> pages, ArrayList<Chapter> parentList) {
 		super();
 		this.title = ifNull(title);
 		this.url = BASE_URL + ifNull(url);
 		this.publication = ifNull(publication);
 		this.pages = pages;
+        this.parentList = parentList;
 	}
 
     public Chapter() {

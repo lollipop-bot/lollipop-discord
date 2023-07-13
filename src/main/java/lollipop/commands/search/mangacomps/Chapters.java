@@ -3,6 +3,7 @@ package lollipop.commands.search.mangacomps;
 import lollipop.API;
 import lollipop.pages.ChapterList;
 import lollipop.pages.MangaPage;
+import mread.model.Chapter;
 import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
 
 import java.util.HashMap;
