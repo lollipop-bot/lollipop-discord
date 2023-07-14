@@ -403,8 +403,11 @@ public class API implements RListener, AListener {
                     chapter.toEmbed()
                             .build()
             ).setEphemeral(true).addActionRow(
+                    Button.success("last", Emoji.fromUnicode("⏮")),
                     Button.secondary("left", Emoji.fromUnicode("⬅")),
-                    Button.secondary("right", Emoji.fromUnicode("➡"))
+                    Button.link(chapter.url, Emoji.fromUnicode("\uD83D\uDD17")),
+                    Button.secondary("right", Emoji.fromUnicode("➡")),
+                    Button.success("next", Emoji.fromUnicode("⏭"))
             ).complete();
             SelectMenu menu = event.getSelectMenu();
             event.editSelectMenu(

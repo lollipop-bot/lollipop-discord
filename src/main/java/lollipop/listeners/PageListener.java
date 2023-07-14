@@ -12,6 +12,7 @@ import lollipop.commands.search.charactercomps.Mangas;
 import lollipop.commands.search.charactercomps.VoiceActors;
 import lollipop.commands.search.mangacomps.Chapters;
 import lollipop.pages.*;
+import mread.controller.RLoader;
 import mread.model.Chapter;
 import mread.model.Manga;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -475,6 +476,34 @@ public class PageListener extends ListenerAdapter {
                             chapter.embedPage(0).build()
                     ).queue();
                 }
+            }
+            else if(Objects.equals(event.getButton().getId(), "next"))
+            {
+                //System.out.println("Next chapter");
+                Chapter chapter1;
+                if(chapter.parentList.indexOf(chapter)!=0)
+                    chapter1 = chapter.parentList.get(chapter.parentList.indexOf(chapter)-1);
+                else
+                    chapter1 = chapter.parentList.get(chapter.parentList.size()-1);
+                if(chapter1.pages==null)
+                    chapter1.pages = RLoader.getPages(chapter1);
+                chapter1.user = event.getUser();
+                ChapterList.messageToChapter.put(id, chapter1);
+                event.editMessageEmbeds(chapter1.embedPage(0).build()).queue();
+            }
+            else if(Objects.equals(event.getButton().getId(), "last"))
+            {
+                //System.out.println("Next chapter");
+                Chapter chapter1;
+                if(chapter.parentList.indexOf(chapter)!= chapter.parentList.size()-1)
+                    chapter1 = chapter.parentList.get(chapter.parentList.indexOf(chapter)+1);
+                else
+                    chapter1 = chapter.parentList.get(0);
+                if(chapter1.pages==null)
+                    chapter1.pages = RLoader.getPages(chapter1);
+                chapter1.user = event.getUser();
+                ChapterList.messageToChapter.put(id, chapter1);
+                event.editMessageEmbeds(chapter1.embedPage(0).build()).queue();
             }
         }
         if(Search.messageToCharacterPage.containsKey(id)) {
@@ -978,15 +1007,16 @@ public class PageListener extends ListenerAdapter {
         }
         if(Chapters.messageToPage.containsKey(id)) {
             ChapterList list = Chapters.messageToPage.get(id);
-            if(event.getUser() != list.user) {
+            /*if(event.getUser() != list.user) {
                 event.reply("You can't use the buttons because you didn't use this command! Use the `search` command to be able to use buttons!")
                         .setEphemeral(true)
                         .queue();
                 return;
-            }
+            }*/
             if(event.getInteraction().getValues().get(0).chars().allMatch(java.lang.Character::isDigit)) {
                 int chapterNum = Integer.parseInt(event.getInteraction().getValues().get(0));
                 Chapter chapter = list.chapters.get(chapterNum);
+                //Chapters.messageToLastChapter.put(id, chapter);
                 api.getPages(event, chapter);
             }
         }
