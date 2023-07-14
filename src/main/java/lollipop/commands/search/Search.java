@@ -108,7 +108,7 @@ public class Search implements Command {
                 ).queueAfter(5, TimeUnit.SECONDS);
                 Message m = msg.retrieveOriginal().complete();
                 messageToAnimePage.put(m.getIdLong(), new AnimePage(null, m, 1, event.getUser(), timeout));
-                api.searchAnime(msg, query, event.getTextChannel().isNSFW());
+                api.searchAnime(msg, query, event.getGuildChannel().asTextChannel().isNSFW());
             }
             catch(Exception ignored) {}
         }

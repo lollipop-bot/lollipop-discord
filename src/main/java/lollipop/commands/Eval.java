@@ -10,7 +10,7 @@ import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEve
 import net.dv8tion.jda.api.interactions.commands.OptionMapping;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.utils.AttachmentOption;
+import net.dv8tion.jda.api.utils.FileUpload;
 
 import java.awt.*;
 import java.io.File;
@@ -109,7 +109,7 @@ public class Eval implements Command {
                 FileWriter fw = new FileWriter(file);
                 fw.write(response);
                 fw.flush();
-                event.reply("response is too big ->").addFile(file, "message.txt").queue();
+                event.reply("response is too big ->").addFiles(FileUpload.fromData(file, "message.txt")).queue();
             }
         } catch (Exception e) {event.reply(e.getMessage()).queue();}
     }

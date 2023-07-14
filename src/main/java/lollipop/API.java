@@ -22,13 +22,14 @@ import mread.controller.RListener;
 import mread.model.Chapter;
 import mread.model.Manga;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 
 import javax.annotation.Nonnull;
 import java.awt.*;
@@ -50,10 +51,11 @@ public class API implements RListener, AListener {
     final AClient animeClient = new AClient(this);
 
     //sending
-    final HashMap<SelectMenuInteractionEvent, AnimePage> eventToAnimePage = new HashMap<>();
-    final HashMap<SelectMenuInteractionEvent, MangaPage> eventToMangaPage = new HashMap<>();
-    final HashMap<SelectMenuInteractionEvent, CharacterPage> eventToCharacterPage = new HashMap<>();
-    final HashMap<SelectMenuInteractionEvent, Chapter> eventToChapter = new HashMap<>();
+    final HashMap<StringSelectInteractionEvent, AnimePage> eventToAnimePage = new HashMap<>();
+    final HashMap<StringSelectInteractionEvent, MangaPage> eventToMangaPage = new HashMap<>();
+    final HashMap<StringSelectInteractionEvent, CharacterPage> eventToCharacterPage = new HashMap<>();
+    final HashMap<StringSelectInteractionEvent, ChapterList> eventToChapterList = new HashMap<>();
+    final HashMap<Long, Chapter> messageToChapter = new HashMap<>();
 
     /**
      * Searches for Manga given query
@@ -86,7 +88,6 @@ public class API implements RListener, AListener {
      */
     public void getLatestManga(InteractionHook message) {
         mangaClient.getLatestManga(message);
-
     }
 
     /**
@@ -94,20 +95,31 @@ public class API implements RListener, AListener {
      * @param event select menu interaction event
      * @param page manga page
      */
-    public void getChapters(SelectMenuInteractionEvent event, MangaPage page) {
+    public void getChapters(StringSelectInteractionEvent event, MangaPage page) {
         Manga manga = page.mangas.get(page.pageNumber-1);
-        mangaClient.chapters(manga, event);
         eventToMangaPage.put(event, page);
+        mangaClient.chapters(manga, event);
     }
 
     /**
      * get pages of a specified chapter
      * @param event select menu interaction event
+     * @param list list of chapters to get pages from
+     */
+    public void getPages(StringSelectInteractionEvent event, ChapterList list) {
+        Chapter chapter = list.chapters.get(list.currentChapter);
+        eventToChapterList.put(event, list);
+        mangaClient.pages(chapter, event);
+    }
+
+    /**
+     * get pages of a specified chapter
+     * @param message select menu interaction event
      * @param chapter chapter to get pages from
      */
-    public void getPages(SelectMenuInteractionEvent event, Chapter chapter) {
-        mangaClient.pages(chapter, event);
-        eventToChapter.put(event, chapter);
+    public void getPages(ButtonInteractionEvent event, Message message, Chapter chapter) {
+        messageToChapter.put(message.getIdLong(), chapter);
+        mangaClient.pages(chapter, message, event);
     }
 
     /**
@@ -127,16 +139,16 @@ public class API implements RListener, AListener {
                 mangas.get(0).toEmbed()
                         .setFooter("Page 1/"+mangas.size())
                         .build()
-        ).setActionRows(
+        ).setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder("Sort by popularity")
                                 .addOption("Sort by popularity", "views")
                                 .addOption("Sort by score", "score")
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Chapters", "Chapters")
                                 .build()
@@ -147,16 +159,16 @@ public class API implements RListener, AListener {
                 )
         ).complete();
         message.editOriginalComponents()
-                .setActionRows(
+                .setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder("Disabled")
                                         .addOption("bruh", "really")
                                         .setDisabled(true)
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Disabled")
                                         .addOption("bruh", "really")
                                         .setDisabled(true)
@@ -252,10 +264,10 @@ public class API implements RListener, AListener {
      * @param event menu interaction event
      */
     @Override
-    public void sendChapters(ArrayList<Chapter> chapters, SelectMenuInteractionEvent event) {
+    public void sendChapters(ArrayList<Chapter> chapters, StringSelectInteractionEvent event) {
         try {
-            ArrayList<SelectMenu> menus = new ArrayList<>();
-            SelectMenu.Builder currentMenu = null;
+            ArrayList<StringSelectMenu> menus = new ArrayList<>();
+            StringSelectMenu.Builder currentMenu = null;
             int last = 0;
             for (int i = 0; i < chapters.size(); i++) {
                 if (i % 25 == 0) {
@@ -264,7 +276,7 @@ public class API implements RListener, AListener {
                         last = i;
                         menus.add(currentMenu.build());
                     }
-                    currentMenu = SelectMenu.create("menu" + i / 25);
+                    currentMenu = StringSelectMenu.create("menu" + i / 25);
                 }
                 currentMenu.addOption("Read " + chapters.get(i).title, Integer.toString(i));
             }
@@ -284,11 +296,11 @@ public class API implements RListener, AListener {
                             .setDescription("If the pages are unreadable, you can click on the title of the embed for that chapter and read it in your browser of choice!")
                             .setFooter("Page 1/" + pages)
                             .build()
-            ).setEphemeral(true).addActionRows(
+            ).setEphemeral(true).setComponents(
                     ActionRow.of(menus.get(0)),
                     ActionRow.of(
                             1 >= menus.size() ?
-                                    SelectMenu.create("disabled1")
+                                    StringSelectMenu.create("disabled1")
                                             .setPlaceholder("Disabled")
                                             .addOption("bruh","really")
                                             .setDisabled(true)
@@ -297,7 +309,7 @@ public class API implements RListener, AListener {
                     ),
                     ActionRow.of(
                             2 >= menus.size() ?
-                                    SelectMenu.create("disabled2")
+                                    StringSelectMenu.create("disabled2")
                                             .setPlaceholder("Disabled")
                                             .addOption("bruh","really")
                                             .setDisabled(true)
@@ -306,7 +318,7 @@ public class API implements RListener, AListener {
                     ),
                     ActionRow.of(
                             3 >= menus.size() ?
-                                    SelectMenu.create("disabled3")
+                                    StringSelectMenu.create("disabled3")
                                             .setPlaceholder("Disabled")
                                             .addOption("bruh","really")
                                             .setDisabled(true)
@@ -320,16 +332,16 @@ public class API implements RListener, AListener {
             ).complete();
 
             Message message = msg.retrieveOriginal().complete();
-            event.getMessage().editMessageComponents().setActionRows(
+            event.getMessage().editMessageComponents().setComponents(
                     ActionRow.of(
-                            SelectMenu.create("order")
+                            StringSelectMenu.create("order")
                                     .setPlaceholder(page.currentPlaceholder)
                                     .addOption("Sort by popularity", "views")
                                     .addOption("Sort by score", "score")
                                     .build()
                     ),
                     ActionRow.of(
-                            SelectMenu.create("components")
+                            StringSelectMenu.create("components")
                                     .setPlaceholder("Show component")
                                     .addOption("Chapters", "Chapters")
                                     .build()
@@ -343,30 +355,30 @@ public class API implements RListener, AListener {
             manga.chapters = new ChapterList(chapters, menus, 1, pages, message, event.getUser());
             Chapters.messageToPage.put(message.getIdLong(), manga.chapters);
             msg.editOriginalComponents()
-                    .setActionRows(
+                    .setComponents(
                             ActionRow.of(
-                                    SelectMenu.create("disabled1")
+                                    StringSelectMenu.create("disabled1")
                                             .setPlaceholder("Disabled")
                                             .addOption("bruh", "really")
                                             .setDisabled(true)
                                             .build()
                             ),
                             ActionRow.of(
-                                    SelectMenu.create("disabled2")
+                                    StringSelectMenu.create("disabled2")
                                             .setPlaceholder("Disabled")
                                             .addOption("bruh", "really")
                                             .setDisabled(true)
                                             .build()
                             ),
                             ActionRow.of(
-                                    SelectMenu.create("disabled3")
+                                    StringSelectMenu.create("disabled3")
                                             .setPlaceholder("Disabled")
                                             .addOption("bruh", "really")
                                             .setDisabled(true)
                                             .build()
                             ),
                             ActionRow.of(
-                                    SelectMenu.create("disabled4")
+                                    StringSelectMenu.create("disabled4")
                                             .setPlaceholder("Disabled")
                                             .addOption("bruh", "really")
                                             .setDisabled(true)
@@ -393,39 +405,69 @@ public class API implements RListener, AListener {
      * @param pages {@link ArrayList<String>} list of urls to pages
      */
     @Override
-    public void sendPages(ArrayList<String> pages, SelectMenuInteractionEvent event) {
-        Chapter chapter = eventToChapter.remove(event);
-        try {
-            if(pages == null || pages.isEmpty()) throw new Exception();
-            chapter.pages = pages;
+    public void sendPages(ArrayList<String> pages, StringSelectInteractionEvent event) {
+        ChapterList list = eventToChapterList.remove(event);
+        Chapter chapter = list.chapters.get(list.currentChapter);
 
-            InteractionHook message = event.replyEmbeds(
-                    chapter.toEmbed()
-                            .build()
-            ).setEphemeral(true).addActionRow(
-                    Button.secondary("left", Emoji.fromUnicode("⬅")),
-                    Button.secondary("right", Emoji.fromUnicode("➡"))
-            ).complete();
-            SelectMenu menu = event.getSelectMenu();
-            event.editSelectMenu(
-                    menu.createCopy()
-                            .build()
-            ).queue();
-
-            Message msg = message.retrieveOriginal().complete();
-            chapter.user = event.getUser();
-            ChapterList.messageToChapter.put(msg.getIdLong(), chapter);
-            message.editOriginalComponents()
-                    .queueAfter(10, TimeUnit.MINUTES, i -> ChapterList.messageToChapter.remove(msg.getIdLong()));
-        } catch(Exception e) {
-            e.printStackTrace();
+        if(pages == null || pages.isEmpty()) {
             event.replyEmbeds(
                     new EmbedBuilder()
                             .setDescription("Could not find any pages for this chapter!\n> Try reading [" + chapter.title + "](" + chapter.url + ") from the website.")
                             .setColor(Color.red)
                             .build()
-            ).setEphemeral(true).queue();
+            ).setEphemeral(true).queue(msg -> ChapterList.messageToChapterList.remove(msg.retrieveOriginal().complete().getIdLong()));
+            return;
         }
+        chapter.pages = pages;
+
+        InteractionHook message = event.replyEmbeds(
+                chapter.toEmbed()
+                        .build()
+        ).setEphemeral(true).addActionRow(
+                Button.success("last", Emoji.fromUnicode("⏮")),
+                Button.secondary("left", Emoji.fromUnicode("⬅")),
+                Button.link(chapter.url, Emoji.fromUnicode("\uD83D\uDD17")),
+                Button.secondary("right", Emoji.fromUnicode("➡")),
+                Button.success("next", Emoji.fromUnicode("⏭"))
+        ).complete();
+        StringSelectMenu menu = event.getSelectMenu();
+        event.editSelectMenu(
+                menu.createCopy()
+                        .build()
+        ).queue();
+
+        Message msg = message.retrieveOriginal().complete();
+        chapter.user = event.getUser();
+        chapter.pageNumber = 1;
+        ChapterList.messageToChapterList.put(msg.getIdLong(), list);
+
+        message.editOriginalComponents()
+                .queueAfter(10, TimeUnit.MINUTES, i -> ChapterList.messageToChapterList.remove(msg.getIdLong()));
+    }
+
+    /**
+     * Sent pages from a manga chapter
+     * @param pages {@link ArrayList<String>} list of urls to pages
+     */
+    @Override
+    public void editPages(ArrayList<String> pages, Message message, ButtonInteractionEvent event) {
+        Chapter chapter = messageToChapter.remove(message.getIdLong());
+
+        if(pages == null || pages.isEmpty()) {
+            message.editMessageEmbeds(
+                    new EmbedBuilder()
+                            .setDescription("Could not find any pages for this chapter!\n> Try reading [" + chapter.title + "](" + chapter.url + ") from the website.")
+                            .setColor(Color.red)
+                            .build()
+            ).complete().editMessageEmbeds().queue(msg -> ChapterList.messageToChapterList.remove(msg.getIdLong()));
+            return;
+        }
+
+        chapter.pages = pages;
+        chapter.user = message.getAuthor();
+        chapter.pageNumber = 1;
+
+        event.editMessageEmbeds(chapter.toEmbed().build()).queue();
     }
 
     @Override
@@ -476,7 +518,7 @@ public class API implements RListener, AListener {
      * @param event select menu interaction event
      * @param page character page
      */
-    public void getCharacterAnimes(SelectMenuInteractionEvent event, CharacterPage page) {
+    public void getCharacterAnimes(StringSelectInteractionEvent event, CharacterPage page) {
         Character character = page.characters.get(page.pageNumber-1);
         eventToCharacterPage.put(event, page);
         animeClient.getCharacterAnimes(character, event);
@@ -487,7 +529,7 @@ public class API implements RListener, AListener {
      * @param event select menu interaction event
      * @param page character page
      */
-    public void getCharacterMangas(SelectMenuInteractionEvent event, CharacterPage page) {
+    public void getCharacterMangas(StringSelectInteractionEvent event, CharacterPage page) {
         Character character = page.characters.get(page.pageNumber-1);
         eventToCharacterPage.put(event, page);
         animeClient.getCharacterMangas(character, event);
@@ -498,7 +540,7 @@ public class API implements RListener, AListener {
      * @param event select menu interaction event
      * @param page character page
      */
-    public void getCharacterVoices(SelectMenuInteractionEvent event, CharacterPage page) {
+    public void getCharacterVoices(StringSelectInteractionEvent event, CharacterPage page) {
         Character character = page.characters.get(page.pageNumber-1);
         eventToCharacterPage.put(event, page);
         animeClient.getCharacterVoices(character, event);
@@ -517,7 +559,7 @@ public class API implements RListener, AListener {
      * @param event button interaction event
      * @param page anime page
      */
-    public void getEpisodes(SelectMenuInteractionEvent event, AnimePage page) {
+    public void getEpisodes(StringSelectInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
         eventToAnimePage.put(event, page);
         animeClient.getEpisodes(id, event);
@@ -528,7 +570,7 @@ public class API implements RListener, AListener {
      * @param event button interaction event
      * @param page anime page
      */
-    public void getCharacters(SelectMenuInteractionEvent event, AnimePage page) {
+    public void getCharacters(StringSelectInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
         eventToAnimePage.put(event, page);
         animeClient.getCharacters(id, event);
@@ -539,7 +581,7 @@ public class API implements RListener, AListener {
      * @param event button interaction event
      * @param page anime page
      */
-    public void getNews(SelectMenuInteractionEvent event, AnimePage page) {
+    public void getNews(StringSelectInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
         eventToAnimePage.put(event, page);
         animeClient.getNews(id, event);
@@ -550,7 +592,7 @@ public class API implements RListener, AListener {
      * @param event button interaction event
      * @param page anime page
      */
-    public void getStatistics(SelectMenuInteractionEvent event, AnimePage page) {
+    public void getStatistics(StringSelectInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
         eventToAnimePage.put(event, page);
         animeClient.getStatistics(id, event);
@@ -561,7 +603,7 @@ public class API implements RListener, AListener {
      * @param event button interaction event
      * @param page anime page
      */
-    public void getThemes(SelectMenuInteractionEvent event, AnimePage page) {
+    public void getThemes(StringSelectInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
         eventToAnimePage.put(event, page);
         animeClient.getThemes(id, event);
@@ -572,7 +614,7 @@ public class API implements RListener, AListener {
      * @param event button interaction event
      * @param page anime page
      */
-    public void getRecommendation(SelectMenuInteractionEvent event, AnimePage page) {
+    public void getRecommendation(StringSelectInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
         eventToAnimePage.put(event, page);
         animeClient.getRecommendation(id, event);
@@ -583,7 +625,7 @@ public class API implements RListener, AListener {
      * @param event button interaction event
      * @param page anime page
      */
-    public void getReview(SelectMenuInteractionEvent event, AnimePage page) {
+    public void getReview(StringSelectInteractionEvent event, AnimePage page) {
         long id = page.animes.get(page.pageNumber-1).malID;
         eventToAnimePage.put(event, page);
         animeClient.getReview(id, event);
@@ -698,9 +740,9 @@ public class API implements RListener, AListener {
             if(a.popularity < 1) return Integer.MAX_VALUE;
             return a.popularity;
         }));
-        message.editOriginalEmbeds(animes.get(0).toEmbed().setFooter("Page 1/" + animes.size()).build()).setActionRows(
+        message.editOriginalEmbeds(animes.get(0).toEmbed().setFooter("Page 1/" + animes.size()).build()).setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder("Sort by popularity")
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by ranks", "ranks")
@@ -708,7 +750,7 @@ public class API implements RListener, AListener {
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Trailer", "Trailer")
                                 .addOption("Episodes", "Episodes")
@@ -726,16 +768,16 @@ public class API implements RListener, AListener {
                 )
         ).complete();
         message.editOriginalComponents()
-                .setActionRows(
+                .setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder("Disabled")
                                         .addOption("bruh", "really")
                                         .setDisabled(true)
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Disabled")
                                         .addOption("bruh", "really")
                                         .setDisabled(true)
@@ -770,16 +812,16 @@ public class API implements RListener, AListener {
         page.timeout.cancel(false);
         page.characters = characters;
         page.characters.sort(Comparator.comparingInt(a -> -a.favorites));
-        message.editOriginalEmbeds(characters.get(0).toEmbed().setFooter("Page 1/" + characters.size()).build()).setActionRows(
+        message.editOriginalEmbeds(characters.get(0).toEmbed().setFooter("Page 1/" + characters.size()).build()).setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder("Sort by popularity")
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by alphabetical order", "alphabetical")
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Animes", "Animes")
                                 .addOption("Mangas", "Mangas")
@@ -792,16 +834,16 @@ public class API implements RListener, AListener {
                 )
         ).complete();
         message.editOriginalComponents()
-                .setActionRows(
+                .setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder("Disabled")
                                         .addOption("bruh", "really")
                                         .setDisabled(true)
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Disabled")
                                         .addOption("bruh", "really")
                                         .setDisabled(true)
@@ -838,7 +880,7 @@ public class API implements RListener, AListener {
      * @param character character with components
      */
     @Override
-    public void sendCharacterAnimes(Character character, SelectMenuInteractionEvent event) {
+    public void sendCharacterAnimes(Character character, StringSelectInteractionEvent event) {
         event.replyEmbeds(
                 new EmbedBuilder()
                         .setTitle(character.name + " Anime List")
@@ -846,16 +888,16 @@ public class API implements RListener, AListener {
                         .build()
         ).setEphemeral(true).queue();
         CharacterPage page = eventToCharacterPage.remove(event);
-        event.getMessage().editMessageComponents().setActionRows(
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort in alphabetical order", "alphabetical")
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Animes", "Animes")
                                 .addOption("Mangas", "Mangas")
@@ -874,7 +916,7 @@ public class API implements RListener, AListener {
      * @param character character with components
      */
     @Override
-    public void sendCharacterMangas(Character character, SelectMenuInteractionEvent event) {
+    public void sendCharacterMangas(Character character, StringSelectInteractionEvent event) {
         event.replyEmbeds(
                 new EmbedBuilder()
                         .setTitle(character.name + " Manga List")
@@ -882,16 +924,16 @@ public class API implements RListener, AListener {
                         .build()
         ).setEphemeral(true).queue();
         CharacterPage page = eventToCharacterPage.remove(event);
-        event.getMessage().editMessageComponents().setActionRows(
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by alphabetical order", "alphabetical")
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Animes", "Animes")
                                 .addOption("Mangas", "Mangas")
@@ -910,7 +952,7 @@ public class API implements RListener, AListener {
      * @param character character with components
      */
     @Override
-    public void sendCharacterVoices(Character character, SelectMenuInteractionEvent event) {
+    public void sendCharacterVoices(Character character, StringSelectInteractionEvent event) {
         event.replyEmbeds(
                 new EmbedBuilder()
                         .setTitle(character.name + " Voice Actor List")
@@ -918,16 +960,16 @@ public class API implements RListener, AListener {
                         .build()
         ).setEphemeral(true).queue();
         CharacterPage page = eventToCharacterPage.remove(event);
-        event.getMessage().editMessageComponents().setActionRows(
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by alphabetical order", "alphabetical")
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Animes", "Animes")
                                 .addOption("Mangas", "Mangas")
@@ -956,7 +998,7 @@ public class API implements RListener, AListener {
      * @param episodes episodes
      */
     @Override
-    public void sendEpisodes(ArrayList<Episode> episodes, SelectMenuInteractionEvent event) {
+    public void sendEpisodes(ArrayList<Episode> episodes, StringSelectInteractionEvent event) {
         AnimePage page = eventToAnimePage.remove(event);
         try {
             ArrayList<StringBuilder> pages = new ArrayList<>();
@@ -991,9 +1033,9 @@ public class API implements RListener, AListener {
             ).complete();
 
             Message message = msg.retrieveOriginal().complete();
-            event.getMessage().editMessageComponents().setActionRows(
+            event.getMessage().editMessageComponents().setComponents(
                     ActionRow.of(
-                            SelectMenu.create("order")
+                            StringSelectMenu.create("order")
                                     .setPlaceholder(page.currentPlaceholder)
                                     .addOption("Sort by popularity", "popularity")
                                     .addOption("Sort by ranks", "ranks")
@@ -1001,7 +1043,7 @@ public class API implements RListener, AListener {
                                     .build()
                     ),
                     ActionRow.of(
-                            SelectMenu.create("components")
+                            StringSelectMenu.create("components")
                                     .setPlaceholder("Show component")
                                     .addOption("Trailer", "Trailer")
                                     .addOption("Episodes", "Episodes")
@@ -1031,9 +1073,9 @@ public class API implements RListener, AListener {
                             .setDescription("Could not find any episodes from that anime! Please try again later!")
                             .build()
             ).setEphemeral(true).queue();
-            event.getMessage().editMessageComponents().setActionRows(
+            event.getMessage().editMessageComponents().setComponents(
                     ActionRow.of(
-                            SelectMenu.create("order")
+                            StringSelectMenu.create("order")
                                     .setPlaceholder(page.currentPlaceholder)
                                     .addOption("Sort by popularity", "popularity")
                                     .addOption("Sort by ranks", "ranks")
@@ -1041,7 +1083,7 @@ public class API implements RListener, AListener {
                                     .build()
                     ),
                     ActionRow.of(
-                            SelectMenu.create("components")
+                            StringSelectMenu.create("components")
                                     .setPlaceholder("Show component")
                                     .addOption("Trailer", "Trailer")
                                     .addOption("Episodes", "Episodes")
@@ -1066,7 +1108,7 @@ public class API implements RListener, AListener {
      * @param characters episodes
      */
     @Override
-    public void sendCharacterList(ArrayList<Character> characters, SelectMenuInteractionEvent event) {
+    public void sendCharacterList(ArrayList<Character> characters, StringSelectInteractionEvent event) {
         AnimePage page = eventToAnimePage.remove(event);
         try {
             ArrayList<StringBuilder> pages = new ArrayList<>();
@@ -1093,9 +1135,9 @@ public class API implements RListener, AListener {
             ).complete();
 
             Message message = msg.retrieveOriginal().complete();
-            event.getMessage().editMessageComponents().setActionRows(
+            event.getMessage().editMessageComponents().setComponents(
                     ActionRow.of(
-                            SelectMenu.create("order")
+                            StringSelectMenu.create("order")
                                     .setPlaceholder(page.currentPlaceholder)
                                     .addOption("Sort by popularity", "popularity")
                                     .addOption("Sort by ranks", "ranks")
@@ -1103,7 +1145,7 @@ public class API implements RListener, AListener {
                                     .build()
                     ),
                     ActionRow.of(
-                            SelectMenu.create("components")
+                            StringSelectMenu.create("components")
                                     .setPlaceholder("Show component")
                                     .addOption("Trailer", "Trailer")
                                     .addOption("Episodes", "Episodes")
@@ -1133,9 +1175,9 @@ public class API implements RListener, AListener {
                             .setDescription("Could not find any characters from that anime! Please try again later!")
                             .build()
             ).setEphemeral(true).queue();
-            event.getMessage().editMessageComponents().setActionRows(
+            event.getMessage().editMessageComponents().setComponents(
                     ActionRow.of(
-                            SelectMenu.create("order")
+                            StringSelectMenu.create("order")
                                     .setPlaceholder(page.currentPlaceholder)
                                     .addOption("Sort by popularity", "popularity")
                                     .addOption("Sort by ranks", "ranks")
@@ -1143,7 +1185,7 @@ public class API implements RListener, AListener {
                                     .build()
                     ),
                     ActionRow.of(
-                            SelectMenu.create("components")
+                            StringSelectMenu.create("components")
                                     .setPlaceholder("Show component")
                                     .addOption("Trailer", "Trailer")
                                     .addOption("Episodes", "Episodes")
@@ -1168,7 +1210,7 @@ public class API implements RListener, AListener {
      * @param articles article list
      */
     @Override
-    public void sendNews(ArrayList<Article> articles, SelectMenuInteractionEvent event) {
+    public void sendNews(ArrayList<Article> articles, StringSelectInteractionEvent event) {
         AnimePage page = eventToAnimePage.remove(event);
         try {
             if(articles == null || articles.isEmpty()) throw new Exception();
@@ -1182,9 +1224,9 @@ public class API implements RListener, AListener {
                     Button.secondary("right", Emoji.fromUnicode("➡"))
             ).complete();
             Message message = m.retrieveOriginal().complete();
-            event.getMessage().editMessageComponents().setActionRows(
+            event.getMessage().editMessageComponents().setComponents(
                     ActionRow.of(
-                            SelectMenu.create("order")
+                            StringSelectMenu.create("order")
                                     .setPlaceholder(page.currentPlaceholder)
                                     .addOption("Sort by popularity", "popularity")
                                     .addOption("Sort by ranks", "ranks")
@@ -1192,7 +1234,7 @@ public class API implements RListener, AListener {
                                     .build()
                     ),
                     ActionRow.of(
-                            SelectMenu.create("components")
+                            StringSelectMenu.create("components")
                                     .setPlaceholder("Show component")
                                     .addOption("Trailer", "Trailer")
                                     .addOption("Episodes", "Episodes")
@@ -1222,9 +1264,9 @@ public class API implements RListener, AListener {
                             .setDescription("Could not find any articles from that anime! Please try again later!")
                             .build()
             ).setEphemeral(true).queue();
-            event.getMessage().editMessageComponents().setActionRows(
+            event.getMessage().editMessageComponents().setComponents(
                     ActionRow.of(
-                            SelectMenu.create("order")
+                            StringSelectMenu.create("order")
                                     .setPlaceholder(page.currentPlaceholder)
                                     .addOption("Sort by popularity", "popularity")
                                     .addOption("Sort by ranks", "ranks")
@@ -1232,7 +1274,7 @@ public class API implements RListener, AListener {
                                     .build()
                     ),
                     ActionRow.of(
-                            SelectMenu.create("components")
+                            StringSelectMenu.create("components")
                                     .setPlaceholder("Show component")
                                     .addOption("Trailer", "Trailer")
                                     .addOption("Episodes", "Episodes")
@@ -1257,12 +1299,12 @@ public class API implements RListener, AListener {
      * @param statistics statistics
      */
     @Override
-    public void sendStatistics(Statistic statistics, SelectMenuInteractionEvent event) {
+    public void sendStatistics(Statistic statistics, StringSelectInteractionEvent event) {
         event.replyEmbeds(statistics.toEmbed().build()).setEphemeral(true).queue();
         AnimePage page = eventToAnimePage.remove(event);
-        event.getMessage().editMessageComponents().setActionRows(
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by ranks", "ranks")
@@ -1270,7 +1312,7 @@ public class API implements RListener, AListener {
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Trailer", "Trailer")
                                 .addOption("Episodes", "Episodes")
@@ -1295,12 +1337,12 @@ public class API implements RListener, AListener {
      * @param themes theme songs
      */
     @Override
-    public void sendThemes(Themes themes, SelectMenuInteractionEvent event) {
+    public void sendThemes(Themes themes, StringSelectInteractionEvent event) {
         event.replyEmbeds(themes.toEmbed().build()).setEphemeral(true).queue();
         AnimePage page = eventToAnimePage.remove(event);
-        event.getMessage().editMessageComponents().setActionRows(
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by ranks", "ranks")
@@ -1308,7 +1350,7 @@ public class API implements RListener, AListener {
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Trailer", "Trailer")
                                 .addOption("Episodes", "Episodes")
@@ -1333,12 +1375,12 @@ public class API implements RListener, AListener {
      * @param recommendation recommendation list
      */
     @Override
-    public void sendRecommendation(Recommendation recommendation, SelectMenuInteractionEvent event) {
+    public void sendRecommendation(Recommendation recommendation, StringSelectInteractionEvent event) {
         event.replyEmbeds(recommendation.toEmbed().build()).setEphemeral(true).queue();
         AnimePage page = eventToAnimePage.remove(event);
-        event.getMessage().editMessageComponents().setActionRows(
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by ranks", "ranks")
@@ -1346,7 +1388,7 @@ public class API implements RListener, AListener {
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Trailer", "Trailer")
                                 .addOption("Episodes", "Episodes")
@@ -1371,12 +1413,12 @@ public class API implements RListener, AListener {
      * @param review top review
      */
     @Override
-    public void sendReview(Review review, SelectMenuInteractionEvent event) {
+    public void sendReview(Review review, StringSelectInteractionEvent event) {
         event.replyEmbeds(review.toEmbed().build()).setEphemeral(true).queue();
         AnimePage page = eventToAnimePage.remove(event);
-        event.getMessage().editMessageComponents().setActionRows(
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by ranks", "ranks")
@@ -1384,7 +1426,7 @@ public class API implements RListener, AListener {
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Trailer", "Trailer")
                                 .addOption("Episodes", "Episodes")
@@ -1557,7 +1599,7 @@ public class API implements RListener, AListener {
                     .setThumbnail("https://cdn.discordapp.com/emojis/738539027401146528.webp?size=80&quality=lossless")
                     .setFooter("You lost " + (-1*xp) + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .build()
-            ).setActionRows(Collections.emptyList()).queueAfter(15, TimeUnit.SECONDS, i -> {
+            ).setComponents(Collections.emptyList()).queueAfter(15, TimeUnit.SECONDS, i -> {
                 Trivia.openGames.remove(msg.getIdLong());
                 Database.addToUserBalance(game.user.getId(), xp);
             });
@@ -1571,7 +1613,7 @@ public class API implements RListener, AListener {
                     .setThumbnail("https://cdn.discordapp.com/emojis/738539027401146528.webp?size=80&quality=lossless")
                     .setFooter("You lost " + (-1*xp) + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                     .build()
-            ).setActionRows(Collections.emptyList()).queueAfter(15, TimeUnit.SECONDS, i -> {
+            ).setComponents(Collections.emptyList()).queueAfter(15, TimeUnit.SECONDS, i -> {
                 Trivia.openGames.remove(msg.getIdLong());
                 Database.addToUserBalance(game.user.getId(), xp);
             });

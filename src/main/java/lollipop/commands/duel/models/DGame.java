@@ -6,9 +6,8 @@ import lollipop.Database;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
-import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.channel.middleman.MessageChannel;
 import net.dv8tion.jda.api.events.interaction.GenericInteractionCreateEvent;
-import net.dv8tion.jda.api.events.interaction.command.GenericCommandInteractionEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
@@ -123,7 +122,7 @@ public class DGame {
         Duel.memberToGame.remove(guestPlayer.getMember().getIdLong());
         Duel.occupiedShards[event.getJDA().getShardInfo().getShardId()]--;
     }
-    public void initiateGame(TextChannel channel) {
+    public void initiateGame(MessageChannel channel) {
         if(this.getMentionMessage() != null) this.getMentionMessage().deleteOriginal().queue();
         if(this.getRequestMessage() != null) this.getRequestMessage().delete().queue();
 
@@ -148,13 +147,17 @@ public class DGame {
                         .setImage(startGifLink)
                         .setFooter("Choose what you want to play... You have 30 seconds to react!")
                         .build()
-        ).setActionRow(Arrays.stream(options).map(DMove::getButton).toArray(Button[]::new)).complete();
+        ).setActionRow(
+                Arrays.stream(options)
+                        .map(DMove::getButton)
+                        .toArray(Button[]::new)
+        ).complete();
 
         this.setupGameTimeout(channel);
     }
 
     public void playTurn(DMove move) {
-        TextChannel channel = this.displayMessage.getTextChannel();
+        MessageChannel channel = this.displayMessage.getChannel();
 
         String turnDescription = performMove(move);
         String moveGif = move.getGif();
@@ -254,7 +257,7 @@ public class DGame {
 
         switch (move.getName()) {
             case "surrender" -> {
-                TextChannel channel = this.displayMessage.getTextChannel();
+                MessageChannel channel = this.displayMessage.getChannel();
 
                 if (this.gameTimeout != null) this.gameTimeout.cancel(false);
                 this.displayMessage.delete().queue();
@@ -399,7 +402,7 @@ public class DGame {
         return turnDescription;
     }
 
-    private void setupGameTimeout(TextChannel channel) {
+    private void setupGameTimeout(MessageChannel channel) {
         if(this.gameTimeout != null && !this.gameTimeout.isCancelled()) this.gameTimeout.cancel(false);
 
         EmbedBuilder embedBuilder = new EmbedBuilder()
@@ -440,7 +443,7 @@ public class DGame {
         this.idlePlayer = temp;
     }
 
-    public boolean checkWin(TextChannel channel) {
+    public boolean checkWin(MessageChannel channel) {
         if(homePlayer.getHP() <= 0) {
             this.gameTimeout.cancel(false);
             this.displayMessage.delete().queue();

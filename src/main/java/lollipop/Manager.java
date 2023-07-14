@@ -13,8 +13,8 @@ import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.Permission;
 import net.dv8tion.jda.api.entities.Guild;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
+import net.dv8tion.jda.api.interactions.commands.DefaultMemberPermissions;
 import net.dv8tion.jda.api.interactions.commands.build.CommandData;
-import net.dv8tion.jda.api.interactions.commands.privileges.CommandPrivilege;
 
 import java.awt.*;
 import java.util.*;
@@ -73,8 +73,8 @@ public class Manager {
      */
     public void reloadCommands(Guild g) {
         //update all commands
-        CommandData dashCmd = new Dashboard().getSlashCmd();
-        CommandData evalCmd = new Eval().getSlashCmd();
+        CommandData dashCmd = new Dashboard().getSlashCmd().setDefaultPermissions(DefaultMemberPermissions.DISABLED);
+        CommandData evalCmd = new Eval().getSlashCmd().setDefaultPermissions(DefaultMemberPermissions.DISABLED);
         g.updateCommands().addCommands(
                 new Duel().getSlashCmd(),
                 new Move().getSlashCmd(),
@@ -103,9 +103,13 @@ public class Manager {
                 new Trivia().getSlashCmd(),
                 new Vote().getSlashCmd()
         ).queue();
-        g.updateCommands()
-                .addCommands(dashCmd.setDefaultEnabled(false), evalCmd.setDefaultEnabled(false))
-        .queue(c -> c.forEach(cmd -> g.updateCommandPrivilegesById(cmd.getId(), CommandPrivilege.enableUser(Constant.OWNER_ID)).queue()));
+        // DEPRECATED FOR NOW
+//        g.updateCommands()
+//                .addCommands(
+//                        dashCmd.setDefaultPermissions(DefaultMemberPermissions.DISABLED),
+//                        evalCmd.setDefaultPermissions(DefaultMemberPermissions.DISABLED)
+//                )
+//                .queue();
     }
 
     /**
