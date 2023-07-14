@@ -43,7 +43,7 @@ public class TriviaListener extends ListenerAdapter {
                                     .setThumbnail("https://cdn.discordapp.com/emojis/738541796174594108.webp?size=80&quality=lossless")
                                     .setFooter("You won " + xp + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                                     .build()
-                    ).setActionRows(Collections.emptyList()).queue();
+                    ).setComponents(Collections.emptyList()).queue();
                 };
                 Runnable failure = () -> {
                     int xp = (int)(Math.random()*21)+40;
@@ -56,7 +56,7 @@ public class TriviaListener extends ListenerAdapter {
                                     .setThumbnail("https://cdn.discordapp.com/emojis/738541796174594108.webp?size=80&quality=lossless")
                                     .setFooter("You won " + xp + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                                     .build()
-                    ).setActionRows(Collections.emptyList()).queue();
+                    ).setComponents(Collections.emptyList()).queue();
                 };
                 BotStatistics.sendMultiplier(game.user.getId(), success, failure);
             } else {
@@ -72,7 +72,7 @@ public class TriviaListener extends ListenerAdapter {
                                     .setThumbnail("https://cdn.discordapp.com/emojis/886080067195772970.webp?size=80&quality=lossless")
                                     .setFooter("You lost " + -xp + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                                     .build()
-                    ).setActionRows(Collections.emptyList()).queue();
+                    ).setComponents(Collections.emptyList()).queue();
                 };
                 Runnable failure = () -> {
                     int xp = (int)(Math.random()*11)-40;
@@ -85,7 +85,7 @@ public class TriviaListener extends ListenerAdapter {
                                     .setThumbnail("https://cdn.discordapp.com/emojis/886080067195772970.webp?size=80&quality=lossless")
                                     .setFooter("You lost " + -xp + " lollipops!", "https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
                                     .build()
-                    ).setActionRows(Collections.emptyList()).queue();
+                    ).setComponents(Collections.emptyList()).queue();
                 };
                 BotStatistics.sendMultiplier(game.user.getId(), success, failure);
             }

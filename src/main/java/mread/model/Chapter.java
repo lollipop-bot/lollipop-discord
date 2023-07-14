@@ -1,6 +1,5 @@
 package mread.model;
 
-import awatch.controller.AConstants;
 import mread.ModelData;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.User;

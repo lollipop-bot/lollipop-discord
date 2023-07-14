@@ -3,7 +3,6 @@ package lollipop.commands;
 import lollipop.*;
 import lollipop.pages.AnimePage;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.ChannelType;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
@@ -58,7 +57,7 @@ public class Random implements Command {
         final java.util.List<OptionMapping> options = event.getOptions();
         final List<String> args = options.stream().map(OptionMapping::getAsString).collect(Collectors.toList());
         boolean nsfw = false;
-        if(event.getChannel().getType() == ChannelType.TEXT) nsfw = event.getTextChannel().isNSFW();
+        if(event.getChannelType().isGuild()) nsfw = event.getGuildChannel().asTextChannel().isNSFW();
         switch (args.get(0)) {
             case "anime" -> {
                 InteractionHook interactionHook = event.replyEmbeds(

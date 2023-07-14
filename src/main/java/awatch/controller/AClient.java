@@ -1,7 +1,7 @@
 package awatch.controller;
 
 import awatch.model.Character;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import threading.ThreadManagement;
 
@@ -64,7 +64,7 @@ public class AClient {
      * Runs a thread to make a get character animes call
      * @param character character
      */
-    public void getCharacterAnimes(Character character, SelectMenuInteractionEvent event) {
+    public void getCharacterAnimes(Character character, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendCharacterAnimes(ALoader.loadCharacterInfo(character), event);
@@ -76,7 +76,7 @@ public class AClient {
      * Runs a thread to make a get character mangas call
      * @param character character
      */
-    public void getCharacterMangas(Character character, SelectMenuInteractionEvent event) {
+    public void getCharacterMangas(Character character, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendCharacterMangas(ALoader.loadCharacterInfo(character), event);
@@ -88,7 +88,7 @@ public class AClient {
      * Runs a thread to make a get character voice actors call
      * @param character character
      */
-    public void getCharacterVoices(Character character, SelectMenuInteractionEvent event) {
+    public void getCharacterVoices(Character character, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendCharacterVoices(ALoader.loadCharacterInfo(character), event);
@@ -111,7 +111,7 @@ public class AClient {
      * Runs a thread to get episodes of an anime
      * @param id MAL id
      */
-    public void getEpisodes(long id, SelectMenuInteractionEvent event) {
+    public void getEpisodes(long id, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendEpisodes(ALoader.loadEpisodes(id), event);
@@ -123,7 +123,7 @@ public class AClient {
      * Runs a thread to get characters of an anime
      * @param id MAL id
      */
-    public void getCharacters(long id, SelectMenuInteractionEvent event) {
+    public void getCharacters(long id, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendCharacterList(ALoader.loadCharacterList(id), event);
@@ -135,7 +135,7 @@ public class AClient {
      * Runs a thread to get news of an anime
      * @param id MAL id
      */
-    public void getNews(long id, SelectMenuInteractionEvent event) {
+    public void getNews(long id, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendNews(ALoader.loadNews(id), event);
@@ -147,7 +147,7 @@ public class AClient {
      * Runs a thread to get the statistics of an anime
      * @param id MAL id
      */
-    public void getStatistics(long id, SelectMenuInteractionEvent event) {
+    public void getStatistics(long id, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendStatistics(ALoader.loadStatistics(id), event);
@@ -159,7 +159,7 @@ public class AClient {
      * Runs a thread to get the themes of an anime
      * @param id MAL id
      */
-    public void getThemes(long id, SelectMenuInteractionEvent event) {
+    public void getThemes(long id, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendThemes(ALoader.loadThemes(id), event);
@@ -171,7 +171,7 @@ public class AClient {
      * Runs a thread to get the recommendations for an anime
      * @param id MAL id
      */
-    public void getRecommendation(long id, SelectMenuInteractionEvent event) {
+    public void getRecommendation(long id, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendRecommendation(ALoader.loadRecommendations(id), event);
@@ -183,7 +183,7 @@ public class AClient {
      * Runs a thread to get the top review of an anime
      * @param id MAL id
      */
-    public void getReview(long id, SelectMenuInteractionEvent event) {
+    public void getReview(long id, StringSelectInteractionEvent event) {
         ThreadManagement.execute(() -> {
             try {
                 listener.sendReview(ALoader.loadReview(id), event);

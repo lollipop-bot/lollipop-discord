@@ -3,7 +3,7 @@ package lollipop.commands.search.animecomps;
 import lollipop.API;
 import lollipop.pages.AnimePage;
 import lollipop.pages.CharacterList;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 
 import java.util.HashMap;
 
@@ -17,7 +17,7 @@ public class Characters {
      * @param event select menu interaction event
      * @param page anime page
      */
-    public static void run(SelectMenuInteractionEvent event, AnimePage page) {
+    public static void run(StringSelectInteractionEvent event, AnimePage page) {
         api.getCharacters(event, page);
     }
 
