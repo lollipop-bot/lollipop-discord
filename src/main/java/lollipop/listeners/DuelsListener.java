@@ -41,7 +41,7 @@ public class DuelsListener extends ListenerAdapter {
             event.deferEdit().queue();
 
             game.getAcceptTimeout().cancel(false);
-            game.initiateGame(event.getTextChannel());
+            game.initiateGame(event.getMessageChannel());
         }
         else if (Objects.equals(event.getButton().getId(), "decline"))
         {

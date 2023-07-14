@@ -4,7 +4,9 @@ import java.util.Set;
 
 import mread.model.Chapter;
 import mread.model.Manga;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import threading.ThreadManagement;
 
@@ -46,14 +48,19 @@ public class RClient {
     }
 
 	// get chapters
-	public void chapters(Manga manga, SelectMenuInteractionEvent event) {
+	public void chapters(Manga manga, StringSelectInteractionEvent event) {
 		ThreadManagement.execute(() -> listener.sendChapters(RLoader.getChapters(manga), event));
 	}
 
 	// get pages
-	public void pages(Chapter chapter, SelectMenuInteractionEvent event) {
+	public void pages(Chapter chapter, StringSelectInteractionEvent event) {
 		ThreadManagement.execute(() -> listener.sendPages(RLoader.getPages(chapter), event));
 	}
+
+    // get pages
+    public void pages(Chapter chapter, Message message, ButtonInteractionEvent event) {
+        ThreadManagement.execute(() -> listener.editPages(RLoader.getPages(chapter), message, event));
+    }
 
 	// get all genres
 	public Set<String> genres() {

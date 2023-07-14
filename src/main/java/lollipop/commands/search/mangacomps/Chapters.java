@@ -3,8 +3,7 @@ package lollipop.commands.search.mangacomps;
 import lollipop.API;
 import lollipop.pages.ChapterList;
 import lollipop.pages.MangaPage;
-import mread.model.Chapter;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 
 import java.util.HashMap;
 
@@ -18,7 +17,7 @@ public class Chapters {
      * @param event select menu interaction
      * @param page manga page
      */
-    public static void run(SelectMenuInteractionEvent event, MangaPage page) {
+    public static void run(StringSelectInteractionEvent event, MangaPage page) {
         api.getChapters(event, page);
     }
 

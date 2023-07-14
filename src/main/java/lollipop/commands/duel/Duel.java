@@ -89,7 +89,7 @@ public class Duel implements Command {
 
             Duel.memberToGame.put(event.getMember().getIdLong(), game);
 
-            game.initiateGame(event.getTextChannel());
+            game.initiateGame(event.getMessageChannel());
         } else if(options.size() == 1) {
             DPlayer homePlayer = new DPlayer(event.getMember());
             BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> homePlayer.setMultiplierStatus(true), () -> homePlayer.setMultiplierStatus(false));
@@ -103,7 +103,7 @@ public class Duel implements Command {
 
                 Duel.memberToGame.put(event.getMember().getIdLong(), game);
 
-                game.initiateGame(event.getTextChannel());
+                game.initiateGame(event.getMessageChannel());
             } else {
                 DPlayer guestPlayer = new DPlayer(options.get(0).getAsMember());
                 BotStatistics.sendMultiplier(homePlayer.getMember().getId(), () -> guestPlayer.setMultiplierStatus(true), () -> guestPlayer.setMultiplierStatus(false));

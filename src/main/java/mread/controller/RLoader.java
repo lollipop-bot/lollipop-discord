@@ -65,6 +65,8 @@ public class RLoader {
      * @return list of chapters
      */
 	public static ArrayList<Chapter> getChapters(Manga manga) {
+        if(manga.chapters != null) return manga.chapters.chapters;
+
 		ArrayList<Chapter> chapterList = new ArrayList<>();
 		String author = null, status = null;
 
@@ -100,6 +102,8 @@ public class RLoader {
      * @return list of pages
      */
 	public static ArrayList<String> getPages(Chapter chapter) {
+        if(chapter.pages != null) return new ArrayList<>(chapter.pages);
+
 		ArrayList<String> pages = new ArrayList<>();
 		try {
 			Element doc = Jsoup.connect(RApiBuilder.buildCombo(chapter.url)).userAgent(RConstants.USER_AGENT).get().body();
@@ -110,6 +114,7 @@ public class RLoader {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+
 		return pages;
     }
 
