@@ -1,6 +1,7 @@
 package lollipop.listeners;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -22,7 +23,7 @@ public class LollipopReaction extends ListenerAdapter {
                 event.getGuild().getSelfMember().hasPermission(event.getGuildChannel(), Permission.MESSAGE_ADD_REACTION) &&
                 event.getGuild().getSelfMember().hasPermission(event.getGuildChannel(), Permission.MESSAGE_HISTORY)) ||
                 !event.getMessage().isFromGuild()))
-            event.getMessage().addReaction("\uD83C\uDF6D").queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDF6D")).queue();
     }
 
 }

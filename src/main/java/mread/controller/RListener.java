@@ -1,10 +1,13 @@
 package mread.controller;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import mread.model.Chapter;
 import mread.model.Manga;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 
 public interface RListener {
@@ -37,13 +40,19 @@ public interface RListener {
      * Sends a list of chapters
      * @param chapters list of chapters
      */
-	void sendChapters(ArrayList<Chapter> chapters, SelectMenuInteractionEvent event);
+	void sendChapters(ArrayList<Chapter> chapters, StringSelectInteractionEvent event);
 
     /**
      * Sends a list of pages
      * @param pages list of pages
      */
-	void sendPages(ArrayList<String> pages, SelectMenuInteractionEvent event);
+	void sendPages(ArrayList<String> pages, StringSelectInteractionEvent event);
+
+    /**
+     * Edits a message with a list of pages
+     * @param pages list of pages
+     */
+    void editPages(ArrayList<String> pages, Message message, ButtonInteractionEvent event);
 
     /**
      * Sends a random manga from MAL

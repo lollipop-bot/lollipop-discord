@@ -2,7 +2,7 @@ package lollipop.commands.search.animecomps;
 
 import lollipop.API;
 import lollipop.pages.AnimePage;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 
 /**
  * Runs a request to get anime themes
@@ -16,7 +16,7 @@ public class Themes {
      * @param event select menu interaction event
      * @param page anime page
      */
-    public static void run(SelectMenuInteractionEvent event, AnimePage page) {
+    public static void run(StringSelectInteractionEvent event, AnimePage page) {
         api.getThemes(event, page);
     }
 

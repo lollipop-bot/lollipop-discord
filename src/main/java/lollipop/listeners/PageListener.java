@@ -12,20 +12,19 @@ import lollipop.commands.search.charactercomps.Mangas;
 import lollipop.commands.search.charactercomps.VoiceActors;
 import lollipop.commands.search.mangacomps.Chapters;
 import lollipop.pages.*;
-import mread.controller.RLoader;
 import mread.model.Chapter;
 import mread.model.Manga;
 import net.dv8tion.jda.api.EmbedBuilder;
-import net.dv8tion.jda.api.entities.Emoji;
 import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
+import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.component.ButtonInteractionEvent;
-import net.dv8tion.jda.api.events.interaction.component.SelectMenuInteractionEvent;
+import net.dv8tion.jda.api.events.interaction.component.StringSelectInteractionEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.interactions.InteractionHook;
 import net.dv8tion.jda.api.interactions.components.ActionRow;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
-import net.dv8tion.jda.api.interactions.components.selections.SelectMenu;
+import net.dv8tion.jda.api.interactions.components.selections.StringSelectMenu;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
@@ -446,12 +445,9 @@ public class PageListener extends ListenerAdapter {
                 }
             }
         }
-        if(ChapterList.messageToChapter.containsKey(id)) {
-            Chapter chapter = ChapterList.messageToChapter.get(id);
-            if(event.getUser() != chapter.user) {
-                event.reply("You can't use the buttons because you didn't use this command! Use the `latest` command to be able to use buttons!").setEphemeral(true).queue();
-                return;
-            }
+        if(ChapterList.messageToChapterList.containsKey(id)) {
+            ChapterList list = ChapterList.messageToChapterList.get(id);
+            Chapter chapter = list.chapters.get(list.currentChapter);
             if(Objects.equals(event.getButton().getId(), "left")) {
                 if(chapter.pageNumber>1)
                     event.editMessageEmbeds(
@@ -477,33 +473,17 @@ public class PageListener extends ListenerAdapter {
                     ).queue();
                 }
             }
-            else if(Objects.equals(event.getButton().getId(), "next"))
-            {
-                //System.out.println("Next chapter");
-                Chapter chapter1;
-                if(chapter.parentList.indexOf(chapter)!=0)
-                    chapter1 = chapter.parentList.get(chapter.parentList.indexOf(chapter)-1);
-                else
-                    chapter1 = chapter.parentList.get(chapter.parentList.size()-1);
-                if(chapter1.pages==null)
-                    chapter1.pages = RLoader.getPages(chapter1);
-                chapter1.user = event.getUser();
-                ChapterList.messageToChapter.put(id, chapter1);
-                event.editMessageEmbeds(chapter1.embedPage(0).build()).queue();
+            // The next chapter and previous chapter index locating are reversed because the chapter list
+            // is also reversed and sorted by most recent chapters.
+            else if(Objects.equals(event.getButton().getId(), "next")) {
+                list.currentChapter = list.currentChapter > 0 ? list.currentChapter-1 : list.chapters.size()-1;
+                Chapter nextChapter = list.chapters.get(list.currentChapter);
+                api.getPages(event, event.getMessage(), nextChapter);
             }
-            else if(Objects.equals(event.getButton().getId(), "last"))
-            {
-                //System.out.println("Next chapter");
-                Chapter chapter1;
-                if(chapter.parentList.indexOf(chapter)!= chapter.parentList.size()-1)
-                    chapter1 = chapter.parentList.get(chapter.parentList.indexOf(chapter)+1);
-                else
-                    chapter1 = chapter.parentList.get(0);
-                if(chapter1.pages==null)
-                    chapter1.pages = RLoader.getPages(chapter1);
-                chapter1.user = event.getUser();
-                ChapterList.messageToChapter.put(id, chapter1);
-                event.editMessageEmbeds(chapter1.embedPage(0).build()).queue();
+            else if(Objects.equals(event.getButton().getId(), "last")) {
+                list.currentChapter = list.currentChapter < list.chapters.size()-1 ? list.currentChapter+1 : 0;
+                Chapter lastChapter = list.chapters.get(list.currentChapter);
+                api.getPages(event, event.getMessage(), lastChapter);
             }
         }
         if(Search.messageToCharacterPage.containsKey(id)) {
@@ -551,28 +531,24 @@ public class PageListener extends ListenerAdapter {
         }
         if(Chapters.messageToPage.containsKey(id)) {
             ChapterList page = Chapters.messageToPage.get(id);
-            if(event.getUser() != page.user) {
-                event.reply("You can't use the buttons because you didn't use this command! Use the `top` command to be able to use buttons!").setEphemeral(true).queue();
-                return;
-            }
             MessageEmbed embed = event.getMessage().getEmbeds().get(0);
             if(Objects.equals(event.getButton().getId(), "left")) {
                 if(page.pageNumber>1) {
                     int startIndex = --page.pageNumber;
                     startIndex--;
                     startIndex *= 4;
-                    List<SelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
+                    List<StringSelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
                     event.editMessageEmbeds(
                             new EmbedBuilder()
                                     .setTitle(embed.getTitle())
                                     .setDescription(embed.getDescription())
                                     .setFooter("Page " + page.pageNumber + "/" + page.pages)
                                     .build()
-                    ).setActionRows(
+                    ).setComponents(
                             ActionRow.of(menus.get(0)),
                             ActionRow.of(
                                     1 >= menus.size() ?
-                                            SelectMenu.create("disabled1")
+                                            StringSelectMenu.create("disabled1")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -581,7 +557,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     2 >= menus.size() ?
-                                            SelectMenu.create("disabled2")
+                                            StringSelectMenu.create("disabled2")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -590,7 +566,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     3 >= menus.size() ?
-                                            SelectMenu.create("disabled3")
+                                            StringSelectMenu.create("disabled3")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -607,18 +583,18 @@ public class PageListener extends ListenerAdapter {
                     int loop = page.pages-1;
                     page.pageNumber = loop+1;
                     int startIndex = (page.pageNumber-1) * 4;
-                    List<SelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
+                    List<StringSelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
                     event.editMessageEmbeds(
                             new EmbedBuilder()
                                     .setTitle(embed.getTitle())
                                     .setDescription(embed.getDescription())
                                     .setFooter("Page " + page.pageNumber + "/" + page.pages)
                                     .build()
-                    ).setActionRows(
+                    ).setComponents(
                             ActionRow.of(menus.get(0)),
                             ActionRow.of(
                                     1 >= menus.size() ?
-                                            SelectMenu.create("disabled1")
+                                            StringSelectMenu.create("disabled1")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -627,7 +603,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     2 >= menus.size() ?
-                                            SelectMenu.create("disabled2")
+                                            StringSelectMenu.create("disabled2")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -636,7 +612,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     3 >= menus.size() ?
-                                            SelectMenu.create("disabled3")
+                                            StringSelectMenu.create("disabled3")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -653,18 +629,18 @@ public class PageListener extends ListenerAdapter {
                 if(page.pageNumber<page.pages) {
                     int startIndex = page.pageNumber++;
                     startIndex *= 4;
-                    List<SelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
+                    List<StringSelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
                     event.editMessageEmbeds(
                             new EmbedBuilder()
                                     .setTitle(embed.getTitle())
                                     .setDescription(embed.getDescription())
                                     .setFooter("Page " + page.pageNumber + "/" + page.pages)
                                     .build()
-                    ).setActionRows(
+                    ).setComponents(
                             ActionRow.of(menus.get(0)),
                             ActionRow.of(
                                     1 >= menus.size() ?
-                                            SelectMenu.create("disabled1")
+                                            StringSelectMenu.create("disabled1")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -673,7 +649,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     2 >= menus.size() ?
-                                            SelectMenu.create("disabled2")
+                                            StringSelectMenu.create("disabled2")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -682,7 +658,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     3 >= menus.size() ?
-                                            SelectMenu.create("disabled3")
+                                            StringSelectMenu.create("disabled3")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -698,18 +674,18 @@ public class PageListener extends ListenerAdapter {
                 else {
                     page.pageNumber = 1;
                     int startIndex = 0;
-                    List<SelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
+                    List<StringSelectMenu> menus = page.menus.subList(startIndex, Math.min(startIndex+4, page.menus.size()));
                     event.editMessageEmbeds(
                             new EmbedBuilder()
                                     .setTitle(embed.getTitle())
                                     .setDescription(embed.getDescription())
                                     .setFooter("Page " + page.pageNumber + "/" + page.pages)
                                     .build()
-                    ).setActionRows(
+                    ).setComponents(
                             ActionRow.of(menus.get(0)),
                             ActionRow.of(
                                     1 >= menus.size() ?
-                                            SelectMenu.create("disabled1")
+                                            StringSelectMenu.create("disabled1")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -718,7 +694,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     2 >= menus.size() ?
-                                            SelectMenu.create("disabled2")
+                                            StringSelectMenu.create("disabled2")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -727,7 +703,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     3 >= menus.size() ?
-                                            SelectMenu.create("disabled3")
+                                            StringSelectMenu.create("disabled3")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -745,7 +721,7 @@ public class PageListener extends ListenerAdapter {
     }
 
     @Override
-    public void onSelectMenuInteraction(@NotNull SelectMenuInteractionEvent event) {
+    public void onStringSelectInteraction(@NotNull StringSelectInteractionEvent event) {
         if(event.getUser().isBot()) return;
         long id = event.getMessageIdLong();
         if(Search.messageToAnimePage.containsKey(id)) {
@@ -762,9 +738,9 @@ public class PageListener extends ListenerAdapter {
                 page.pageNumber = 1;
                 event.editMessageEmbeds(
                         page.animes.get(0).toEmbed().setFooter("Page 1/" + page.animes.size()).build()
-                ).setActionRows(
+                ).setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder(page.currentPlaceholder)
                                         .addOption("Sort by popularity", "popularity")
                                         .addOption("Sort by ranks", "ranks")
@@ -772,7 +748,7 @@ public class PageListener extends ListenerAdapter {
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Show component")
                                         .addOption("Trailer", "Trailer")
                                         .addOption("Episodes", "Episodes")
@@ -795,9 +771,9 @@ public class PageListener extends ListenerAdapter {
                 page.pageNumber = 1;
                 event.editMessageEmbeds(
                         page.animes.get(0).toEmbed().setFooter("Page 1/" + page.animes.size()).build()
-                ).setActionRows(
+                ).setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder(page.currentPlaceholder)
                                         .addOption("Sort by popularity", "popularity")
                                         .addOption("Sort by ranks", "ranks")
@@ -805,7 +781,7 @@ public class PageListener extends ListenerAdapter {
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Show component")
                                         .addOption("Trailer", "Trailer")
                                         .addOption("Episodes", "Episodes")
@@ -828,9 +804,9 @@ public class PageListener extends ListenerAdapter {
                 page.pageNumber = 1;
                 event.editMessageEmbeds(
                         page.animes.get(0).toEmbed().setFooter("Page 1/" + page.animes.size()).build()
-                ).setActionRows(
+                ).setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder(page.currentPlaceholder)
                                         .addOption("Sort by popularity", "popularity")
                                         .addOption("Sort by ranks", "ranks")
@@ -838,7 +814,7 @@ public class PageListener extends ListenerAdapter {
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Show component")
                                         .addOption("Trailer", "Trailer")
                                         .addOption("Episodes", "Episodes")
@@ -872,9 +848,11 @@ public class PageListener extends ListenerAdapter {
                                 Button.secondary("right", Emoji.fromUnicode("➡"))
                         ).setEphemeral(true).complete();
                         Message m = msg.retrieveOriginal().complete();
-                        event.getMessage().editMessageComponents().setActionRows(
+                        event.getMessage().editMessageComponents(
+
+                        ).setComponents(
                                 ActionRow.of(
-                                        SelectMenu.create("order")
+                                        StringSelectMenu.create("order")
                                                 .setPlaceholder(page.currentPlaceholder)
                                                 .addOption("Sort by popularity", "popularity")
                                                 .addOption("Sort by ranks", "ranks")
@@ -882,7 +860,7 @@ public class PageListener extends ListenerAdapter {
                                                 .build()
                                 ),
                                 ActionRow.of(
-                                        SelectMenu.create("components")
+                                        StringSelectMenu.create("components")
                                                 .setPlaceholder("Show component")
                                                 .addOption("Trailer", "Trailer")
                                                 .addOption("Episodes", "Episodes")
@@ -920,9 +898,11 @@ public class PageListener extends ListenerAdapter {
                             Button.secondary("right", Emoji.fromUnicode("➡"))
                     ).setEphemeral(true).complete();
                     Message m = msg.retrieveOriginal().complete();
-                    event.getMessage().editMessageComponents().setActionRows(
+                    event.getMessage().editMessageComponents(
+
+                    ).setComponents(
                             ActionRow.of(
-                                    SelectMenu.create("order")
+                                    StringSelectMenu.create("order")
                                             .setPlaceholder(page.currentPlaceholder)
                                             .addOption("Sort by popularity", "popularity")
                                             .addOption("Sort by ranks", "ranks")
@@ -930,7 +910,7 @@ public class PageListener extends ListenerAdapter {
                                             .build()
                             ),
                             ActionRow.of(
-                                    SelectMenu.create("components")
+                                    StringSelectMenu.create("components")
                                             .setPlaceholder("Show component")
                                             .addOption("Trailer", "Trailer")
                                             .addOption("Episodes", "Episodes")
@@ -1007,17 +987,17 @@ public class PageListener extends ListenerAdapter {
         }
         if(Chapters.messageToPage.containsKey(id)) {
             ChapterList list = Chapters.messageToPage.get(id);
-            /*if(event.getUser() != list.user) {
+            if(event.getUser() != list.user) {
                 event.reply("You can't use the buttons because you didn't use this command! Use the `search` command to be able to use buttons!")
                         .setEphemeral(true)
                         .queue();
                 return;
-            }*/
+            }
             if(event.getInteraction().getValues().get(0).chars().allMatch(java.lang.Character::isDigit)) {
                 int chapterNum = Integer.parseInt(event.getInteraction().getValues().get(0));
+                list.currentChapter = chapterNum;
                 Chapter chapter = list.chapters.get(chapterNum);
-                //Chapters.messageToLastChapter.put(id, chapter);
-                api.getPages(event, chapter);
+                api.getPages(event, list);
             }
         }
         if(Search.messageToMangaPage.containsKey(id)) {
@@ -1034,16 +1014,16 @@ public class PageListener extends ListenerAdapter {
                 page.pageNumber = 1;
                 event.editMessageEmbeds(
                         page.mangas.get(0).toEmbed().setFooter("Page 1/" + page.mangas.size()).build()
-                ).setActionRows(
+                ).setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder(page.currentPlaceholder)
                                         .addOption("Sort by popularity", "views")
                                         .addOption("Sort by ranks", "ranks")
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Show component")
                                         .addOption("Chapters", "Chapters")
                                         .build()
@@ -1059,16 +1039,16 @@ public class PageListener extends ListenerAdapter {
                 page.pageNumber = 1;
                 event.editMessageEmbeds(
                         page.mangas.get(0).toEmbed().setFooter("Page 1/" + page.mangas.size()).build()
-                ).setActionRows(
+                ).setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder(page.currentPlaceholder)
                                         .addOption("Sort by popularity", "views")
                                         .addOption("Sort by score", "score")
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Show component")
                                         .addOption("Chapters", "Chapters")
                                         .build()
@@ -1089,11 +1069,11 @@ public class PageListener extends ListenerAdapter {
                                     .setTitle(manga.title + " Chapter List")
                                     .setFooter("Page 1/" + chapterList.pages)
                                     .build()
-                    ).setEphemeral(true).addActionRows(
+                    ).setComponents(
                             ActionRow.of(chapterList.menus.get(0)),
                             ActionRow.of(
                                     1 >= chapterList.menus.size() ?
-                                            SelectMenu.create("disabled1")
+                                            StringSelectMenu.create("disabled1")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -1102,7 +1082,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     2 >= chapterList.menus.size() ?
-                                            SelectMenu.create("disabled2")
+                                            StringSelectMenu.create("disabled2")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -1111,7 +1091,7 @@ public class PageListener extends ListenerAdapter {
                             ),
                             ActionRow.of(
                                     3 >= chapterList.menus.size() ?
-                                            SelectMenu.create("disabled3")
+                                            StringSelectMenu.create("disabled3")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh","really")
                                                     .setDisabled(true)
@@ -1129,30 +1109,30 @@ public class PageListener extends ListenerAdapter {
 
                     Chapters.messageToPage.put(message.getIdLong(), manga.chapters);
                     msg.editOriginalComponents()
-                            .setActionRows(
+                            .setComponents(
                                     ActionRow.of(
-                                            SelectMenu.create("disabled1")
+                                            StringSelectMenu.create("disabled1")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh", "really")
                                                     .setDisabled(true)
                                                     .build()
                                     ),
                                     ActionRow.of(
-                                            SelectMenu.create("disabled2")
+                                            StringSelectMenu.create("disabled2")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh", "really")
                                                     .setDisabled(true)
                                                     .build()
                                     ),
                                     ActionRow.of(
-                                            SelectMenu.create("disabled3")
+                                            StringSelectMenu.create("disabled3")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh", "really")
                                                     .setDisabled(true)
                                                     .build()
                                     ),
                                     ActionRow.of(
-                                            SelectMenu.create("disabled4")
+                                            StringSelectMenu.create("disabled4")
                                                     .setPlaceholder("Disabled")
                                                     .addOption("bruh", "really")
                                                     .setDisabled(true)
@@ -1180,16 +1160,16 @@ public class PageListener extends ListenerAdapter {
                 page.pageNumber = 1;
                 event.editMessageEmbeds(
                         page.characters.get(0).toEmbed().setFooter("Page 1/" + page.characters.size()).build()
-                ).setActionRows(
+                ).setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder(page.currentPlaceholder)
                                         .addOption("Sort by popularity", "popularity")
                                         .addOption("Sort by alphabetical order", "alphabetical")
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Show component")
                                         .addOption("Animes", "Animes")
                                         .addOption("Mangas", "Mangas")
@@ -1207,16 +1187,16 @@ public class PageListener extends ListenerAdapter {
                 page.pageNumber = 1;
                 event.editMessageEmbeds(
                         page.characters.get(0).toEmbed().setFooter("Page 1/" + page.characters.size()).build()
-                ).setActionRows(
+                ).setComponents(
                         ActionRow.of(
-                                SelectMenu.create("order")
+                                StringSelectMenu.create("order")
                                         .setPlaceholder(page.currentPlaceholder)
                                         .addOption("Sort by popularity", "popularity")
                                         .addOption("Sort by alphabetical order", "alphabetical")
                                         .build()
                         ),
                         ActionRow.of(
-                                SelectMenu.create("components")
+                                StringSelectMenu.create("components")
                                         .setPlaceholder("Show component")
                                         .addOption("Animes", "Animes")
                                         .addOption("Mangas", "Mangas")
@@ -1273,10 +1253,10 @@ public class PageListener extends ListenerAdapter {
         }
     }
 
-    private static void editDefaultSearchComp(SelectMenuInteractionEvent event, AnimePage page) {
-        event.getMessage().editMessageComponents().setActionRows(
+    private static void editDefaultSearchComp(StringSelectInteractionEvent event, AnimePage page) {
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by ranks", "ranks")
@@ -1284,7 +1264,7 @@ public class PageListener extends ListenerAdapter {
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Trailer", "Trailer")
                                 .addOption("Episodes", "Episodes")
@@ -1303,17 +1283,17 @@ public class PageListener extends ListenerAdapter {
         ).queue();
     }
 
-    private static void editDefaultSearchComp(SelectMenuInteractionEvent event, MangaPage page) {
-        event.getMessage().editMessageComponents().setActionRows(
+    private static void editDefaultSearchComp(StringSelectInteractionEvent event, MangaPage page) {
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "views")
                                 .addOption("Sort by ranks", "ranks")
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Chapters", "Chapters")
                                 .build()
@@ -1325,17 +1305,17 @@ public class PageListener extends ListenerAdapter {
         ).queue();
     }
 
-    private static void editDefaultSearchComp(SelectMenuInteractionEvent event, CharacterPage page) {
-        event.getMessage().editMessageComponents().setActionRows(
+    private static void editDefaultSearchComp(StringSelectInteractionEvent event, CharacterPage page) {
+        event.getMessage().editMessageComponents().setComponents(
                 ActionRow.of(
-                        SelectMenu.create("order")
+                        StringSelectMenu.create("order")
                                 .setPlaceholder(page.currentPlaceholder)
                                 .addOption("Sort by popularity", "popularity")
                                 .addOption("Sort by alphabetical order", "alphabetical")
                                 .build()
                 ),
                 ActionRow.of(
-                        SelectMenu.create("components")
+                        StringSelectMenu.create("components")
                                 .setPlaceholder("Show component")
                                 .addOption("Animes", "Animes")
                                 .addOption("Mangas", "Mangas")
