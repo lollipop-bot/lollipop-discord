@@ -12,6 +12,7 @@ import lollipop.commands.search.charactercomps.Mangas;
 import lollipop.commands.search.charactercomps.VoiceActors;
 import lollipop.commands.search.mangacomps.Chapters;
 import lollipop.pages.*;
+import mread.controller.RLoader;
 import mread.model.Chapter;
 import mread.model.Manga;
 import net.dv8tion.jda.api.EmbedBuilder;
@@ -987,12 +988,12 @@ public class PageListener extends ListenerAdapter {
         }
         if(Chapters.messageToPage.containsKey(id)) {
             ChapterList list = Chapters.messageToPage.get(id);
-            if(event.getUser() != list.user) {
+            /*if(event.getUser() != list.user) {
                 event.reply("You can't use the buttons because you didn't use this command! Use the `search` command to be able to use buttons!")
                         .setEphemeral(true)
                         .queue();
                 return;
-            }
+            }*/
             if(event.getInteraction().getValues().get(0).chars().allMatch(java.lang.Character::isDigit)) {
                 int chapterNum = Integer.parseInt(event.getInteraction().getValues().get(0));
                 list.currentChapter = chapterNum;
