@@ -80,13 +80,9 @@ public class RLoader {
 				String title = chp.select("a").text();
 				String url = chp.select("a").attr("href");
 				String pub = chp.select("td[class=episode-date]").text();
-				Chapter chapter = new Chapter(title, url, pub, null, chapterList);
+				Chapter chapter = new Chapter(title, url, pub, null);
 				chapterList.add(chapter);
 			}
-            for(Chapter ch : chapterList)
-            {
-                ch.parentList = chapterList;
-            }
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
