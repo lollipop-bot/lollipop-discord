@@ -34,7 +34,7 @@ public class Main {
         DefaultShardManagerBuilder lollipop = DefaultShardManagerBuilder.createDefault(Secret.TOKEN)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.streaming("anime | " + Constant.PREFIX + "help", "https://www.twitch.tv/lollipopbot1"))
                 .setShardsTotal(4)
                 .addEventListeners(new Listener())
