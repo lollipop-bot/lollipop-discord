@@ -32,22 +32,31 @@ public class DuelsListener extends ListenerAdapter {
 
         DGame game = Duel.memberToGame.get(event.getMember().getIdLong());
 
-        if(event.getMember().getIdLong() == game.getGuestPlayer().getMember().getIdLong()) {
-            event.replyEmbeds(new EmbedBuilder()
-                    .setDescription("It is not your turn yet! Please wait for your turn.")
-                    .setColor(Color.red)
-                    .build()
-            ).setEphemeral(true).queue();
-            return;
-        }
-
         if(Objects.equals(event.getButton().getId(), "accept")) {
+            if(event.getMember().getIdLong() != game.getGuestPlayer().getMember().getIdLong()) {
+                event.replyEmbeds(new EmbedBuilder()
+                        .setDescription("The duel request wasn't intended towards you!")
+                        .setColor(Color.red)
+                        .build()
+                ).setEphemeral(true).queue();
+                return;
+            }
+
             event.deferEdit().queue();
 
             game.getAcceptTimeout().cancel(false);
             game.initiateGame(event.getMessageChannel());
         }
         else if (Objects.equals(event.getButton().getId(), "decline")) {
+            if(event.getMember().getIdLong() != game.getGuestPlayer().getMember().getIdLong()) {
+                event.replyEmbeds(new EmbedBuilder()
+                        .setDescription("The duel request wasn't intended towards you!")
+                        .setColor(Color.red)
+                        .build()
+                ).setEphemeral(true).queue();
+                return;
+            }
+
             game.getAcceptTimeout().cancel(false);
             event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                     .setDescription(game.getGuestPlayer().getMember().getAsMention() + " did not accept youre duel request...")
@@ -58,7 +67,7 @@ public class DuelsListener extends ListenerAdapter {
         else {
             if(event.getMessage().getIdLong() != game.getDisplayMessage().getIdLong()) return;
 
-            if(event.getMember() != game.getTurnPlayer().getMember() && !event.getButton().getLabel().equals("surrender")) {
+            if(event.getMember().getIdLong() != game.getTurnPlayer().getMember().getIdLong()) {
                 event.replyEmbeds(new EmbedBuilder()
                         .setDescription("**It is not your turn! Please wait for the other player to finish his turn!**")
                         .setColor(Color.red)
