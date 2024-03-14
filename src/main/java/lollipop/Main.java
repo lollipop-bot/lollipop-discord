@@ -42,7 +42,7 @@ public class Main {
                 .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
                 .addEventListeners(new LeaderboardListener())
-                .addEventListeners(new LollipopReaction())
+//                .addEventListeners(new LollipopReaction())
                 .addEventListeners(new BotStatistics());
         ShardManager bot = lollipop.build();
 
@@ -56,8 +56,8 @@ public class Main {
                 .addEventListeners(new DuelsListener())
                 .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
-                .addEventListeners(new LeaderboardListener())
-                .addEventListeners(new LollipopReaction());
+                .addEventListeners(new LeaderboardListener());
+//                .addEventListeners(new LollipopReaction());
         //JDA test = testClient.build();
 
         // Setup Cache Refresh Cycle and heartbeat for statuspage

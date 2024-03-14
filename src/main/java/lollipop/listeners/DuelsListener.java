@@ -69,7 +69,7 @@ public class DuelsListener extends ListenerAdapter {
 
             if(event.getMember().getIdLong() != game.getTurnPlayer().getMember().getIdLong()) {
                 event.replyEmbeds(new EmbedBuilder()
-                        .setDescription("**It is not your turn! Please wait for the other player to finish his turn!**")
+                        .setDescription("**It is not your turn! Please wait for the other player to finish their turn!**")
                         .setColor(Color.red)
                         .setFooter("If you have not started a duel yet, you can do so by typing " + Constant.PREFIX + "duel")
                         .build()

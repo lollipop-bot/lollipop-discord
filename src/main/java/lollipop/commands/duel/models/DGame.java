@@ -95,17 +95,15 @@ public class DGame {
     }
 
     public void sendDuelRequest(SlashCommandInteractionEvent event) {
-        event.reply(guestPlayer.getMember().getAsMention()).queue(this::setMentionMessage);
-        this.setRequestMessage(
-                event.getChannel().sendMessageEmbeds(new EmbedBuilder()
-                        .setDescription(homePlayer.getMember().getAsMention() + " requested to duel you! Do you accept their duel request?")
-                        .setFooter("Quick! You have 30 seconds to accept!")
-                        .build()
-                ).setActionRow(
-                        Button.primary("accept", "accept"),
-                        Button.danger("decline", "decline")
-                ).complete()
-        );
+        this.setMentionMessage(event.reply(guestPlayer.getMember().getAsMention()).complete());
+        event.getChannel().sendMessageEmbeds(new EmbedBuilder()
+                .setDescription(homePlayer.getMember().getAsMention() + " requested to duel you! Do you accept their duel request?")
+                .setFooter("Quick! You have 30 seconds to accept!")
+                .build()
+        ).setActionRow(
+                Button.primary("accept", "accept"),
+                Button.danger("decline", "decline")
+        ).queue(this::setRequestMessage);
 
         this.acceptTimeout = event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                 .setDescription(guestPlayer.getMember().getAsMention() + " didn't arrive in time! The duel request expired...")
