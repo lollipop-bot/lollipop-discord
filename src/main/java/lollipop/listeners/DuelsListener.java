@@ -25,34 +25,29 @@ public class DuelsListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if(!event.isFromGuild()) return;
-        if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) return;
+        if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) {
+            event.deferReply().queue();
+            return;
+        }
 
         DGame game = Duel.memberToGame.get(event.getMember().getIdLong());
 
+        if(event.getMember().getIdLong() == game.getGuestPlayer().getMember().getIdLong()) {
+            event.replyEmbeds(new EmbedBuilder()
+                    .setDescription("It is not your turn yet! Please wait for your turn.")
+                    .setColor(Color.red)
+                    .build()
+            ).setEphemeral(true).queue();
+            return;
+        }
+
         if(Objects.equals(event.getButton().getId(), "accept")) {
-            if(event.getMember() != game.getGuestPlayer().getMember()) {
-                event.replyEmbeds(new EmbedBuilder()
-                        .setDescription("This message was not intended towards you!")
-                        .setColor(Color.red)
-                        .build()
-                ).setEphemeral(true).queue();
-                return;
-            }
             event.deferEdit().queue();
 
             game.getAcceptTimeout().cancel(false);
             game.initiateGame(event.getMessageChannel());
         }
-        else if (Objects.equals(event.getButton().getId(), "decline"))
-        {
-            if(event.getMember() != game.getGuestPlayer().getMember()) {
-                event.replyEmbeds(new EmbedBuilder()
-                        .setDescription("This message was not intended towards you!")
-                        .setColor(Color.red)
-                        .build()
-                ).setEphemeral(true).queue();
-                return;
-            }
+        else if (Objects.equals(event.getButton().getId(), "decline")) {
             game.getAcceptTimeout().cancel(false);
             event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                     .setDescription(game.getGuestPlayer().getMember().getAsMention() + " did not accept youre duel request...")
