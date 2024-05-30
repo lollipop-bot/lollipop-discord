@@ -11,7 +11,7 @@ class RApiBuilder {
      * @return string
      */
 	public static String buildBrowse(int page) {
-		return String.format(RConstants.BROWSE, page);
+		return String.format(RConstants.POPULAR_URL, page);
 	}
 
     /**

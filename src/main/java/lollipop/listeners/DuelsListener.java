@@ -25,14 +25,19 @@ public class DuelsListener extends ListenerAdapter {
     @Override
     public void onButtonInteraction(@NotNull ButtonInteractionEvent event) {
         if(!event.isFromGuild()) return;
-        if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) {
-            event.deferReply().queue();
-            return;
-        }
+        if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) return;
 
         DGame game = Duel.memberToGame.get(event.getMember().getIdLong());
 
         if(Objects.equals(event.getButton().getId(), "accept")) {
+            if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) {
+                event.replyEmbeds(new EmbedBuilder()
+                        .setDescription("You aren't participating in any duels!")
+                        .setColor(Color.red)
+                        .build()
+                ).setEphemeral(true).queue();
+                return;
+            }
             if(event.getMember().getIdLong() != game.getGuestPlayer().getMember().getIdLong()) {
                 event.replyEmbeds(new EmbedBuilder()
                         .setDescription("The duel request wasn't intended towards you!")
@@ -48,6 +53,14 @@ public class DuelsListener extends ListenerAdapter {
             game.initiateGame(event.getMessageChannel());
         }
         else if (Objects.equals(event.getButton().getId(), "decline")) {
+            if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) {
+                event.replyEmbeds(new EmbedBuilder()
+                        .setDescription("You aren't participating in any duels!")
+                        .setColor(Color.red)
+                        .build()
+                ).setEphemeral(true).queue();
+                return;
+            }
             if(event.getMember().getIdLong() != game.getGuestPlayer().getMember().getIdLong()) {
                 event.replyEmbeds(new EmbedBuilder()
                         .setDescription("The duel request wasn't intended towards you!")
@@ -66,6 +79,14 @@ public class DuelsListener extends ListenerAdapter {
         }
         else {
             if(event.getMessage().getIdLong() != game.getDisplayMessage().getIdLong()) return;
+            if(!Duel.memberToGame.containsKey(event.getMember().getIdLong())) {
+                event.replyEmbeds(new EmbedBuilder()
+                        .setDescription("You aren't participating in any duels!")
+                        .setColor(Color.red)
+                        .build()
+                ).setEphemeral(true).queue();
+                return;
+            }
 
             if(event.getMember().getIdLong() != game.getTurnPlayer().getMember().getIdLong()) {
                 event.replyEmbeds(new EmbedBuilder()
