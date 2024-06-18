@@ -96,7 +96,7 @@ public class Search implements Command {
         else if(args.get(0).equalsIgnoreCase("anime")) {
             try {
                 String query = String.join(" ", args.subList(1, args.size())).toLowerCase();
-                InteractionHook msg = event.replyEmbeds(new EmbedBuilder().setDescription("Searching for `" + query + "`...").build()).complete();
+                InteractionHook msg = event.replyEmbeds(new EmbedBuilder().setDescription("Searching for the `" + query + "` related animes...").build()).complete();
                 ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
                         .setColor(Color.red)
                         .setDescription("""
@@ -117,7 +117,7 @@ public class Search implements Command {
             String query = String.join(" ", args.subList(1, args.size())).toLowerCase();
             InteractionHook msg = event.replyEmbeds(
                     new EmbedBuilder()
-                            .setDescription("Searching for `" + query + "`...")
+                            .setDescription("Searching for  the `" + query + "` related mangas...")
                             .build()
             ).complete();
             ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
@@ -138,7 +138,7 @@ public class Search implements Command {
         else if(args.get(0).equalsIgnoreCase("user")) {
             try {
                 String query = String.join(" ", args.subList(1, args.size())).toLowerCase();
-                InteractionHook msg = event.replyEmbeds(new EmbedBuilder().setDescription("Searching for `" + query + "`...").build()).complete();
+                InteractionHook msg = event.replyEmbeds(new EmbedBuilder().setDescription("Searching for the `" + query + "` related characters...").build()).complete();
                 ScheduledFuture<?> timeout = msg.editOriginalEmbeds(new EmbedBuilder()
                         .setColor(Color.red)
                         .setDescription("Could not find a user with that username on [MAL](https://myanimelist.net/), in which case you can try again with a valid username" +

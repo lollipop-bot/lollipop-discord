@@ -34,7 +34,7 @@ public class Main {
         DefaultShardManagerBuilder lollipop = DefaultShardManagerBuilder.createDefault(Secret.TOKEN)
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.MESSAGE_CONTENT)
+                .enableIntents(GatewayIntent.GUILD_MEMBERS)
                 .setActivity(Activity.streaming("anime | " + Constant.PREFIX + "help", "https://www.twitch.tv/lollipopbot1"))
                 .setShardsTotal(4)
                 .addEventListeners(new Listener())
@@ -42,7 +42,7 @@ public class Main {
                 .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
                 .addEventListeners(new LeaderboardListener())
-                .addEventListeners(new LollipopReaction())
+//                .addEventListeners(new LollipopReaction())
                 .addEventListeners(new BotStatistics());
         ShardManager bot = lollipop.build();
 
@@ -56,8 +56,8 @@ public class Main {
                 .addEventListeners(new DuelsListener())
                 .addEventListeners(new TriviaListener())
                 .addEventListeners(new PageListener())
-                .addEventListeners(new LeaderboardListener())
-                .addEventListeners(new LollipopReaction());
+                .addEventListeners(new LeaderboardListener());
+//                .addEventListeners(new LollipopReaction());
         //JDA test = testClient.build();
 
         // Setup Cache Refresh Cycle and heartbeat for statuspage
