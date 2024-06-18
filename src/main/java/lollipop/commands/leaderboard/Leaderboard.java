@@ -15,6 +15,7 @@ import net.dv8tion.jda.api.interactions.commands.build.OptionData;
 import net.dv8tion.jda.api.interactions.components.buttons.Button;
 
 import java.awt.*;
+import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ScheduledFuture;
@@ -71,15 +72,18 @@ public class Leaderboard implements Command {
             String userId = author.getId();
 
             List<LBMember> memberList = Database.getLeaderboard(event.getGuild()).get(0);
-            LBMember cMember = new LBMember(Database.getUserGuildRank(userId, event.getGuild()), author.getAsTag(), Database.getUserBalance(userId));
+            LBMember cMember = new LBMember(Database.getUserGuildRank(userId, event.getGuild()), author.getName(), Database.getUserBalance(userId));
 
             if(memberList.isEmpty()) {
                 event.reply("No members on the page").setEphemeral(true).queue();
                 return;
             }
-
+            String tmp = event.getGuild().getName() + "'s Leaderboard";
+            StringBuilder sb = new StringBuilder(tmp);
+            while(sb.length()<130)
+                sb.append("\u200E ");
             EmbedBuilder embed = new EmbedBuilder()
-                    .setTitle(event.getGuild().getName() + "'s Leaderboard")
+                    .setTitle(sb.toString())
                     .setDescription("```" + getTable(memberList) + "```")
                     .addField("Your Rank", "`" + cMember.getRank() + ". " + cMember.getName() + " : " + cMember.getLollipops() + "`", false)
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
@@ -108,15 +112,17 @@ public class Leaderboard implements Command {
             String userId = author.getId();
 
             List<LBMember> memberList = Database.getLeaderboard(event.getJDA()).get(0);
-            LBMember cMember = new LBMember(Database.getUserGlobalRank(userId), author.getAsTag(), Database.getUserBalance(userId));
+            LBMember cMember = new LBMember(Database.getUserGlobalRank(userId), author.getName(), Database.getUserBalance(userId));
 
             if(memberList.isEmpty()) {
                 event.reply("No members on the page").setEphemeral(true).queue();
                 return;
             }
-
+            StringBuilder sb = new StringBuilder("Global Leaderboard");
+            while(sb.length()<130)
+                sb.append("\u200E ");
             EmbedBuilder embed = new EmbedBuilder()
-                    .setTitle("Global Leaderboard")
+                    .setTitle(sb.toString())
                     .setDescription("```" + getTable(memberList) + "```")
                     .addField("Your Rank", "`" + cMember.getRank() + ". " + cMember.getName() + " : " + cMember.getLollipops() + "`", false)
                     .setThumbnail("https://www.dictionary.com/e/wp-content/uploads/2018/11/lollipop-emoji.png")
