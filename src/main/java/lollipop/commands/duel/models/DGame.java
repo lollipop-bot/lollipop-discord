@@ -95,7 +95,7 @@ public class DGame {
     }
 
     public void sendDuelRequest(SlashCommandInteractionEvent event) {
-        event.reply(guestPlayer.getMember().getAsMention()).queue(this::setMentionMessage);
+        this.setMentionMessage(event.reply(guestPlayer.getMember().getAsMention()).complete());
         event.getChannel().sendMessageEmbeds(new EmbedBuilder()
                 .setDescription(homePlayer.getMember().getAsMention() + " requested to duel you! Do you accept their duel request?")
                 .setFooter("Quick! You have 30 seconds to accept!")

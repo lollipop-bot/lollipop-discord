@@ -67,14 +67,12 @@ public class ThreadManagement {
                 con.setRequestMethod("GET");
                 con.setRequestProperty("Content-Type", "application/json");
                 con.setRequestProperty("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/65.0.3325.181 Safari/537.36");
-                con.setConnectTimeout(5000); // Sets Connection Timeout to 5 seconds
-                con.setReadTimeout(5000); // Sets Read Timeout to 5 seconds
                 con.getInputStream();
             } catch(IOException e) {
                 throw new RuntimeException(e);
             }
         };
-        scheduler.scheduleAtFixedRate(heartbeat, 0, 15, TimeUnit.MINUTES);
+        scheduler.scheduleAtFixedRate(heartbeat, 0, 1, TimeUnit.HOURS);
     }
 
 }

@@ -128,7 +128,7 @@ public class RLoader {
 			data.put("phrase", query);
 			HashMap<String, String> headers = new HashMap<>();
 			headers.put("X-Requested-With", "XMLHttpRequest");
-			String doc = Jsoup.connect("https://www.readm.org/service/search").timeout(RConstants.TIMEOUT)
+			String doc = Jsoup.connect(RConstants.SEARCH_URL).timeout(RConstants.TIMEOUT)
 					.userAgent(RConstants.USER_AGENT).ignoreHttpErrors(true).headers(headers).data(data)
 					.ignoreContentType(true).post().select("body").text();
 			DataObject json = DataObject.fromJson(doc);
@@ -175,7 +175,7 @@ public class RLoader {
         ArrayList<Manga> popular = new ArrayList<>();
 
         try {
-            Element doc = Jsoup.connect("https://readm.org/popular-manga/").timeout(RConstants.TIMEOUT)
+            Element doc = Jsoup.connect(RConstants.POPULAR_URL).timeout(RConstants.TIMEOUT)
                     .userAgent(RConstants.USER_AGENT).get().body();
             for(Element result : doc.select("div[class=ui mb-lg mt-0]").select("ul[class=filter-results]").select("li[class=mb-lg]")) {
                 if(popular.size() >= 20) break;
@@ -198,7 +198,7 @@ public class RLoader {
         ArrayList<Manga> top = new ArrayList<>();
 
         try {
-            Element doc = Jsoup.connect("https://readm.org/popular-manga/rating/").timeout(RConstants.TIMEOUT)
+            Element doc = Jsoup.connect(RConstants.TOP_URL).timeout(RConstants.TIMEOUT)
                     .userAgent(RConstants.USER_AGENT).get().body();
             for(Element result : doc.select("div[class=ui mb-lg mt-0]").select("ul[class=filter-results]").select("li[class=mb-lg]")) {
                 if(top.size() >= 20) break;
@@ -221,7 +221,7 @@ public class RLoader {
         ArrayList<Manga> latest = new ArrayList<>();
 
         try {
-            Element doc = Jsoup.connect("https://readm.org/latest-releases/").timeout(RConstants.TIMEOUT)
+            Element doc = Jsoup.connect(RConstants.LATEST_URL).timeout(RConstants.TIMEOUT)
                     .userAgent(RConstants.USER_AGENT).get().body();
             for(Element result : doc.select("div[class=dark-segment]").select("ul[class=clearfix latest-updates]").select("li[class=segment-poster-sm]")) {
                 if(latest.size() >= 25) break;

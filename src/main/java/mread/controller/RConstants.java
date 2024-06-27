@@ -8,16 +8,24 @@ import java.util.HashMap;
 class RConstants {
 
     // base website scraped to retrieve data
-	public static final String BASE_URL = "https://www.readm.org/";
+	public static final String BASE_URL = "https://www.readm.today/";
 
-	// string format, [page]
-	public static final String BROWSE = "https://www.readm.org/popular-manga/%d";
+    public static final String SEARCH_URL = BASE_URL + "service/search";
+
+	public static final String POPULAR_URL = BASE_URL + "popular-manga/";
+
+    public static final String TOP_URL = POPULAR_URL + "rating/";
+
+    public static final String LATEST_URL = BASE_URL + "latest-releases/";
+
+    // string format, [page]
+    public static final String BROWSE = BASE_URL + "popular-manga/%d";
 
 	// string format, [category name, page]
-	public static final String BROWSE_CAT = "https://www.readm.org/category/%s/%d";
+	public static final String BROWSE_CAT = BASE_URL + "category/%s/%d";
 
 	// string format [manga url, page no]
-	public static final String CHAPTER_URL = "https://www.readm.org/%s/%d/all-pages";
+	public static final String CHAPTER_URL = BASE_URL + "%s/%d/all-pages";
 
 	// user agent
 	public static final String USER_AGENT = "Mozilla/5.0 (Windows; U; Windows NT 6.1; rv:2.2) Gecko/20110201";
